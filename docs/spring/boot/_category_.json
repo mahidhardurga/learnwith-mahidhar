@@ -1,0 +1,8 @@
+{
+  "label": "Spring Boot",
+  "position": 2,
+  "link": {
+    "type": "doc",
+    "id": "spring/boot/overview"
+  }
+}

@@ -1,0 +1,407 @@
+[
+ {
+  "path": "/java/core-java/oop-and-design",
+  "title": "OOP and design principles",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/collections-framework",
+  "title": "Collections framework",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/equals-hashcode",
+  "title": "equals, hashCode, compareTo",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/exceptions",
+  "title": "Exception handling",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/streams-and-lambdas",
+  "title": "Streams and lambdas",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/modern-java",
+  "title": "Java 8 to 25 features",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/core-java/hashmap-internals",
+  "title": "HashMap internals",
+  "level": "mid"
+ },
+ {
+  "path": "/java/core-java/concurrenthashmap",
+  "title": "ConcurrentHashMap",
+  "level": "mid"
+ },
+ {
+  "path": "/java/core-java/generics",
+  "title": "Generics and PECS",
+  "level": "mid"
+ },
+ {
+  "path": "/java/core-java/immutability",
+  "title": "Immutability",
+  "level": "mid"
+ },
+ {
+  "path": "/java/concurrency-jvm/threads-basics",
+  "title": "Threads fundamentals",
+  "level": "beginner"
+ },
+ {
+  "path": "/java/concurrency-jvm/executors",
+  "title": "Executors and thread pools",
+  "level": "mid"
+ },
+ {
+  "path": "/java/concurrency-jvm/completablefuture",
+  "title": "CompletableFuture",
+  "level": "mid"
+ },
+ {
+  "path": "/java/concurrency-jvm/synchronization-and-locks",
+  "title": "synchronized, volatile, locks",
+  "level": "mid"
+ },
+ {
+  "path": "/java/concurrency-jvm/garbage-collection",
+  "title": "Garbage collection",
+  "level": "mid"
+ },
+ {
+  "path": "/java/concurrency-jvm/memory-model",
+  "title": "Java Memory Model",
+  "level": "senior"
+ },
+ {
+  "path": "/java/concurrency-jvm/jvm-tuning-diagnostics",
+  "title": "JVM tuning and diagnostics",
+  "level": "senior"
+ },
+ {
+  "path": "/java/concurrency-jvm/virtual-threads",
+  "title": "Virtual threads",
+  "level": "senior"
+ },
+ {
+  "path": "/spring/core/ioc-and-dependency-injection",
+  "title": "IoC and dependency injection",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/core/bean-lifecycle-and-scopes",
+  "title": "Bean lifecycle and scopes",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/core/aop-and-proxies",
+  "title": "AOP and proxies",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/core/configuration-profiles-conditions",
+  "title": "Configuration, profiles, conditions",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/core/application-events",
+  "title": "Application events",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/boot/overview",
+  "title": "Spring Boot overview",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/starters",
+  "title": "Starters and dependency management",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/configuration",
+  "title": "Configuration and properties",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/exception-handling",
+  "title": "REST exception handling",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/validation",
+  "title": "Bean validation",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/testing-basics",
+  "title": "Testing: JUnit and Mockito",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/boot/auto-configuration",
+  "title": "Auto-configuration",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/boot/actuator",
+  "title": "Actuator",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/boot/testing-slices-testcontainers",
+  "title": "Slice tests and Testcontainers",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/data/jpa-basics",
+  "title": "JPA and Hibernate basics",
+  "level": "beginner"
+ },
+ {
+  "path": "/spring/data/n-plus-one-lazy-loading",
+  "title": "N+1 and lazy loading",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/data/transactions",
+  "title": "Transactions",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/data/sql-tuning-indexing",
+  "title": "SQL tuning and indexing",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/data/caching",
+  "title": "Caching",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/data/locking",
+  "title": "Optimistic and pessimistic locking",
+  "level": "senior"
+ },
+ {
+  "path": "/spring/security/security-architecture",
+  "title": "Security architecture",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/security/jwt",
+  "title": "JWT",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/security/common-vulnerabilities",
+  "title": "Common vulnerabilities",
+  "level": "mid"
+ },
+ {
+  "path": "/spring/security/method-security",
+  "title": "Method security",
+  "level": "senior"
+ },
+ {
+  "path": "/spring/security/oauth2-oidc",
+  "title": "OAuth2 and OIDC",
+  "level": "senior"
+ },
+ {
+  "path": "/microservices/overview",
+  "title": "Microservices overview",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/infrastructure/api-gateway",
+  "title": "API gateway",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/infrastructure/service-discovery",
+  "title": "Service discovery",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/infrastructure/config-server",
+  "title": "Config server",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/communication/service-communication",
+  "title": "Service communication",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/resilience/resilience4j",
+  "title": "Resilience4j",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/observability",
+  "title": "Observability",
+  "level": "mid"
+ },
+ {
+  "path": "/microservices/data-consistency/saga",
+  "title": "Saga pattern",
+  "level": "senior"
+ },
+ {
+  "path": "/microservices/data-consistency/cqrs-event-sourcing",
+  "title": "CQRS and event sourcing",
+  "level": "senior"
+ },
+ {
+  "path": "/microservices/data-consistency/outbox-idempotency",
+  "title": "Outbox and idempotency",
+  "level": "senior"
+ },
+ {
+  "path": "/databases/relational-design",
+  "title": "Relational design",
+  "level": "beginner"
+ },
+ {
+  "path": "/databases/sql-patterns",
+  "title": "SQL patterns",
+  "level": "beginner"
+ },
+ {
+  "path": "/databases/nosql-and-redis",
+  "title": "NoSQL and Redis",
+  "level": "mid"
+ },
+ {
+  "path": "/databases/schema-migrations",
+  "title": "Schema migrations",
+  "level": "mid"
+ },
+ {
+  "path": "/databases/acid-isolation-mvcc",
+  "title": "ACID, isolation and MVCC",
+  "level": "senior"
+ },
+ {
+  "path": "/databases/replication-sharding",
+  "title": "Replication and sharding",
+  "level": "senior"
+ },
+ {
+  "path": "/messaging/kafka-fundamentals",
+  "title": "Kafka fundamentals",
+  "level": "mid"
+ },
+ {
+  "path": "/messaging/kafka-consumers-offsets",
+  "title": "Kafka consumers and offsets",
+  "level": "mid"
+ },
+ {
+  "path": "/messaging/rabbitmq-basics",
+  "title": "RabbitMQ basics",
+  "level": "mid"
+ },
+ {
+  "path": "/messaging/kafka-ordering-design",
+  "title": "Kafka ordering and error handling",
+  "level": "senior"
+ },
+ {
+  "path": "/devops/docker-for-java",
+  "title": "Docker for Java",
+  "level": "beginner"
+ },
+ {
+  "path": "/devops/kubernetes-basics",
+  "title": "Kubernetes basics",
+  "level": "mid"
+ },
+ {
+  "path": "/devops/ci-cd",
+  "title": "CI/CD",
+  "level": "mid"
+ },
+ {
+  "path": "/devops/twelve-factor",
+  "title": "Twelve-factor apps",
+  "level": "mid"
+ },
+ {
+  "path": "/devops/deployment-strategies",
+  "title": "Deployment strategies",
+  "level": "senior"
+ },
+ {
+  "path": "/system-design/approach-and-estimation",
+  "title": "System design approach",
+  "level": "mid"
+ },
+ {
+  "path": "/system-design/url-shortener",
+  "title": "Design a URL shortener",
+  "level": "mid"
+ },
+ {
+  "path": "/system-design/rate-limiter",
+  "title": "Design a rate limiter",
+  "level": "senior"
+ },
+ {
+  "path": "/system-design/order-processing",
+  "title": "Design order processing",
+  "level": "senior"
+ },
+ {
+  "path": "/system-design/notification-service",
+  "title": "Design a notification service",
+  "level": "senior"
+ },
+ {
+  "path": "/system-design/tradeoffs",
+  "title": "Trade-off discussions",
+  "level": "senior"
+ },
+ {
+  "path": "/toolkit/study-roadmap",
+  "title": "Study roadmap",
+  "level": "beginner"
+ },
+ {
+  "path": "/toolkit/questions-fresher",
+  "title": "Beginner questions (1-35)",
+  "level": "beginner"
+ },
+ {
+  "path": "/toolkit/coding-problems",
+  "title": "Coding problems",
+  "level": "beginner"
+ },
+ {
+  "path": "/toolkit/cheat-sheets",
+  "title": "Cheat sheets",
+  "level": "beginner"
+ },
+ {
+  "path": "/toolkit/questions-mid-level",
+  "title": "Mid-level questions (36-70)",
+  "level": "mid"
+ },
+ {
+  "path": "/toolkit/behavioral-star",
+  "title": "Behavioural answers (STAR)",
+  "level": "mid"
+ },
+ {
+  "path": "/toolkit/questions-senior",
+  "title": "Senior questions (71-100)",
+  "level": "senior"
+ }
+]

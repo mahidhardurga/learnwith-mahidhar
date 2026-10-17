@@ -1,0 +1,8 @@
+{
+  "label": "Data Consistency",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Microservices: data consistency."
+  }
+}

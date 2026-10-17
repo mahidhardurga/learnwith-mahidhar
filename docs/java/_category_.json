@@ -1,0 +1,5 @@
+{
+  "label": "Java",
+  "position": 1,
+  "link": {"type": "generated-index", "description": "Core Java and the JVM at senior depth: language internals, collections, concurrency, memory and performance."}
+}

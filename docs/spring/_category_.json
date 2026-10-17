@@ -1,0 +1,8 @@
+{
+  "label": "Spring Framework",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "The Spring ecosystem: core container, Spring Boot, Spring Data and Spring Security."
+  }
+}

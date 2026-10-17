@@ -1,0 +1,8 @@
+{
+  "label": "Resilience",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Microservices: resilience."
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "label": "Spring Core",
+  "position": 1,
+  "link": {"type": "generated-index", "description": "The Spring container: dependency injection, bean lifecycle and scopes, AOP, configuration and events."}
+}

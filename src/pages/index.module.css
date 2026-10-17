@@ -1,0 +1,132 @@
+.hero {
+  padding: 3.5rem 0 2.5rem;
+  border-bottom: 1px solid var(--lw-border);
+  background: var(--lw-surface-2);
+}
+
+.title {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  max-width: 46rem;
+  margin: 0 0 0.9rem;
+}
+
+.subtitle {
+  font-size: 1.15rem;
+  color: var(--lw-text-soft);
+  max-width: 42rem;
+  margin: 0 0 2rem;
+}
+
+.step {
+  margin-top: 1.5rem;
+}
+
+.stepLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.stepLabel small {
+  font-weight: 400;
+  color: var(--lw-text-soft);
+}
+
+.stepNum {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.3rem;
+  border-radius: 10px;
+  font-weight: 650;
+  text-decoration: none !important;
+  border: 1px solid transparent;
+}
+
+.btnPrimary {
+  background: var(--ifm-color-primary);
+  color: #fff !important;
+}
+
+.btnPrimary:hover {
+  background: var(--ifm-color-primary-dark);
+}
+
+.btnSecondary {
+  background: var(--lw-surface);
+  border-color: var(--lw-border);
+  color: var(--ifm-color-content) !important;
+}
+
+.btnSecondary:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.main {
+  padding: 2.5rem 1rem 4rem;
+}
+
+.h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+  scroll-margin-top: 5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--lw-border);
+  border-radius: 12px;
+  background: var(--lw-surface);
+  color: var(--ifm-color-content) !important;
+  text-decoration: none !important;
+}
+
+.card:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0 0 0.8rem;
+  color: var(--lw-text-soft);
+  font-size: 0.93rem;
+  flex: 1;
+}
+
+.count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+}

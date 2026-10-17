@@ -1,0 +1,722 @@
+{
+ "/java/core-java/oop-and-design": {
+  "The pillars, with the senior-level angle": "beginner",
+  "Composition over inheritance": "mid",
+  "Interface or abstract class?": "beginner",
+  "SOLID, concretely": "mid",
+  "Sealed hierarchies and algebraic data types (Java 17+)": "senior",
+  "Patterns you will be asked about": "mid"
+ },
+ "/java/core-java/collections-framework": {
+  "Hierarchy at a glance": "beginner",
+  "Complexity cheat sheet": "beginner",
+  "Lists": "beginner",
+  "Queues and deques": "mid",
+  "Maps and sets": "beginner",
+  "Fail-fast iterators": "mid",
+  "Immutable, unmodifiable and views": "mid",
+  "Sequenced collections (Java 21)": "mid",
+  "Choosing, quickly": "beginner"
+ },
+ "/java/core-java/equals-hashcode": {
+  "The equals contract": "beginner",
+  "Inheritance breaks symmetry and transitivity": "mid",
+  "Mutable keys and hashCode": "mid",
+  "Implementation guidance": "beginner",
+  "JPA/Hibernate entities": "senior",
+  "compareTo and consistency with equals": "mid"
+ },
+ "/java/core-java/exceptions": {
+  "The hierarchy": "beginner",
+  "Checked or unchecked?": "beginner",
+  "Designing exceptions": "mid",
+  "try-with-resources": "beginner",
+  "finally traps": "beginner",
+  "Catching: precision and rethrowing": "mid",
+  "InterruptedException": "mid",
+  "Cost of exceptions": "senior",
+  "Exception translation at boundaries": "mid"
+ },
+ "/java/core-java/streams-and-lambdas": {
+  "Lambdas under the hood": "mid",
+  "Stream pipelines are lazy": "beginner",
+  "Collectors worth knowing": "beginner",
+  "Parallel streams: use sparingly": "mid",
+  "Optional: guidelines": "beginner",
+  "Style and performance notes": "mid"
+ },
+ "/java/core-java/modern-java": {
+  "Timeline (LTS in bold)": "beginner",
+  "Language features worth adopting": "beginner",
+  "API and platform features": "mid",
+  "JVM and runtime changes": "senior",
+  "Migration notes (8 → 17 → 21)": "mid"
+ },
+ "/java/core-java/hashmap-internals": {
+  "Structure": "beginner",
+  "put step by step": "mid",
+  "Resizing": "mid",
+  "Capacity planning": "senior",
+  "Keys: the contract that makes it work": "beginner",
+  "Iteration and fail-fast behaviour": "mid",
+  "Thread safety": "mid",
+  "Related maps": "mid"
+ },
+ "/java/core-java/concurrenthashmap": {
+  "How the design evolved": "senior",
+  "Restrictions that surprise people": "mid",
+  "Atomic per-key operations": "mid",
+  "Bulk operations": "senior",
+  "When not to use it": "senior",
+  "CHM vs the alternatives": "mid"
+ },
+ "/java/core-java/generics": {
+  "Type erasure": "mid",
+  "Bounded type parameters": "mid",
+  "Invariance, covariance and wildcards": "mid",
+  "Generic arrays and varargs: heap pollution": "senior",
+  "Generic methods and inference": "mid",
+  "Raw types": "beginner",
+  "Reifiable types": "senior"
+ },
+ "/java/core-java/immutability": {
+  "Why it matters": "beginner",
+  "Recipe for an immutable class": "beginner",
+  "Shallow vs deep": "mid",
+  "Collections.unmodifiableList vs List.copyOf": "mid",
+  "String immutability": "beginner",
+  "Safe publication": "senior",
+  "Builders and \"withers\" for larger objects": "mid",
+  "Immutability and JPA / frameworks": "senior"
+ },
+ "/java/concurrency-jvm/threads-basics": {
+  "What a thread is": "beginner",
+  "Thread states": "beginner",
+  "Creating threads": "beginner",
+  "Stopping a thread: interruption, not stop()": "mid",
+  "Daemon threads": "beginner",
+  "ThreadLocal": "mid",
+  "Liveness problems": "mid",
+  "Reading a thread dump": "senior"
+ },
+ "/java/concurrency-jvm/executors": {
+  "ThreadPoolExecutor parameters": "mid",
+  "Rejection policies": "mid",
+  "Sizing": "mid",
+  "submit, Future and errors": "mid",
+  "Graceful shutdown": "mid",
+  "Scheduled executors": "mid",
+  "ForkJoinPool and work stealing": "senior",
+  "Spring specifics": "mid"
+ },
+ "/java/concurrency-jvm/completablefuture": {
+  "Creating": "mid",
+  "Transform and chain": "mid",
+  "Combining many futures": "mid",
+  "Error handling": "mid",
+  "Patterns": "senior",
+  "CompletableFuture vs reactive vs virtual threads": "senior"
+ },
+ "/java/concurrency-jvm/synchronization-and-locks": {
+  "synchronized": "beginner",
+  "volatile": "mid",
+  "Atomics and CAS": "mid",
+  "ReentrantLock and Condition": "mid",
+  "Read-write locks and StampedLock": "senior",
+  "Coordination utilities": "mid",
+  "Choosing": "mid"
+ },
+ "/java/concurrency-jvm/garbage-collection": {
+  "Generational hypothesis": "beginner",
+  "Core algorithms": "mid",
+  "The collectors": "mid",
+  "Choosing a collector": "mid",
+  "GC logging (always on in production)": "senior",
+  "Sizing basics": "mid",
+  "Memory leaks in a GC language": "mid",
+  "References and finalization": "senior"
+ },
+ "/java/concurrency-jvm/memory-model": {
+  "Why you can see stale or reordered values": "mid",
+  "Happens-before": "senior",
+  "volatile semantics": "mid",
+  "synchronized and visibility": "mid",
+  "final field semantics and safe publication": "senior",
+  "Double-checked locking, revisited": "mid",
+  "Atomicity of reads and writes": "senior",
+  "Out-of-thin-air and tearing": "senior",
+  "False sharing (a performance, not correctness, issue)": "senior",
+  "Reasoning checklist": "senior"
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics": {
+  "Runtime memory areas": "mid",
+  "How the JIT works": "senior",
+  "Sizing flags that matter": "mid",
+  "Diagnostic toolkit": "senior",
+  "Observability in Spring Boot": "senior"
+ },
+ "/java/concurrency-jvm/virtual-threads": {
+  "The problem they solve": "mid",
+  "How they work": "mid",
+  "Using them": "mid",
+  "What they do not do": "mid",
+  "Limiting concurrency": "senior",
+  "Pinning": "senior",
+  "Thread locals and scoped values": "senior",
+  "Structured concurrency (preview)": "senior",
+  "Migration guidance": "senior",
+  "Virtual threads vs reactive vs CompletableFuture": "senior"
+ },
+ "/spring/core/ioc-and-dependency-injection": {
+  "Container basics": "beginner",
+  "Defining beans": "beginner",
+  "Injection styles": "beginner",
+  "Resolving ambiguity": "mid",
+  "Circular dependencies": "mid",
+  "Customising the container": "senior",
+  "Singleton scope and thread safety": "mid"
+ },
+ "/spring/core/bean-lifecycle-and-scopes": {
+  "Lifecycle of a singleton bean": "mid",
+  "Scopes": "beginner",
+  "Scope and thread safety quick guide": "mid",
+  "Lazy initialisation": "mid"
+ },
+ "/spring/core/aop-and-proxies": {
+  "Vocabulary": "beginner",
+  "How the proxy works": "mid",
+  "Writing an aspect": "mid",
+  "What is built on this": "mid",
+  "Limitations of proxy-based AOP": "mid",
+  "Debugging \"my aspect/annotation does nothing\"": "senior"
+ },
+ "/spring/core/configuration-profiles-conditions": {
+  "@Configuration and @Bean": "beginner",
+  "Component scanning": "beginner",
+  "Profiles": "beginner",
+  "Conditions": "mid",
+  "Importing configuration": "mid",
+  "Environment and property sources": "mid",
+  "Bean overriding": "mid",
+  "Organising configuration": "senior"
+ },
+ "/spring/core/application-events": {
+  "Publishing and listening": "beginner",
+  "Synchronous by default: the crucial fact": "mid",
+  "Asynchronous listeners": "mid",
+  "Transaction-bound events": "senior",
+  "Built-in lifecycle events": "mid",
+  "Domain events with Spring Data": "senior",
+  "Events vs messaging": "mid"
+ },
+ "/spring/boot/overview": {
+  "What Boot gives you": "beginner",
+  "What happens at startup": "beginner"
+ },
+ "/spring/boot/starters": {
+  "Two separate ideas": "beginner",
+  "Getting the BOM": "beginner",
+  "Frequently used starters": "beginner",
+  "Overriding a managed version": "mid",
+  "Excluding a transitive dependency": "mid"
+ },
+ "/spring/boot/configuration": {
+  "Precedence (highest wins), simplified": "beginner",
+  "Profiles": "beginner",
+  "@Value versus @ConfigurationProperties": "beginner",
+  "Secrets": "mid"
+ },
+ "/spring/boot/exception-handling": {
+  "The layers": "beginner",
+  "Standard error body: ProblemDetail": "mid",
+  "Example": "beginner",
+  "How resolution works": "senior"
+ },
+ "/spring/boot/validation": {
+  "Validating a request body": "beginner",
+  "Validating path variables and request parameters": "beginner",
+  "Returning field errors": "beginner",
+  "Custom constraint": "mid",
+  "Groups": "mid"
+ },
+ "/spring/boot/testing-basics": {
+  "A unit test without Spring": "beginner",
+  "Parameterised tests": "mid",
+  "Mockito cheatsheet": "beginner",
+  "Mock vs Spy vs Fake": "mid"
+ },
+ "/spring/boot/auto-configuration": {
+  "The mechanism": "mid",
+  "Common conditions": "mid",
+  "Seeing what Boot decided": "beginner",
+  "Overriding and excluding": "beginner",
+  "Writing your own auto-configuration": "senior"
+ },
+ "/spring/boot/actuator": {
+  "Exposure is opt-in": "beginner",
+  "Health, readiness and liveness": "mid",
+  "Metrics with Micrometer": "mid",
+  "Securing Actuator": "mid"
+ },
+ "/spring/boot/testing-slices-testcontainers": {
+  "Slice annotations": "beginner",
+  "@WebMvcTest example": "mid",
+  "Why not H2?": "mid",
+  "@DataJpaTest with Testcontainers": "mid",
+  "Full-stack test": "mid",
+  "Boot 4 note": "senior"
+ },
+ "/spring/data/jpa-basics": {
+  "A small domain": "beginner",
+  "The persistence context": "beginner",
+  "Repositories": "beginner",
+  "save, saveAll, deleteAll": "mid",
+  "Open Session in View": "mid"
+ },
+ "/spring/data/n-plus-one-lazy-loading": {
+  "What it is": "beginner",
+  "Detecting it": "mid",
+  "Fix 1: join fetch": "mid",
+  "Fix 2: Entity graphs": "mid",
+  "Fix 3: Batch fetching": "mid",
+  "Fix 4: Fetch only what you need": "mid",
+  "Choosing a strategy": "senior",
+  "Lazy loading and LazyInitializationException": "mid"
+ },
+ "/spring/data/transactions": {
+  "How @Transactional works": "beginner",
+  "Propagation": "mid",
+  "Isolation levels": "mid",
+  "readOnly, timeouts and sizing": "senior",
+  "Doing something after commit": "senior",
+  "Programmatic transactions": "mid"
+ },
+ "/spring/data/sql-tuning-indexing": {
+  "How an index works": "beginner",
+  "Declaring indexes": "beginner",
+  "Composite indexes and the leftmost-prefix rule": "mid",
+  "Reading EXPLAIN": "mid",
+  "Common reasons an index is not used": "mid",
+  "Pagination at scale": "mid",
+  "Anti-patterns in Java code": "mid",
+  "Connection pool sizing": "senior",
+  "Finding slow queries": "senior"
+ },
+ "/spring/data/caching": {
+  "Layers of caching in a Spring application": "beginner",
+  "Spring Cache abstraction": "beginner",
+  "Caffeine (local) vs Redis (distributed)": "mid",
+  "Hibernate caching": "senior",
+  "Invalidation strategies": "mid",
+  "Common problems": "senior",
+  "What to cache, and what not to": "mid"
+ },
+ "/spring/data/locking": {
+  "Optimistic locking": "mid",
+  "Pessimistic locking": "mid",
+  "Deadlocks": "senior",
+  "Which one to use": "mid",
+  "Other tools against lost updates": "senior"
+ },
+ "/spring/security/security-architecture": {
+  "Where it sits": "mid",
+  "Core concepts": "beginner",
+  "Configuration (Spring Security 6 / Boot 3)": "mid",
+  "Roles vs authorities": "beginner",
+  "Passwords": "beginner",
+  "CSRF": "mid",
+  "CORS": "mid",
+  "Security headers": "senior",
+  "Testing": "mid"
+ },
+ "/spring/security/jwt": {
+  "Structure": "beginner",
+  "Signing: symmetric vs asymmetric": "mid",
+  "What a resource server must validate": "mid",
+  "Access and refresh tokens": "mid",
+  "The revocation problem": "senior",
+  "Where to store tokens in a browser": "senior",
+  "Common attacks and mistakes": "senior",
+  "JWT vs server-side sessions": "mid"
+ },
+ "/spring/security/common-vulnerabilities": {
+  "1. *": "beginner",
+  "2. *": "beginner",
+  "3. *": "beginner",
+  "4. *": "mid",
+  "5. *": "senior",
+  "6. *": "senior",
+  "7. *": "mid",
+  "8. *": "mid",
+  "9. *": "mid",
+  "10. *": "mid",
+  "11. *": "mid",
+  "12. *": "mid",
+  "13. *": "senior",
+  "14. *": "mid",
+  "Secure development habits": "senior"
+ },
+ "/spring/security/method-security": {
+  "Enabling it": "mid",
+  "@PreAuthorize and @PostAuthorize": "mid",
+  "Delegating complex rules to a bean": "senior",
+  "Preventing IDOR in practice": "senior",
+  "Roles, authorities, scopes in expressions": "mid",
+  "Limitations (same as AOP)": "senior",
+  "Testing": "mid"
+ },
+ "/spring/security/oauth2-oidc": {
+  "Roles": "mid",
+  "Grant types (flows)": "mid",
+  "OIDC: the ID token and UserInfo": "senior",
+  "Spring Security setups": "senior",
+  "Microservice architecture patterns": "senior",
+  "Scopes vs roles vs permissions": "senior"
+ },
+ "/microservices/overview": {
+  "Monolith versus microservices": "beginner",
+  "How to find service boundaries": "mid",
+  "Database per service": "mid",
+  "The cross-cutting platform": "mid"
+ },
+ "/microservices/infrastructure/api-gateway": {
+  "Typical responsibilities": "beginner",
+  "Spring Cloud Gateway": "mid",
+  "Gateway versus Backend-for-Frontend (BFF)": "senior"
+ },
+ "/microservices/infrastructure/service-discovery": {
+  "The three steps": "beginner",
+  "Client-side versus server-side discovery": "mid",
+  "Eureka with Spring Cloud": "mid",
+  "Health, caching and self-preservation": "senior"
+ },
+ "/microservices/infrastructure/config-server": {
+  "Server": "mid",
+  "Client": "mid",
+  "Refreshing without restart": "mid",
+  "Secrets": "mid",
+  "Do you still need it on Kubernetes?": "senior"
+ },
+ "/microservices/communication/service-communication": {
+  "REST with RestClient": "beginner",
+  "Declarative clients: HTTP interfaces and OpenFeign": "mid",
+  "gRPC": "mid",
+  "Messaging": "mid",
+  "Choosing": "mid",
+  "API compatibility": "senior"
+ },
+ "/microservices/resilience/resilience4j": {
+  "The patterns": "beginner",
+  "Circuit breaker states": "beginner",
+  "Configuration": "mid",
+  "Using annotations": "mid",
+  "Programmatic use": "senior",
+  "Observability": "senior"
+ },
+ "/microservices/observability": {
+  "Distributed tracing concepts": "mid",
+  "Setup in Spring Boot 3": "mid",
+  "Logging that you can search": "mid",
+  "Metrics": "mid",
+  "Health and dependency visibility": "senior"
+ },
+ "/microservices/data-consistency/saga": {
+  "Example: place an order": "mid",
+  "Two styles": "mid",
+  "Making sagas reliable": "senior"
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing": {
+  "CQRS: Command Query Responsibility Segregation": "mid",
+  "Event sourcing": "senior",
+  "When to use": "mid"
+ },
+ "/microservices/data-consistency/outbox-idempotency": {
+  "The dual-write problem": "mid",
+  "Transactional outbox": "mid",
+  "Idempotency": "mid"
+ },
+ "/databases/relational-design": {
+  "Normalisation: why and how far": "beginner",
+  "Keys": "beginner",
+  "Constraints are your last line of defence": "beginner",
+  "Data types": "beginner",
+  "Auditing, soft deletes and history": "mid",
+  "Multi-tenancy models": "senior",
+  "Schema design checklist for reviews": "mid"
+ },
+ "/databases/sql-patterns": {
+  "Joins: semantics matter": "beginner",
+  "Anti-joins and semi-joins": "mid",
+  "Aggregation: GROUP BY, HAVING": "beginner",
+  "Window functions": "mid",
+  "CTEs (WITH)": "mid",
+  "Upsert (insert or update)": "mid",
+  "Pagination": "mid",
+  "Set-based work beats row-by-row": "beginner",
+  "Handling NULL": "beginner",
+  "Reading the plan": "mid"
+ },
+ "/databases/nosql-and-redis": {
+  "The families": "mid",
+  "Modelling: query first, not entity first": "mid",
+  "Redis": "mid",
+  "Spring integration": "mid"
+ },
+ "/databases/schema-migrations": {
+  "Migrations as code": "beginner",
+  "The core problem: old and new code run together": "mid",
+  "Risky operations and safer versions": "senior",
+  "Backfilling data safely": "senior",
+  "Testing and safety": "mid",
+  "Reference data and seed data": "beginner",
+  "Microservices: each service owns its schema": "mid"
+ },
+ "/databases/acid-isolation-mvcc": {
+  "ACID": "beginner",
+  "MVCC: readers do not block writers": "mid",
+  "Isolation levels in the real world": "mid",
+  "Locking in SQL": "mid",
+  "Operational issues from long transactions": "senior",
+  "Choosing isolation in applications": "senior"
+ },
+ "/databases/replication-sharding": {
+  "Replication": "mid",
+  "Partitioning (within one database)": "mid",
+  "Sharding (across servers)": "senior",
+  "CAP and PACELC": "mid",
+  "Scaling reads without replicas: caching and CQRS": "mid",
+  "Decision guide": "mid"
+ },
+ "/messaging/kafka-fundamentals": {
+  "Core concepts": "beginner",
+  "Storage: why Kafka is fast": "mid",
+  "Replication and durability": "mid",
+  "Producers": "mid",
+  "Retention and compaction": "mid",
+  "Topic and cluster design basics": "senior",
+  "Kafka vs traditional message queues": "beginner",
+  "Spring Boot configuration": "mid"
+ },
+ "/messaging/kafka-consumers-offsets": {
+  "Consumer groups": "beginner",
+  "Offsets": "beginner",
+  "Rebalancing": "senior",
+  "Delivery semantics": "mid",
+  "Consumer lag": "mid",
+  "Poll loop and throughput tuning": "senior",
+  "Consumer isolation levels": "senior"
+ },
+ "/messaging/rabbitmq-basics": {
+  "The model": "beginner",
+  "Reliable delivery: the three links": "mid",
+  "Prefetch (QoS)": "mid",
+  "Dead-lettering, TTL and retry": "mid",
+  "Spring AMQP": "mid",
+  "Ordering and concurrency": "senior",
+  "Streams": "senior",
+  "RabbitMQ vs Kafka": "mid",
+  "Operational notes": "senior"
+ },
+ "/messaging/kafka-ordering-design": {
+  "Ordering: what you actually get": "mid",
+  "Key choice and partition skew": "senior",
+  "Error handling in consumers": "mid",
+  "Idempotent consumers": "mid",
+  "Event design": "senior",
+  "Kafka and the outbox": "senior",
+  "Testing": "mid"
+ },
+ "/devops/docker-for-java": {
+  "Layers and caching": "beginner",
+  "Choosing a base image": "mid",
+  "JVM in containers": "mid",
+  "Signals and graceful shutdown": "mid",
+  "Security hardening checklist": "mid",
+  "Docker Compose for local development": "beginner",
+  "Image size and startup tips": "senior"
+ },
+ "/devops/kubernetes-basics": {
+  "Architecture in one picture": "beginner",
+  "Core objects": "beginner",
+  "A production-shaped Spring Boot Deployment": "mid",
+  "Probes: tie them to Actuator": "mid",
+  "Resources: requests, limits and the JVM": "mid",
+  "Configuration and secrets": "mid",
+  "Zero-downtime and graceful termination": "senior",
+  "Scaling": "mid",
+  "Networking and exposure": "mid",
+  "Debugging toolkit": "mid"
+ },
+ "/devops/ci-cd": {
+  "What a good pipeline does": "beginner",
+  "Test layers in CI": "beginner",
+  "Quality and security gates": "mid",
+  "Example: GitHub Actions for a Spring Boot service": "mid",
+  "Versioning and artifacts": "mid",
+  "Deployment: push vs GitOps": "mid",
+  "Environments and promotion": "mid",
+  "Secrets in pipelines": "senior",
+  "Measuring delivery: DORA metrics": "senior",
+  "Monorepo vs polyrepo for microservices": "senior"
+ },
+ "/devops/twelve-factor": {
+  "I. *": "beginner",
+  "II. *": "beginner",
+  "III. *": "beginner",
+  "IV. *": "mid",
+  "V. *": "mid",
+  "VI. *": "mid",
+  "VII. *": "beginner",
+  "VIII. *": "mid",
+  "IX. *": "senior",
+  "X. *": "mid",
+  "XI. *": "mid",
+  "XII. *": "mid",
+  "Beyond the original twelve": "senior",
+  "A quick self-assessment for a Spring Boot service": "mid"
+ },
+ "/devops/deployment-strategies": {
+  "The strategies": "mid",
+  "Comparison": "mid",
+  "Feature flags: decouple deploy from release": "mid",
+  "Compatibility is the real constraint": "senior",
+  "Making rollouts safe in Kubernetes": "senior",
+  "Progressive delivery with automated analysis": "senior",
+  "Rollback": "mid",
+  "Releasing safely: process habits": "mid"
+ },
+ "/system-design/approach-and-estimation": {
+  "A framework (about 45 minutes)": "beginner",
+  "Building blocks cheat sheet": "mid",
+  "Habits that impress": "mid",
+  "Common mistakes": "mid"
+ },
+ "/system-design/url-shortener": {
+  "1. *": "beginner",
+  "2. *": "beginner",
+  "3. *": "beginner",
+  "4. *": "beginner",
+  "5. *": "mid",
+  "6. *": "mid",
+  "7. *": "senior",
+  "8. *": "senior",
+  "9. *": "mid"
+ },
+ "/system-design/rate-limiter": {
+  "1. *": "mid",
+  "2. *": "mid",
+  "3. *": "mid",
+  "4. *": "senior",
+  "5. *": "mid",
+  "6. *": "senior",
+  "7. *": "senior"
+ },
+ "/system-design/order-processing": {
+  "1. *": "mid",
+  "2. *": "mid",
+  "3. *": "mid",
+  "4. *": "mid",
+  "5. *": "senior",
+  "6. *": "senior",
+  "7. *": "senior",
+  "8. *": "mid",
+  "9. *": "senior",
+  "10. *": "mid",
+  "11. *": "senior",
+  "12. *": "senior"
+ },
+ "/system-design/notification-service": {
+  "1. *": "mid",
+  "2. *": "mid",
+  "3. *": "mid",
+  "4. *": "senior",
+  "5. *": "senior",
+  "6. *": "senior",
+  "7. *": "mid",
+  "8. *": "mid",
+  "9. *": "senior",
+  "10. *": "senior",
+  "11. *": "senior",
+  "12. *": "senior",
+  "13. *": "senior"
+ },
+ "/system-design/tradeoffs": {
+  "A framework for any trade-off": "mid",
+  "Consistency vs availability (and latency)": "mid",
+  "Synchronous vs asynchronous communication": "mid",
+  "Monolith vs modular monolith vs microservices": "mid",
+  "SQL vs NoSQL": "mid",
+  "Caching strategies": "mid",
+  "Push vs pull (fan-out on write vs on read)": "senior",
+  "REST vs gRPC vs GraphQL": "mid",
+  "Orchestration vs choreography; optimistic vs pessimistic": "senior",
+  "Scaling: vertical vs horizontal; stateless vs stateful": "mid",
+  "Batch vs stream processing": "senior",
+  "Delivery guarantees": "senior",
+  "Build vs buy vs adopt open source": "senior",
+  "Cost, complexity and team": "senior",
+  "Evolving a design: what changes at 10× / 100×": "senior",
+  "Example: arguing one decision": "senior"
+ },
+ "/toolkit/study-roadmap": {
+  "How to use it": "beginner",
+  "Topic priority map": "beginner",
+  "Fresher *": "beginner",
+  "3-5 Years*": "mid",
+  "Senior *": "senior",
+  "Practice methods that work": "beginner",
+  "Weekly rhythm *": "beginner",
+  "Interview-day and final-week checklist": "beginner",
+  "Resources to pair with this guide": "beginner"
+ },
+ "/toolkit/cheat-sheets": {
+  "Collections: complexity at a glance": "beginner",
+  "Java language quick facts": "beginner",
+  "Streams quick reference": "beginner",
+  "Concurrency tools": "mid",
+  "JVM flags and diagnostics": "senior",
+  "Spring annotations": "beginner",
+  "Bean lifecycle in one line": "mid",
+  "Spring Boot essentials": "beginner",
+  "Transactions": "mid",
+  "JPA / Hibernate": "mid",
+  "HTTP status codes": "beginner",
+  "SQL quick reference": "beginner",
+  "Microservice patterns": "mid",
+  "Kafka settings": "mid",
+  "Security": "mid",
+  "Docker and Kubernetes commands": "mid",
+  "System design numbers and checklist": "mid",
+  "Behavioural quick card": "beginner"
+ },
+ "/toolkit/behavioral-star": {
+  "STAR, with senior-level emphasis": "beginner",
+  "Build your story bank": "beginner",
+  "Common questions and what interviewers listen for": "mid",
+  "Worked examples": "mid",
+  "Answering specific tricky questions": "mid",
+  "Leadership signals for senior and staff roles": "senior",
+  "Mistakes to avoid": "beginner",
+  "Preparation checklist": "beginner"
+ },
+ "/toolkit/coding-problems": {
+  "Pattern cheat sheet": "beginner",
+  "1. *": "beginner",
+  "2. *": "beginner",
+  "3. *": "mid",
+  "4. *": "mid",
+  "5. *": "beginner",
+  "6. *": "mid",
+  "7. *": "mid",
+  "8. *": "beginner",
+  "9. *": "mid",
+  "10. *": "mid",
+  "11. *": "senior",
+  "12. *": "mid",
+  "13. *": "beginner",
+  "14. *": "senior",
+  "15. *": "senior",
+  "16. *": "beginner",
+  "How to practise": "beginner"
+ }
+}

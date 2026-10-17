@@ -1,0 +1,5 @@
+{
+  "label": "Data & Persistence",
+  "position": 3,
+  "link": {"type": "doc", "id": "spring/data/jpa-basics"}
+}

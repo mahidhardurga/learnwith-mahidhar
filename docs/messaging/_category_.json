@@ -1,0 +1,5 @@
+{
+  "label": "Messaging",
+  "position": 5,
+  "link": {"type": "generated-index", "description": "Kafka and RabbitMQ: architecture, consumer groups, delivery semantics, ordering and error handling."}
+}

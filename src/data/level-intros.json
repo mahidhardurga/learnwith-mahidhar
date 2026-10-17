@@ -1,0 +1,314 @@
+{
+ "/java/core-java/oop-and-design": {
+  "beginner": "Object-oriented programming organises code around things (objects) that hold data and the actions that work on that data. A `BankAccount` object holds a balance and offers actions like `deposit` and `withdraw`; other code uses those actions instead of changing the balance directly. Four ideas to be able to name: encapsulation, abstraction, inheritance and polymorphism.\n\n**In an interview, say:** \"OOP groups data and behaviour into objects. Encapsulation hides internal state, abstraction exposes only what callers need, inheritance lets a class reuse another, and polymorphism lets different classes be used through the same interface.\"",
+  "senior": "Interviewers at this level stop asking for definitions. Expect to choose between inheritance and composition for a concrete case, spot a Liskov violation in code, and explain how you avoid over-engineering. Prepare one real example from your own work for each SOLID principle."
+ },
+ "/java/core-java/collections-framework": {
+  "beginner": "Collections are Java's ready-made containers: lists keep items in order, sets keep unique items, maps store key-value pairs like a dictionary, and queues hand items out in order. Choosing one is mostly about how you will use the data: look up by key, keep order, avoid duplicates, or process first in, first out.\n\n**In an interview, say:** \"I default to ArrayList, HashMap and HashSet, use ArrayDeque for stacks and queues, and choose something else only when I need ordering, sorting or thread safety.\"",
+  "senior": "Know the cost model behind each structure (memory per entry, cache behaviour, amortised versus worst case) and the traps: unbounded queues, mutable keys, views versus copies, and the mutability of `Collectors.toList()`. Be ready to justify a choice for a concrete workload."
+ },
+ "/java/core-java/equals-hashcode": {
+  "beginner": "`equals` decides when two objects count as \"the same\", for example two `Money` objects with the same amount and currency. `hashCode` turns an object into a number that hash-based collections such as `HashMap` and `HashSet` use to find it quickly. If you override one, override the other so that equal objects always give the same number.\n\n**In an interview, say:** \"Equal objects must have equal hash codes, so I override both together using the same fields; otherwise HashMap and HashSet cannot find objects I consider equal.\"",
+  "senior": "The deep questions are subclassing (why symmetry breaks), mutable keys, entity equality in JPA, and `compareTo` consistency (`BigDecimal` 2.0 versus 2.00). Know the trade-offs between `getClass()` and `instanceof`, and when records or composition remove the problem."
+ },
+ "/java/core-java/exceptions": {
+  "beginner": "An exception is how Java reports that something went wrong while the program runs, such as a missing file or a null value. You can catch it and handle it, or let it travel up to code that can. Checked exceptions must be dealt with in code; unchecked ones usually mean a bug.\n\n**In an interview, say:** \"Checked exceptions are enforced by the compiler and must be caught or declared; unchecked ones extend RuntimeException. I use try-with-resources to close resources and always keep the original cause when I wrap an exception.\"",
+  "senior": "Expect design questions: when checked exceptions hurt, how to translate exceptions at layer boundaries, suppressed exceptions, `InterruptedException` handling and the cost of stack traces. Bring an example of an exception strategy you applied across a service."
+ },
+ "/java/core-java/streams-and-lambdas": {
+  "beginner": "A lambda is a short piece of code you can pass around, like `x -> x * 2`. A stream lets you process a collection step by step: filter some items, transform them, then collect the result. Nothing runs until the final step, which is why streams are called lazy.\n\n**In an interview, say:** \"A stream is a pipeline of intermediate operations like filter and map ending in a terminal operation like collect. It is lazy, does not modify the source, and can only be consumed once.\"",
+  "senior": "Know how lambdas compile (`invokedynamic`), why parallel streams share the common pool, how to avoid hidden boxing, and when a plain loop is the better choice. Be ready to review stream code for side effects and stateful operations."
+ },
+ "/java/core-java/modern-java": {
+  "beginner": "Java keeps adding features, and most companies run the long-term-support versions: 8, 11, 17, 21 and 25. If you know Java 8 (lambdas, streams, Optional), the newer basics to learn are `var`, records, switch expressions, text blocks and sealed classes.\n\n**In an interview, say:** \"Since Java 8 I use records for data classes, switch expressions, text blocks and var where it stays clear; Java 21 adds virtual threads and pattern matching.\"",
+  "senior": "Be able to say which features you would actually adopt and why, the migration risks (strong encapsulation, `javax` to `jakarta`, library compatibility), and how preview features are treated in production."
+ },
+ "/java/core-java/hashmap-internals": {
+  "beginner": "A `HashMap` stores key-value pairs in an array of buckets. Java converts the key to a number (its hash code), uses that number to choose a bucket, and puts the entry there. That is why finding a value by key is fast, and why keys need a correct `equals` and `hashCode`.\n\n**In an interview, say:** \"HashMap uses hashCode to choose a bucket, then equals to find the key inside it. Collisions are chained in a list that becomes a tree when it gets long. Lookup is O(1) on average.\"",
+  "senior": "Go beyond the mechanics: capacity planning and resize cost, why treeification needs a table of 64 or more buckets, hash flooding, memory overhead per entry, and why `ConcurrentHashMap` replaces it under concurrency. Expect to reason about a production incident caused by a bad key."
+ },
+ "/java/core-java/concurrenthashmap": {
+  "beginner": "`ConcurrentHashMap` is a `HashMap` that many threads can use at the same time safely. A plain `HashMap` can lose updates or break when threads share it. The concurrent version lets many reads and writes happen in parallel without locking the whole map.\n\n**In an interview, say:** \"ConcurrentHashMap is the thread-safe map: reads do not block, writes lock only a bucket, and I use merge or computeIfAbsent for atomic updates instead of get-then-put.\"",
+  "senior": "Understand CAS plus bucket locking, the striped size counter, weakly consistent iterators, the no-null rule, and why `compute*` functions must be short and must never touch the same map. Know when `LongAdder` values or an immutable snapshot beat it."
+ },
+ "/java/core-java/generics": {
+  "beginner": "Generics let you write `List<String>` so the compiler checks the type for you instead of failing at runtime. They are a compile-time feature only: Java removes the type information afterwards (type erasure), which causes a few surprising limits.\n\n**In an interview, say:** \"Generics give compile-time type safety. Because of type erasure, List<String> and List<Integer> are the same class at runtime, so I cannot write new T() or instanceof List<String>.\"",
+  "senior": "Know PECS cold, wildcard capture, bridge methods, heap pollution and why generic arrays are illegal. Be ready to design a generic API with bounded types and to explain what `Comparable<? super T>` buys you."
+ },
+ "/java/core-java/immutability": {
+  "beginner": "An immutable object never changes after it is created. `String` is the classic example: methods like `toUpperCase()` return a new string instead of modifying the old one. Immutable objects are safer because nobody can change them by accident, and they are automatically safe to share between threads.\n\n**In an interview, say:** \"To make a class immutable: make it final, make fields private and final, provide no setters, and copy any mutable input or output.\"",
+  "senior": "Distinguish shallow from deep immutability, safe publication through `final`, immutable snapshots behind a volatile reference, and where immutability does not fit (JPA entities). Expect to critique a class that someone claims is immutable."
+ },
+ "/java/concurrency-jvm/threads-basics": {
+  "beginner": "A thread is one path of execution inside your program. A program can run several threads at once, for example one handling a web request while another writes a log. Threads share memory, which is powerful but is the source of most concurrency bugs.\n\n**In an interview, say:** \"I write tasks as Runnables and run them on an executor rather than creating raw threads. Threads share the heap, so shared mutable state needs synchronisation.\"",
+  "senior": "Expect questions on interruption semantics, `ThreadLocal` leaks in pools, diagnosing deadlock from a thread dump, and how virtual threads change the picture. Bring a real hang or deadlock story."
+ },
+ "/java/concurrency-jvm/executors": {
+  "beginner": "Creating a new thread for every task is expensive. A thread pool keeps a fixed set of worker threads and hands them tasks from a queue. In Java you create one with `ExecutorService` (or `ThreadPoolExecutor` for full control) and submit tasks to it.\n\n**In an interview, say:** \"I use an ExecutorService with a bounded queue and named threads, size CPU pools by cores and I/O pools by wait time, and shut the pool down gracefully.\"",
+  "senior": "Master the exact core, queue, max and reject sequence, the unbounded-queue trap, back-pressure with `CallerRunsPolicy`, sizing from wait-to-compute ratios, context propagation, and how virtual threads change pool design."
+ },
+ "/java/concurrency-jvm/completablefuture": {
+  "beginner": "A `CompletableFuture` represents a result that will be ready later. You can chain steps on it (`thenApply`), combine several (`thenCombine`, `allOf`) and handle errors (`exceptionally`) without blocking a thread to wait.\n\n**In an interview, say:** \"CompletableFuture composes async work: thenApply maps, thenCompose flattens another future, allOf waits for many. I always pass my own executor and add timeouts.\"",
+  "senior": "Be ready to discuss executor choice versus the common pool, error wrapping (`CompletionException`), cancellation limits, fan-out and fan-in design, and when virtual threads make this style unnecessary."
+ },
+ "/java/concurrency-jvm/synchronization-and-locks": {
+  "beginner": "When several threads change the same data, they can overwrite each other's work. `synchronized` marks code that only one thread may run at a time. `volatile` makes sure every thread sees the latest value of a variable. Atomic classes such as `AtomicInteger` count safely without locks.\n\n**In an interview, say:** \"synchronized gives mutual exclusion and visibility. volatile gives visibility but not atomicity, so count++ on a volatile is not safe. AtomicInteger uses compare-and-set for lock-free updates.\"",
+  "senior": "Be ready to choose between locks, atomics and immutability for a given invariant, and to explain CAS and ABA, `LongAdder` contention behaviour, `StampedLock` pitfalls, and how to prevent deadlock with lock ordering and `tryLock`."
+ },
+ "/java/concurrency-jvm/memory-model": {
+  "beginner": "When threads share variables, one thread may not see another's latest write straight away, and the compiler or CPU may reorder instructions. The Java Memory Model defines when a write is guaranteed to be visible to another thread, using rules such as \"a volatile write is visible to later reads of that variable\".\n\n**In an interview, say:** \"Without a happens-before relationship another thread can see stale values. synchronized, volatile, Thread start and join, and concurrent collections create that relationship.\"",
+  "senior": "Be fluent in happens-before edges, safe publication, double-checked locking, `final` field guarantees and false sharing. Expect to analyse a snippet and name the missing edge."
+ },
+ "/java/concurrency-jvm/garbage-collection": {
+  "beginner": "Java frees memory for you. The garbage collector finds objects that nothing can reach any more and removes them. Most objects die young, so Java keeps new objects in a small \"young\" area that is cleaned often and cheaply, and moves long-lived objects to an \"old\" area.\n\n**In an interview, say:** \"The GC reclaims unreachable objects and uses generations because most objects die young. G1 is the default collector; a full GC is a long stop-the-world pause that I try to avoid.\"",
+  "senior": "Know collector trade-offs (G1, ZGC, Parallel), how to read a GC log, humongous allocations, container sizing, and how to diagnose leaks from heap-after-GC trends. Expect to pick and justify a collector for a latency-sensitive service."
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics": {
+  "beginner": "The JVM uses several kinds of memory (heap for objects, metaspace for class data, stacks for threads) and compiles hot code while running (the JIT). When something goes wrong you look at thread dumps, heap dumps and GC logs to see why.\n\n**In an interview, say:** \"I check GC logs and a thread dump first, use a heap dump in MAT to see what holds memory, and in containers I size the heap with MaxRAMPercentage and leave room for non-heap memory.\"",
+  "senior": "Have playbooks ready for high CPU, latency spikes, OOM and off-heap growth. Know JFR, async-profiler and NMT, and how JIT warm-up and container limits distort measurements."
+ },
+ "/java/concurrency-jvm/virtual-threads": {
+  "beginner": "Virtual threads (Java 21) are very cheap threads managed by the JVM. You can create hundreds of thousands, so you can write simple blocking code (one thread per request) and still handle huge numbers of requests. They do not make CPU-heavy work faster.\n\n**In an interview, say:** \"Virtual threads make blocking code scale for I/O-bound services. I do not pool them, and I limit concurrency with semaphores instead.\"",
+  "senior": "Know pinning (`synchronized` before JDK 24), carrier scheduler behaviour, `ThreadLocal` versus scoped values, explicit concurrency limiting, structured concurrency status, and when reactive still wins."
+ },
+ "/spring/core/ioc-and-dependency-injection": {
+  "beginner": "Normally an object creates the other objects it needs. With Spring, you declare what each class needs and Spring creates the objects and passes them in (dependency injection). This keeps classes simple and easy to test, because in a test you can pass in a fake version. The part of Spring that does this is called the container (`ApplicationContext`).\n\n**In an interview, say:** \"IoC means the framework controls object creation; DI means Spring injects the dependencies, preferably through the constructor, so classes are decoupled and testable.\"",
+  "senior": "Expect questions on bean definition processing, `BeanPostProcessor` ordering, circular dependency handling, `ObjectProvider`, and design smells such as constructors with many parameters. Know why Boot rejects circular references by default."
+ },
+ "/spring/core/bean-lifecycle-and-scopes": {
+  "beginner": "Every bean has a life: Spring creates it, injects its dependencies, runs your setup code (`@PostConstruct`), lets it work, then runs cleanup code (`@PreDestroy`) when the application stops. By default each bean is a singleton: one shared object for the whole application.\n\n**In an interview, say:** \"Beans are singletons by default and go through create, inject, @PostConstruct, use, @PreDestroy. Singletons are shared between threads, so they must be stateless.\"",
+  "senior": "Know the exact callback order, where proxies are created (after initialisation), the prototype-in-singleton problem, scoped proxies, `SmartLifecycle` phases and graceful shutdown ordering."
+ },
+ "/spring/core/aop-and-proxies": {
+  "beginner": "AOP (aspect-oriented programming) lets you add behaviour such as logging, timing or security around methods without editing each method. Spring does this by wrapping your bean in a proxy object that runs extra code before and after the real method. Annotations like `@Transactional` and `@Cacheable` work this way.\n\n**In an interview, say:** \"Spring AOP wraps beans in proxies. That is how @Transactional works, and it is why calling a transactional method from another method of the same class does not start a transaction.\"",
+  "senior": "Understand JDK versus CGLIB proxies, advisor ordering (retry outside the transaction), every proxy limitation (self-invocation, final and private methods), and when AspectJ weaving is justified. Expect to debug a missing-advice scenario live."
+ },
+ "/spring/core/configuration-profiles-conditions": {
+  "beginner": "Spring needs to know which beans to create and with which settings. You declare beans in `@Configuration` classes with `@Bean` methods, or let Spring find annotated classes by scanning. Profiles let you switch behaviour by environment, for example `dev` versus `prod`.\n\n**In an interview, say:** \"I define beans with @Component or @Bean, use profiles and properties for per-environment differences, and keep the same build for every environment.\"",
+  "senior": "Know `proxyBeanMethods`, when conditions are evaluated, why bean overriding is disabled, and how to test configuration with `ApplicationContextRunner`. Expect to design configuration for several environments without profile sprawl."
+ },
+ "/spring/core/application-events": {
+  "beginner": "Spring has a built-in way for one part of the app to announce that something happened (an event) and for other parts to react without knowing about each other. You publish an event object and write `@EventListener` methods. By default the listeners run immediately, in the same thread.\n\n**In an interview, say:** \"Spring events are synchronous and in-process by default. For work that depends on a successful commit I use @TransactionalEventListener, and for durable cross-service messaging I use a broker, not Spring events.\"",
+  "senior": "Know the transaction-bound phases and the no-transaction pitfall, async listener context loss, and how events relate to the outbox pattern. Be ready to explain when events create hidden coupling."
+ },
+ "/spring/boot/overview": {
+  "beginner": "Spring Boot is Spring with sensible defaults. It gives you starters (one dependency that brings a whole set of libraries), auto-configuration (beans created for you based on what is on the classpath), an embedded web server, and production tools such as Actuator. You run the result with `java -jar`.\n\n**In an interview, say:** \"Spring Boot is an opinionated layer on Spring: starters, auto-configuration, an embedded server and Actuator, so an app runs with java -jar.\"",
+  "senior": "Be able to explain the startup sequence inside `SpringApplication.run`, how Boot decides what to configure, and how you debug unexpected wiring with the conditions report."
+ },
+ "/spring/boot/starters": {
+  "beginner": "A starter is a single dependency that pulls in everything needed for a purpose. `spring-boot-starter-web` brings Spring MVC, JSON support and an embedded Tomcat. Spring Boot also pins compatible versions of hundreds of libraries, so you rarely write a version number yourself.\n\n**In an interview, say:** \"A starter is a convenience dependency with no code of its own; the Boot BOM manages versions, and auto-configuration reacts to what the starters put on the classpath.\"",
+  "senior": "Know how to override a managed version safely, exclude transitive dependencies, build a custom starter (an autoconfigure module plus a thin starter module), and diagnose conflicts with `mvn dependency:tree`."
+ },
+ "/spring/boot/configuration": {
+  "beginner": "Settings such as the server port or database URL live outside your code in `application.yml` or `application.properties`, and can be overridden by environment variables or command-line arguments. That lets the same build run in dev and production with different settings.\n\n**In an interview, say:** \"Boot merges many property sources and command-line arguments and environment variables override files. I group settings in validated @ConfigurationProperties classes and keep secrets out of the repository.\"",
+  "senior": "Know property precedence precisely, relaxed binding, profile-specific documents, validation as fail-fast, configtree and secret mounting, and how configuration changes roll out safely in Kubernetes."
+ },
+ "/spring/boot/exception-handling": {
+  "beginner": "When a controller throws an exception you want the client to get a clear, consistent error (for example 404 with a short message), not a stack trace. In Spring you do this centrally with a `@RestControllerAdvice` class containing `@ExceptionHandler` methods.\n\n**In an interview, say:** \"I handle exceptions globally with @RestControllerAdvice, return a consistent ProblemDetail body with the right status code, and never leak stack traces.\"",
+  "senior": "Know the exception resolver chain, filter-level exceptions that bypass the advice, RFC 9457 problem details, logging an exception once with a correlation id, and mapping domain exceptions to precise status codes."
+ },
+ "/spring/boot/validation": {
+  "beginner": "Validation checks incoming data before you use it: a name must not be blank, a quantity must be positive. You put annotations such as `@NotBlank` and `@Positive` on a request class and add `@Valid` on the controller parameter. If the data is invalid, Spring responds with 400.\n\n**In an interview, say:** \"I validate DTOs with Jakarta Bean Validation and @Valid, cascade into nested objects with @Valid, and still enforce the rules in the database.\"",
+  "senior": "Understand `@Valid` versus `@Validated`, validation groups, cascading into collections, custom constraint validators, and why database constraints remain the last line of defence."
+ },
+ "/spring/boot/testing-basics": {
+  "beginner": "A unit test checks one class in isolation. You create the class with `new`, give it fake collaborators (mocks) made with Mockito, call a method, and assert the result with AssertJ. These tests are fast because no Spring or database is started.\n\n**In an interview, say:** \"Most of my tests are plain JUnit tests with Mockito mocks and constructor-injected dependencies; I use Spring slice tests and Testcontainers only where I need the framework or a real database.\"",
+  "senior": "Know the test pyramid trade-offs, strict stubs, argument captors, when mocks hide real bugs and fakes are better, and how to keep suites fast and non-flaky."
+ },
+ "/spring/boot/auto-configuration": {
+  "beginner": "Auto-configuration is how Spring Boot creates beans for you. If it sees a database driver on the classpath it builds a `DataSource`; if you define your own, it steps aside. You can see what it decided by starting the app with `--debug`.\n\n**In an interview, say:** \"Auto-configuration classes are listed in AutoConfiguration.imports and guarded by conditions like @ConditionalOnMissingBean, so my own beans always win.\"",
+  "senior": "Be ready to write a custom auto-configuration and starter, explain condition ordering, why `@ConditionalOnBean` is only reliable in auto-configuration, and how to debug with the conditions report and Actuator."
+ },
+ "/spring/boot/actuator": {
+  "beginner": "Actuator adds ready-made endpoints that show how a running application is doing: `/actuator/health` says whether it is up, `/actuator/metrics` shows numbers such as memory use and request counts. Only health is exposed by default, and you must secure the sensitive ones.\n\n**In an interview, say:** \"Actuator exposes health, metrics and other operational endpoints; I expose only what I need, use liveness and readiness groups with Kubernetes, and secure the rest.\"",
+  "senior": "Know liveness versus readiness design (no dependencies in liveness), Micrometer tag cardinality, securing and isolating management endpoints, and custom health indicators with timeouts."
+ },
+ "/spring/boot/testing-slices-testcontainers": {
+  "beginner": "A full `@SpringBootTest` starts the whole application and is slow. Slice tests start only one layer: `@WebMvcTest` for controllers, `@DataJpaTest` for repositories. For database tests, Testcontainers runs a real database (such as PostgreSQL) in Docker instead of a fake one.\n\n**In an interview, say:** \"I use slice tests for speed, mock the service layer in @WebMvcTest, and use Testcontainers with the real database engine for repository and integration tests.\"",
+  "senior": "Know context caching and how `@MockitoBean` affects it, container reuse strategies, why H2 gives false confidence, and how to keep integration suites fast in CI."
+ },
+ "/spring/data/jpa-basics": {
+  "beginner": "JPA lets you work with database rows as Java objects. You mark a class with `@Entity`, give it an `@Id`, and extend `JpaRepository` to get methods like `save` and `findById` without writing SQL. Hibernate is the library underneath that turns this into SQL.\n\n**In an interview, say:** \"JPA is the standard, Hibernate is the implementation and Spring Data JPA generates the repositories. Inside a transaction, changes to managed entities are saved automatically (dirty checking).\"",
+  "senior": "Know persistence-context semantics, merge versus persist, fetch strategies per use case, pagination with fetch joins, projections, `open-in-view` consequences, and entity equality."
+ },
+ "/spring/data/n-plus-one-lazy-loading": {
+  "beginner": "The N+1 problem is a performance bug: you load a list of N parents with one query, then Hibernate runs one extra query for each parent to load its children, giving N+1 queries. It is fine with 5 rows and slow with 5,000. Fix it by fetching the children together with `join fetch` or an entity graph.\n\n**In an interview, say:** \"N+1 is one query for the parents plus one per parent for a lazy association; I detect it by counting SQL statements and fix it with join fetch, entity graphs, batch size or projections.\"",
+  "senior": "Be ready to prove a fix with statement counts, explain why EAGER is not a fix, why join fetch breaks pagination, and how to choose fetch strategy per use case."
+ },
+ "/spring/data/transactions": {
+  "beginner": "A transaction groups database operations so they all succeed or all fail. In Spring you put `@Transactional` on a service method; Spring starts the transaction before the method and commits afterwards, or rolls back if a runtime exception is thrown.\n\n**In an interview, say:** \"@Transactional works through a proxy, rolls back on runtime exceptions by default, and does not apply to calls within the same class.\"",
+  "senior": "Master propagation (the cost of `REQUIRES_NEW`), isolation and anomalies, rollback-only transactions, `readOnly` effects, after-commit hooks, and avoiding remote calls inside transactions."
+ },
+ "/spring/data/sql-tuning-indexing": {
+  "beginner": "An index is like the index of a book: it lets the database jump to the rows you want instead of reading the whole table. Indexes make reads faster but writes a little slower, so add them for columns you filter and join on, then check with `EXPLAIN`.\n\n**In an interview, say:** \"Indexes speed up lookups using a B-tree; I add them for real query patterns, order composite columns equality-first, and verify with EXPLAIN on realistic data.\"",
+  "senior": "Reason about query plans, composite order and covering indexes, keyset pagination, JDBC batching, connection pool sizing, and finding slow queries in production."
+ },
+ "/spring/data/caching": {
+  "beginner": "A cache keeps the result of slow work (a database query, a remote call) so the next request is fast. In Spring you add `@EnableCaching` and put `@Cacheable` on a method; the first call runs the method and later calls with the same arguments return the stored result.\n\n**In an interview, say:** \"I use cache-aside with @Cacheable, set a TTL and a size limit, evict on writes, and avoid caching data that must always be fresh.\"",
+  "senior": "Know cache stampedes, invalidation after commit, local versus distributed caches, the scope of Hibernate's second-level cache, and cache metrics. Expect to design caching for a read-heavy endpoint."
+ },
+ "/spring/security/security-architecture": {
+  "beginner": "Spring Security sits in front of your controllers as a chain of filters. It checks who you are (authentication) and what you are allowed to do (authorisation). If you are not logged in you get 401; if you are logged in but not allowed you get 403.\n\n**In an interview, say:** \"Spring Security is a filter chain that builds an Authentication, stores it in the SecurityContext, then applies authorisation rules; 401 means unauthenticated and 403 means forbidden.\"",
+  "senior": "Know the filter order, `AuthenticationManager` and providers, multiple filter chains, CSRF and CORS reasoning, method security, and how to test security rules including the negative paths."
+ },
+ "/spring/security/jwt": {
+  "beginner": "A JWT is a signed token the client sends with each request, usually in an `Authorization: Bearer ...` header. It contains claims such as the user id and expiry. The server checks the signature instead of looking the user up in a database. The contents are readable by anyone, so never put secrets in it.\n\n**In an interview, say:** \"A JWT is signed, not encrypted. The server validates signature, expiry, issuer and audience, and I keep access tokens short-lived with refresh tokens.\"",
+  "senior": "Be ready on signing algorithm choice, JWKS and key rotation, revocation strategies, token storage in browsers, algorithm-confusion attacks, and when server-side sessions are the better choice."
+ },
+ "/spring/security/common-vulnerabilities": {
+  "beginner": "Most web attacks come from a few mistakes: trusting user input, not checking who may access what, and leaking secrets. The basics to remember are: use parameterised queries, check access to every object, escape output, and never expose internals in error messages.\n\n**In an interview, say:** \"I use bind parameters against SQL injection, object-level authorisation against IDOR, output escaping for XSS, DTOs against mass assignment, and I keep dependencies and secrets managed.\"",
+  "senior": "Be able to threat-model a feature, explain SSRF and deserialization defences, secure the supply chain, and design layered controls rather than just listing the OWASP top ten."
+ },
+ "/spring/security/method-security": {
+  "beginner": "Method security puts access rules on service methods with annotations such as `@PreAuthorize(\"hasRole('ADMIN')\")`. It protects the business logic itself, not just the URLs, which matters for rules like \"a user may only read their own orders\".\n\n**In an interview, say:** \"URL rules are coarse; method security with @PreAuthorize and @PostAuthorize enforces object-level rules near the data. It is proxy-based, so self-invocation bypasses it.\"",
+  "senior": "Be able to prevent IDOR with scoped queries and `@PostAuthorize`, delegate policy to a testable bean, and explain the AOP limits that bypass checks."
+ },
+ "/spring/security/oauth2-oidc": {
+  "beginner": "OAuth 2.0 lets a user allow an application to access their data without sharing their password. OpenID Connect (OIDC) adds login on top: it tells the application who the user is. In practice you use a provider such as Keycloak or Auth0 and let your Spring app validate its tokens.\n\n**In an interview, say:** \"OAuth2 is for authorisation and OIDC adds authentication. Users log in with Authorization Code plus PKCE; services call each other with client credentials; APIs validate access tokens.\"",
+  "senior": "Know the flows and why implicit and password grants are deprecated, ID token versus access token, token propagation and exchange across microservices, the BFF pattern, and combining scopes with user permissions."
+ },
+ "/spring/data/locking": {
+  "beginner": "Locking prevents two users from overwriting each other's changes. Optimistic locking adds a version number to the row: if it changed since you read it, your update is rejected and you retry. Pessimistic locking locks the row while you work. Use optimistic locking by default.\n\n**In an interview, say:** \"I use @Version for optimistic locking and retry or return 409 on conflict; I use SELECT FOR UPDATE only for hot, contended rows.\"",
+  "senior": "Discuss lost-update and write-skew prevention, lock ordering and deadlocks, `SKIP LOCKED` queues, where the retry sits relative to the transaction, and choosing atomic updates over locks."
+ },
+ "/microservices/overview": {
+  "beginner": "Microservices split one big application into many small services, each owning one business capability and its own data, and each deployable on its own. The benefit is that teams can work and release independently; the cost is that services now talk over a network, which can fail.\n\n**In an interview, say:** \"Microservices are small, independently deployable services around business capabilities with their own data. They trade simple code for distributed-system complexity, so I start with a modular monolith unless team scale demands otherwise.\"",
+  "senior": "Interviewers want judgement: when not to use microservices, how to find boundaries (bounded contexts), how to avoid a distributed monolith, and how to migrate with the strangler pattern."
+ },
+ "/microservices/infrastructure/api-gateway": {
+  "beginner": "An API gateway is the single front door for clients. It routes each request to the right service and handles shared jobs such as authentication and rate limiting, so each service does not repeat them. Spring Cloud Gateway is the Spring option.\n\n**In an interview, say:** \"The gateway is the single entry point for routing, auth, rate limiting and TLS, and it must stay thin and never contain business logic.\"",
+  "senior": "Discuss gateway versus BFF, resilience at the edge, distributed rate limiting, non-blocking constraints in reactive filters, and the gateway as a failure point."
+ },
+ "/microservices/infrastructure/service-discovery": {
+  "beginner": "Services run on machines whose addresses change (they scale, restart, move). Service discovery keeps a live list of which instances of each service are running, so callers can find them by name instead of by a fixed address. On Kubernetes this is built in through Services.\n\n**In an interview, say:** \"Instances register with a registry and send heartbeats, and callers look up healthy instances by name; on Kubernetes the Service object and DNS already do this.\"",
+  "senior": "Discuss client-side versus server-side discovery, staleness and retries, Eureka's AP behaviour and self-preservation, and whether you need a registry on Kubernetes at all."
+ },
+ "/microservices/infrastructure/config-server": {
+  "beginner": "A config server keeps application settings for all services in one place, usually backed by Git, and serves them to each service at startup. That avoids copying `application.yml` into every repository. On Kubernetes, ConfigMaps and Secrets often do the same job.\n\n**In an interview, say:** \"Spring Cloud Config serves versioned, per-profile configuration; I refresh with @RefreshScope, keep secrets encrypted or in a vault, and prefer ConfigMaps when running on Kubernetes.\"",
+  "senior": "Discuss startup dependency and availability of the config server, dynamic refresh limits, secret handling, and when Kubernetes-native configuration is the simpler choice."
+ },
+ "/microservices/communication/service-communication": {
+  "beginner": "Services must talk to each other. Synchronous calls (REST, gRPC) wait for an answer; asynchronous messaging (Kafka, RabbitMQ) sends a message and moves on. Use synchronous calls when you need the answer now, and messaging when work can finish later or several services need to react.\n\n**In an interview, say:** \"I use REST or gRPC when the caller needs the answer immediately, with timeouts and fallbacks, and events for notifications and long workflows.\"",
+  "senior": "Discuss the availability maths of call chains, contract evolution and consumer-driven contracts, gRPC versus REST trade-offs, and keeping user-facing paths short and synchronous."
+ },
+ "/microservices/resilience/resilience4j": {
+  "beginner": "Calls to other services sometimes fail or are slow. Resilience4j gives you tools to stay healthy anyway: a circuit breaker stops calling a failing service, retry tries again for temporary failures, a bulkhead limits parallel calls, and a fallback returns a safe alternative.\n\n**In an interview, say:** \"A circuit breaker opens after failures, fails fast, then half-opens to test recovery. I combine it with timeouts, bounded retries with backoff, and bulkheads.\"",
+  "senior": "Know aspect order (retry outside the circuit breaker), retry storms, fallback semantics for critical operations, metric-driven alerting, and how mesh-level retries can multiply attempts."
+ },
+ "/microservices/observability": {
+  "beginner": "Observability means being able to see what your system is doing. The three tools are metrics (numbers over time), logs (event records) and traces (the path of one request across services). A trace id passed between services lets you follow a request from start to finish.\n\n**In an interview, say:** \"Metrics tell me something is wrong, traces show where, and logs show why. I use Micrometer and OpenTelemetry, with trace ids in structured logs.\"",
+  "senior": "Know RED and USE metrics, SLO burn-rate alerting, sampling strategies, context propagation across async boundaries, and cardinality control."
+ },
+ "/microservices/data-consistency/saga": {
+  "beginner": "In microservices each service has its own database, so one business action (placing an order) cannot be a single database transaction. A saga does it as a series of local steps; if a later step fails, earlier steps are undone by compensating actions (for example, refund a payment).\n\n**In an interview, say:** \"A saga is a sequence of local transactions with compensations, coordinated by events (choreography) or an orchestrator, giving eventual consistency without distributed transactions.\"",
+  "senior": "Expect design depth: orchestration versus choreography, idempotent compensations, timeouts, the lack of isolation and how to model intermediate states, and pairing sagas with the outbox."
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing": {
+  "beginner": "CQRS means using different models for writing data and for reading data, so each can be optimised. Event sourcing stores every change as an event instead of only the latest state. They are powerful but add complexity, so use them only where the benefit is clear.\n\n**In an interview, say:** \"CQRS separates commands from queries, often with read models built from events; event sourcing stores state as a sequence of events. Both bring eventual consistency and schema-evolution costs.\"",
+  "senior": "Discuss when to avoid them, event schema evolution and upcasting, snapshots, replay, and their relationship to the outbox pattern."
+ },
+ "/microservices/data-consistency/outbox-idempotency": {
+  "beginner": "Two common problems: updating the database and sending a message cannot both be made atomic (the dual write problem), and messages can arrive twice. The outbox pattern writes the message into a table in the same database transaction, and a separate process publishes it. Idempotency means doing something twice has the same effect as doing it once.\n\n**In an interview, say:** \"The transactional outbox makes the state change and the event publication atomic. Delivery is at-least-once, so consumers are idempotent using unique keys.\"",
+  "senior": "Compare a polling relay with CDC, ordering by aggregate key, relay concurrency with `SKIP LOCKED`, dedup table design, and idempotency keys on APIs."
+ },
+ "/databases/relational-design": {
+  "beginner": "Relational design is about organising data into tables without repeating yourself. Normalisation removes duplication so each fact is stored once; keys identify rows; constraints (NOT NULL, UNIQUE, FOREIGN KEY, CHECK) make the database refuse bad data.\n\n**In an interview, say:** \"I normalise to third normal form, use surrogate primary keys, enforce rules with constraints, and store money as DECIMAL and time in UTC.\"",
+  "senior": "Discuss who owns denormalised copies, UUIDv7 versus sequences, the cost of soft deletes, multi-tenancy models, and the schema checklist used in design reviews."
+ },
+ "/databases/sql-patterns": {
+  "beginner": "SQL asks the database for a set of rows: `SELECT` columns, `FROM` a table, `JOIN` related tables, `WHERE` to filter, `GROUP BY` to summarise. The patterns here (left join, window functions, upsert, pagination) cover most real tasks.\n\n**In an interview, say:** \"INNER JOIN keeps matches only and LEFT JOIN keeps all left rows. WHERE filters rows before grouping and HAVING filters groups. I use NOT EXISTS instead of NOT IN.\"",
+  "senior": "Be fluent in window functions, CTEs, upserts, keyset pagination, null semantics and reading plans; expect live query-writing."
+ },
+ "/databases/nosql-and-redis": {
+  "beginner": "NoSQL databases store data in shapes other than tables: documents (MongoDB), key-value (Redis), wide-column (Cassandra), graphs. Redis keeps data in memory and is used for caching, sessions, counters and rate limits. For most business data, a relational database is still the safe default.\n\n**In an interview, say:** \"I default to a relational database and choose NoSQL for specific access patterns or scale. Redis is my cache, session and rate-limit store, always with TTLs and a memory limit.\"",
+  "senior": "Discuss query-first modelling, hot partitions, consistency levels, Redis persistence and failover limits, and why Redis locks are not a correctness mechanism."
+ },
+ "/databases/schema-migrations": {
+  "beginner": "A migration is a versioned script that changes the database structure (add a column, create a table). Tools such as Flyway apply them in order and remember which have run, so every environment ends up with the same schema. Never edit a migration that has already run.\n\n**In an interview, say:** \"I manage schema with Flyway or Liquibase migrations in version control, never ddl-auto in production, and I make changes backwards compatible.\"",
+  "senior": "Know expand and contract, lock behaviour of DDL, safe backfills, online schema change tools, and rollback by forward fix."
+ },
+ "/databases/acid-isolation-mvcc": {
+  "beginner": "ACID describes what a good database guarantees for a transaction: Atomic (all or nothing), Consistent (rules stay true), Isolated (concurrent transactions do not interfere badly) and Durable (committed data survives a crash).\n\n**In an interview, say:** \"ACID means atomicity, consistency, isolation and durability. Isolation levels trade correctness for concurrency, and most databases use MVCC so readers do not block writers.\"",
+  "senior": "Know how MVCC works in PostgreSQL and InnoDB, snapshot-isolation anomalies (write skew), serialization failures and retry, `SKIP LOCKED`, and the operational impact of long transactions."
+ },
+ "/databases/replication-sharding": {
+  "beginner": "To handle more load, databases are copied to replicas (replication), big tables are split into pieces (partitioning), or data is spread across servers (sharding). Each step adds complexity, so you add caching and indexes first.\n\n**In an interview, say:** \"Replication copies data for reads and availability, partitioning splits a table on one server, and sharding splits data across servers by a shard key.\"",
+  "senior": "Discuss replication lag handling, failover and split brain, shard-key choice and hot keys, consistent hashing, distributed id generation, and CAP and PACELC."
+ },
+ "/messaging/kafka-fundamentals": {
+  "beginner": "Kafka is a system for streaming messages. Producers write messages to a topic; a topic is split into partitions (ordered logs); consumers read at their own pace. Messages are kept for a configured time, so many consumers can read the same data and you can replay it.\n\n**In an interview, say:** \"Kafka is a distributed, replicated commit log: topics are split into partitions, ordering is guaranteed per partition, and consumer groups scale reads.\"",
+  "senior": "Know durability settings (acks, ISR, `min.insync.replicas`), idempotent producers, batching and compression, retention versus compaction, and partition planning."
+ },
+ "/messaging/kafka-consumers-offsets": {
+  "beginner": "Consumers join a consumer group; Kafka gives each partition to exactly one consumer in the group, so work is shared. A consumer remembers its place by committing an offset. If you commit after processing, a crash can cause a message to be processed twice, so handlers should be safe to repeat.\n\n**In an interview, say:** \"Consumers in a group split partitions. I commit offsets after processing for at-least-once delivery and make handlers idempotent.\"",
+  "senior": "Know rebalance causes and mitigations, delivery semantics and the limits of exactly-once, lag monitoring per partition, and poll-loop tuning."
+ },
+ "/messaging/rabbitmq-basics": {
+  "beginner": "RabbitMQ is a message broker. Producers send messages to an exchange, which routes them to queues, and consumers take messages from queues and acknowledge them. It is great for task queues and flexible routing.\n\n**In an interview, say:** \"RabbitMQ routes messages from exchanges to queues through bindings. I use durable quorum queues, publisher confirms and manual acks, and a dead-letter exchange for failures.\"",
+  "senior": "Compare with Kafka by semantics, and discuss prefetch, retry topology, delivery limits, ordering with multiple consumers, and streams."
+ },
+ "/messaging/kafka-ordering-design": {
+  "beginner": "Kafka only guarantees order inside one partition, so you choose a key (for example the order id) to send related messages to the same partition. When a message keeps failing, you retry a few times and then move it to a dead-letter topic so it does not block the rest.\n\n**In an interview, say:** \"I key messages by aggregate id for per-entity order, use bounded retries and a dead-letter topic, and make consumers idempotent.\"",
+  "senior": "Go deep on partition skew and hot keys, blocking versus non-blocking retries, deserialisation failures, schema evolution with a registry, and DLT operations and replay."
+ },
+ "/devops/docker-for-java": {
+  "beginner": "Docker packages your app and everything it needs into an image that runs the same everywhere. For Java you copy the built jar into an image based on a Java runtime and run it. Good images are small, run as a non-root user, and rebuild quickly because unchanged layers are cached.\n\n**In an interview, say:** \"I use a multi-stage build with a layered jar, a JRE base image, a non-root user, an exec-form entrypoint for graceful shutdown, and MaxRAMPercentage for container memory.\"",
+  "senior": "Discuss JVM behaviour under cgroup limits, off-heap memory and OOM kills, CDS or native image for startup, supply-chain hardening, and image scanning."
+ },
+ "/devops/kubernetes-basics": {
+  "beginner": "Kubernetes runs your containers across many machines. You describe the desired state in YAML (a Deployment with 3 replicas) and Kubernetes keeps reality matching it: restarting failed containers, rolling out new versions, and routing traffic through Services.\n\n**In an interview, say:** \"A Deployment manages Pods through ReplicaSets, a Service gives a stable address, probes decide restarts and traffic, and requests and limits control scheduling and resource use.\"",
+  "senior": "Know probe design, JVM requests and limits and CPU throttling, the graceful termination race, HPA and KEDA scaling, PodDisruptionBudgets and topology spread, and debugging CrashLoopBackOff and OOMKilled."
+ },
+ "/devops/ci-cd": {
+  "beginner": "CI/CD automates building, testing and deploying. Every change triggers a pipeline that compiles, runs tests, scans for problems, builds an image, and (after approval or automatically) deploys it. The aim is frequent, safe releases.\n\n**In an interview, say:** \"CI merges and tests frequently; CD keeps every build releasable. I build once, promote the same artifact through environments, and keep main always green.\"",
+  "senior": "Discuss GitOps, supply-chain security, test layering, trunk-based development with feature flags, DORA metrics, and secrets handling in pipelines."
+ },
+ "/devops/twelve-factor": {
+  "beginner": "The twelve-factor app is a checklist for building cloud-friendly services: keep config in the environment, treat databases and queues as replaceable resources, keep processes stateless, write logs to stdout, and be able to start and stop quickly.\n\n**In an interview, say:** \"Twelve-factor means config in the environment, stateless processes, backing services as attached resources, logs as streams, fast startup and graceful shutdown, and the same build in every environment.\"",
+  "senior": "Map each factor to Boot, Docker and Kubernetes practice, and discuss the factors people violate (sessions, local files, cron in every replica) and the modern additions."
+ },
+ "/devops/deployment-strategies": {
+  "beginner": "A deployment strategy decides how new code replaces old code. A rolling update replaces instances gradually; blue-green switches all traffic between two environments; canary sends a small share of traffic to the new version first. Feature flags let you ship code switched off and enable it later.\n\n**In an interview, say:** \"Rolling is the default, blue-green gives instant rollback, canary limits blast radius using metrics, and feature flags decouple deploy from release. Database changes must be backwards compatible.\"",
+  "senior": "Discuss compatibility of schema, APIs and events, graceful termination, automated analysis and rollback, and warm-up effects."
+ },
+ "/system-design/approach-and-estimation": {
+  "beginner": "A system design interview asks you to design a larger system (like a URL shortener) on a whiteboard. Do not jump to technology. First clarify what the system must do and how big it is, then sketch the main parts, then explain the trade-offs.\n\n**In an interview, say:** \"I will clarify the requirements, estimate scale, define the API and data, draw a high-level design, then deep dive on the hardest parts and discuss trade-offs.\"",
+  "senior": "Show judgement: numbers drive choices, failure modes are raised unprompted, and every component is justified by a requirement."
+ },
+ "/system-design/url-shortener": {
+  "beginner": "A URL shortener turns a long URL into a short code (like `sho.rt/aZ3x9Qk`) and redirects visitors. The main design questions are how to generate unique short codes, how to store them, and how to make redirects fast with caching.\n\n**In an interview, say:** \"I generate unique ids and encode them in Base62, store code-to-URL in a key-value or sharded database, cache hot codes, and use 302 if I need analytics.\"",
+  "senior": "Go deep on code generation trade-offs, hot keys, 301 versus 302, an analytics pipeline off the critical path, abuse protection, and failure scenarios."
+ },
+ "/system-design/rate-limiter": {
+  "beginner": "A rate limiter restricts how many requests a client can make in a time window, protecting your service from abuse and overload. The popular algorithm is the token bucket: tokens refill at a steady rate and each request uses one, so short bursts are allowed.\n\n**In an interview, say:** \"I would use a token bucket per client key, stored in Redis with an atomic script for distributed use, return 429 with Retry-After, and decide fail-open or fail-closed per endpoint.\"",
+  "senior": "Compare algorithms and their burst behaviour, atomicity and clocks in Redis, placement at the gateway versus the service, failure policy, and layered limits."
+ },
+ "/system-design/order-processing": {
+  "beginner": "Placing an order touches several services (orders, inventory, payment). Because each has its own database, you design it as a series of steps with an order status that moves through states (PENDING, PAID, SHIPPED), and you undo earlier steps if a later one fails.\n\n**In an interview, say:** \"I model the order as a state machine, use idempotency keys so retries do not double-charge, reserve stock before charging, and coordinate the steps with a saga.\"",
+  "senior": "Deep dive on saga orchestration, the outbox, unknown payment outcomes, hot-SKU inventory, reconciliation, and observability of stuck orders."
+ },
+ "/system-design/notification-service": {
+  "beginner": "A notification service sends emails, SMS and push messages on behalf of other services. The key ideas: accept requests quickly into a queue, send them with workers, retry failures, respect user preferences, and avoid duplicates.\n\n**In an interview, say:** \"I accept requests into a queue, use separate queues per channel and priority, retry transient failures with backoff and jitter, dedupe by key, and honour user opt-outs.\"",
+  "senior": "Discuss priority isolation, provider throttling and failover, idempotency and unknown outcomes, consent and compliance, bulk campaigns, and delivery tracking."
+ },
+ "/system-design/tradeoffs": {
+  "beginner": "Every design choice has a cost: consistency versus availability, simple versus scalable, synchronous versus asynchronous. A good answer names the options, compares them against the requirements, picks one, and says what you give up.\n\n**In an interview, say:** \"I choose X over Y because of requirement Z; I accept W as the cost and would revisit if V changes.\"",
+  "senior": "Show that you decide per operation, quantify trade-offs, keep ADRs, and state the conditions under which you would revisit a decision."
+ },
+ "/toolkit/study-roadmap": {
+  "beginner": "This page tells you what to study and in what order. Pick the track that matches your experience, follow the weekly plan, and learn each topic three ways: read it, explain it aloud, and practise it. Do not try to read everything at once.",
+  "senior": "Use the senior track to audit your gaps first, then spend most of your time on system design, distributed data and leadership stories."
+ },
+ "/toolkit/behavioral-star": {
+  "beginner": "A behavioural question asks about something you did (\"tell me about a time...\"). Answer with STAR: Situation, Task, Action, Result. Spend most of your time on what **you** did and on the result.\n\n**In an interview, say:** \"The situation was..., my task was..., I did..., and the result was...\"",
+  "senior": "Prepare 6-8 stories with numbers and trade-offs, show leadership and influence, and own failures with specific learning."
+ },
+ "/toolkit/coding-problems": {
+  "beginner": "Coding interviews check how you solve problems. Learn the common patterns (hash map, two pointers, sliding window, stack, binary search) and practise explaining your approach, complexity and edge cases while you code.\n\n**In an interview, say:** \"First I will clarify the input, then describe a brute-force approach, then improve it, state the time and space complexity, and test edge cases.\"",
+  "senior": "Expect harder variants plus concurrency design questions; communicate trade-offs and testing, not only the code."
+ },
+ "/toolkit/cheat-sheets": {
+  "beginner": "A one-page reference for quick revision the day before an interview. Skim the sections for your level, and read the linked page for anything that surprises you.",
+  "senior": "Use these as a last pass to check that you can explain the \"why\" behind each line, especially in the JVM, transactions and Kafka tables."
+ }
+}
