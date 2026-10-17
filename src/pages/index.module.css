@@ -1,66 +1,62 @@
 .hero {
-  padding: 3.5rem 0 2.5rem;
-  border-bottom: 1px solid var(--lw-border);
-  background: var(--lw-surface-2);
+  padding: clamp(4rem, 11vw, 8rem) 1.25rem clamp(3rem, 7vw, 5rem);
+  text-align: center;
+  background:
+    radial-gradient(60rem 28rem at 50% -10%, var(--lw-accent-soft), transparent 70%),
+    var(--lw-bg);
+}
+
+.eyebrow {
+  margin: 0 0 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ifm-color-primary);
 }
 
 .title {
-  font-size: clamp(2rem, 4.5vw, 3rem);
-  line-height: 1.12;
-  letter-spacing: -0.03em;
-  max-width: 46rem;
-  margin: 0 0 0.9rem;
+  max-width: 19ch;
+  margin: 0 auto;
+  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.titleSoft {
+  color: var(--lw-text-soft);
 }
 
 .subtitle {
-  font-size: 1.15rem;
+  max-width: 38rem;
+  margin: 1.6rem auto 0;
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  line-height: 1.45;
   color: var(--lw-text-soft);
-  max-width: 42rem;
-  margin: 0 0 2rem;
-}
-
-.step {
-  margin-top: 1.5rem;
-}
-
-.stepLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
-
-.stepLabel small {
-  font-weight: 400;
-  color: var(--lw-text-soft);
-}
-
-.stepNum {
-  display: inline-grid;
-  place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  background: var(--ifm-color-primary);
-  color: #fff;
-  font-size: 0.85rem;
+  letter-spacing: -0.01em;
 }
 
 .actions {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.8rem;
+  margin-top: 2.2rem;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.7rem 1.3rem;
-  border-radius: 10px;
-  font-weight: 650;
+  padding: 0.85rem 1.7rem;
+  border-radius: 999px;
+  font-size: 1.02rem;
+  font-weight: 600;
   text-decoration: none !important;
-  border: 1px solid transparent;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
 }
 
 .btnPrimary {
@@ -70,63 +66,180 @@
 
 .btnPrimary:hover {
   background: var(--ifm-color-primary-dark);
+  box-shadow: 0 8px 24px var(--lw-accent-soft);
 }
 
-.btnSecondary {
-  background: var(--lw-surface);
-  border-color: var(--lw-border);
-  color: var(--ifm-color-content) !important;
+.btnGhost {
+  background: var(--lw-surface-2);
+  color: var(--lw-text) !important;
 }
 
-.btnSecondary:hover {
-  border-color: var(--ifm-color-primary);
+.btnGhost:hover {
+  background: var(--lw-border);
+}
+
+.level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 3.2rem;
+}
+
+.levelLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lw-text-soft);
 }
 
 .main {
-  padding: 2.5rem 1rem 4rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 6rem;
+}
+
+.section {
+  padding: clamp(3rem, 7vw, 5.5rem) 0 0;
 }
 
 .h2 {
-  font-size: 1.6rem;
-  margin-bottom: 1.2rem;
-  scroll-margin-top: 5rem;
+  margin: 0;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.lead {
+  max-width: 40rem;
+  margin: 0.9rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--lw-text-soft);
+}
+
+.parts {
+  list-style: none;
+  margin: 2.2rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+@media (min-width: 760px) {
+  .parts {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.part {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 20px;
+  background: var(--lw-surface-2);
+  font-size: 0.92rem;
+  color: var(--lw-text-soft);
+}
+
+.part strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--lw-text);
+}
+
+.partNum {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-primary);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: 1rem;
+  margin-top: 2.2rem;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  padding: 1.2rem 1.3rem;
-  border: 1px solid var(--lw-border);
-  border-radius: 12px;
+  padding: 1.7rem 1.6rem 1.4rem;
+  border-radius: 24px;
   background: var(--lw-surface);
-  color: var(--ifm-color-content) !important;
+  box-shadow: var(--lw-shadow);
+  color: var(--lw-text) !important;
   text-decoration: none !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-  border-color: var(--ifm-color-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--lw-shadow-hover);
 }
 
 .card h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.025em;
 }
 
 .card p {
-  margin: 0 0 0.8rem;
-  color: var(--lw-text-soft);
-  font-size: 0.93rem;
   flex: 1;
+  margin: 0 0 1.2rem;
+  color: var(--lw-text-soft);
+  line-height: 1.45;
 }
 
 .count {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--ifm-color-primary);
+}
+
+.labs {
+  margin-top: clamp(3rem, 7vw, 5.5rem);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  border-radius: 32px;
+  background: var(--lw-surface-2);
+}
+
+.labGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 20px;
+  background: var(--lw-surface);
+  color: var(--lw-text) !important;
+  text-decoration: none !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.lab:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--lw-shadow-hover);
+}
+
+.lab strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.lab span {
+  font-size: 0.92rem;
+  color: var(--lw-text-soft);
+  line-height: 1.4;
 }

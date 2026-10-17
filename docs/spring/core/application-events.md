@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # Application Events
 
-Spring's event mechanism is an **in-process observer pattern**: publishers do not know their listeners. It decouples modules inside one application (and is not a message broker).
-
 <Outcomes items={[
   "Publish and listen to application events",
   "Explain that listeners are synchronous by default",

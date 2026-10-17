@@ -8,8 +8,6 @@ sidebar_position: 7
 
 # Garbage Collection
 
-Java manages memory automatically: objects that are no longer **reachable** from GC roots (thread stacks, static fields, JNI references) are reclaimed. The real question is how the collector trades **throughput**, **latency** (pause times) and **footprint**.
-
 <Outcomes items={[
   "Describe the generational heap and the major collectors",
   "Choose a collector for latency versus throughput goals",

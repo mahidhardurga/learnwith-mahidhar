@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # equals, hashCode and compareTo
 
-Hash-based collections, caches, `Set`s, `distinct()` and `groupingBy` all depend on these methods. Bugs here are silent: lookups fail, duplicates appear, memory leaks.
-
 <Outcomes items={[
   "Write equals and hashCode that obey the contract",
   "Explain why mutable fields in hashCode break HashMap lookups",

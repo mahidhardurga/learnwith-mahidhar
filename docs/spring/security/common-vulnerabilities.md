@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # Common Vulnerabilities and Defences
 
-Security questions for senior roles are rarely "name the OWASP list"; they are "how would you stop X in your Spring service?" This page ties each class of vulnerability to concrete Java/Spring controls.
-
 <Outcomes items={[
   "Recognise the OWASP-style vulnerabilities that hit Java APIs",
   "Apply the standard defence for each",

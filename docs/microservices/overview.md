@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Microservices: Architecture and Decomposition
 
-A microservice architecture structures an application as a set of small services, each owning a business capability and its data, deployable independently and communicating over the network. The hard part is not the technology; it is **where to draw the boundaries** and living with distributed-system failure modes.
-
 <Outcomes items={[
   "Decide when microservices are worth their cost",
   "Find service boundaries using bounded contexts",

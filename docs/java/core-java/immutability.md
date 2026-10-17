@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Immutability
 
-An immutable object cannot change after construction. It is the cheapest form of thread safety, a simplifier for reasoning and caching, and a frequent interview topic because writing a *truly* immutable class is subtler than adding `final`.
-
 <Outcomes items={[
   "List the rules for an immutable class",
   "Explain shallow versus deep immutability",

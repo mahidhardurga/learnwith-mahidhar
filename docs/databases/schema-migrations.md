@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Schema Migrations and Zero-Downtime Changes
 
-Schema changes are the riskiest routine deployment step: a bad migration locks a hot table or breaks old application instances still running during a rolling deploy.
-
 <Outcomes items={[
   "Manage schema changes with versioned migrations",
   "Make changes backward compatible (expand and contract)",

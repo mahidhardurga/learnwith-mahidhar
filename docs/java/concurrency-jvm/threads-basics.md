@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Threads: The Fundamentals
 
-Everything in the concurrency section builds on this: what a thread is, how it ends, how it can get stuck, and how to see what it is doing.
-
 <Outcomes items={[
   "Describe thread states and what moves a thread between them",
   "Stop a thread cooperatively with interruption",

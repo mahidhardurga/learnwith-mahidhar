@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # Java Collections Framework
 
-Choosing a collection is a design decision with performance, memory and concurrency consequences. Know the data structure behind each and you can answer almost any variation.
-
 <Outcomes items={[
   "Pick the right collection for a given access pattern",
   "State the time complexity of common list, set and map operations",

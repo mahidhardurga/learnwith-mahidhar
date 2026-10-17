@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Relational Database Design
 
-A schema outlives the code around it. Mistakes in keys, constraints and types are expensive to fix once millions of rows exist, so design deliberately.
-
 <Outcomes items={[
   "Normalise a design to third normal form and know when to denormalise",
   "Choose keys and constraints",

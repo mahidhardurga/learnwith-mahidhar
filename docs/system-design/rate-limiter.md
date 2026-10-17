@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # Design a Rate Limiter
 
-A rate limiter caps how many requests a client can make in a time window. It protects services from abuse, accidents (a buggy client loop), noisy neighbours and cost explosions, and enforces fair use or pricing tiers. Rate limiting, **load shedding** and **back-pressure** are related but different: a limiter enforces per-client policy; load shedding protects the service when overloaded regardless of who is calling.
-
 <Outcomes items={[
   "Compare fixed window, sliding window and token bucket",
   "Implement a distributed limiter with atomic Redis operations",

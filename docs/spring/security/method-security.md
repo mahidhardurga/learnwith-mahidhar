@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # Method Security
 
-URL rules (`requestMatchers(...)`) protect **endpoints**. They cannot express "this user may only read **their own** orders", and they do not protect code paths that reach a service by other means (messages, schedulers, other controllers). **Method security** enforces rules at the **service layer**, close to the data, and is how you stop **IDOR** (insecure direct object reference / broken object-level authorization), the number one API vulnerability.
-
 <Outcomes items={[
   "Enable method security and use @PreAuthorize",
   "Delegate complex rules to a bean",

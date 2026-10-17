@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # Service Discovery
 
-In a cloud environment, instances start, stop and move constantly, so IP addresses cannot be hard-coded. **Service discovery** maintains a live registry mapping a logical name (`inventory-service`) to the healthy instances currently serving it.
-
 <Outcomes items={[
   "Explain registration, heartbeats and lookup",
   "Compare client-side and server-side discovery",

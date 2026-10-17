@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # SQL Tuning and Indexing
 
-Most "slow Spring Boot" problems are slow queries. You do not need to be a DBA, but you must be able to explain why a query is slow and what to change.
-
 <Outcomes items={[
   "Explain how a B-tree index speeds up queries",
   "Apply the leftmost-prefix rule to composite indexes",

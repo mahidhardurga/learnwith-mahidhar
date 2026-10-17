@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # Docker for Java Applications
 
-A container image is an **immutable, layered filesystem** plus metadata (entrypoint, environment, user). A container is a process started from it, isolated by Linux namespaces and limited by cgroups. For Java, good images mean fast builds, fast deploys, a small attack surface and a JVM that understands its limits.
-
 <Outcomes items={[
   "Write a layered, multi-stage Dockerfile for Spring Boot",
   "Configure the JVM for container memory",

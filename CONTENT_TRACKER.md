@@ -133,7 +133,6 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 
 | Page | Status | Notes |
 | --- | --- | --- |
-| study-roadmap | drafted | Fresher, 3-5 yrs, senior tracks |
 | questions-fresher | drafted | Questions 1-35 |
 | questions-mid-level | drafted | Questions 36-70 |
 | questions-senior | drafted | Questions 71-100 |
@@ -159,8 +158,12 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 - `mermaid` is pinned to the 11.x line in `package.json`. With Mermaid 12.2 (what `@docusaurus/theme-mermaid` resolved by default) some diagrams silently failed to render on a hard page load even though `npm run build` passed. After pinning 11.17.2 all 61 diagrams were verified to render on a production build.
 - `npm run build` does **not** catch Mermaid render problems; after adding diagrams, open the pages (or re-run a render sweep) as well.
 - A doc whose file name equals its folder name (`microservices/observability/observability.md`) is served at the folder URL (`/microservices/observability`).
-- Level personalisation: every new page must also be added to `src/data/levels.ts` (`PAGES`, and optionally `PLANS`). All 81 current pages are mapped; plan links were checked against real pages.
-- Section levels: every H2 of every page has a level in `src/data/section-overrides.json` (563 sections: 138 beginner, 291 mid, 134 senior). These are editorial judgements, so they are worth a skim when you review each page. `npm run validate:levels` checks they stay in sync with the headings.
-- Level-specific writing: 78 pages have a beginner intro and a "Senior focus" intro in `src/data/level-intros.json` (the three `toolkit/questions-*` pages are excluded); 119 beginner sections have "In plain words" notes in `src/data/level-section-notes.json`. Wording was written for this site and is worth a read when reviewing each page.
 - Interactive pilot (HashMap, Saga, Kafka fundamentals): each has `<Outcomes>`, a hands-on lab (`<HashMapLab/>`, `<SagaLab/>`, `<KafkaLab/>`) and a `<Checkpoint>` self-test, in `src/components/Interactive/`. Headings starting "Try it" and "Check yourself" are never collapsed. The lesson header (topic N of M, reading time) comes from `src/theme/DocItem/Content`. Core Java was re-ordered as a course (OOP, collections, equals/hashCode, HashMap, ConcurrentHashMap, immutability, generics, exceptions, streams, modern Java). Rolled out to every content page (75): each has an `<Outcomes>` card and a 3-question `<Checkpoint>` (the reference pages `intro`, `study-roadmap`, `cheat-sheets` and the three `questions-*` banks have none). Extra labs: `<CircuitBreakerLab/>` (resilience4j), `<TokenBucketLab/>` (rate limiter), `<IsolationLab/>` (ACID and isolation, PostgreSQL behaviour). Reading order was fixed in Core Java, Concurrency and JVM, Spring Boot, Microservices data consistency, Databases and DevOps. The quiz answers were written for this site and are worth a skim during review.
-- The plugin matches the page title as Docusaurus's `<header>` JSX node (not a raw `h1`); caches must be cleared after plugin edits.
+
+## Ten-part lessons, one version for everyone, Apple-style UI (latest)
+
+- Experience levels (beginner, mid, senior) and the study plan were removed. There is one version of every page, and the Definition is written in short, plain words (2-3 sentences).
+- Every topic follows the ten parts in a fixed order (see README). 76 pages have a written definition, why it exists and when to use it, and many have system design notes. All wording was written for this site and is worth a read when reviewing each page.
+- Example code (part 4) and System design (part 5) come from sections a page already had, and are skipped otherwise. Adding standalone examples and design notes to the pages that lack them is a sensible follow-up.
+- The three question banks keep their file names (and URLs) but are now titled Foundations (1-35), Applied (36-70) and Advanced (71-100).
+- UI: Apple-style neutrals, system font stack, translucent navbar, numbered part headers, redesigned home page. Colours and spacing are tokens at the top of `src/css/custom.css`.

@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # Deployment Strategies
 
-Every release carries risk. Strategies differ in **how much traffic hits new code, how fast you can undo it, and what it costs** in infrastructure and complexity. The strategy you pick is also constrained by your **database and message contracts**, because old and new versions often run simultaneously.
-
 <Outcomes items={[
   "Compare rolling, blue-green and canary releases",
   "Use feature flags to separate deploy from release",

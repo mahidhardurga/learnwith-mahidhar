@@ -1,5 +1,5 @@
 ---
-title: Java 8 to 25 - Features Every Senior Developer Should Know
+title: Java 8 to 25 - The Features That Matter
 sidebar_label: "Java 8 to 25 features"
 description: A release-by-release tour of important Java features from Java 8 to Java 25 LTS - lambdas, modules, var, records, sealed classes, pattern matching, virtual threads, sequenced collections and what to adopt.
 keywords: [java 8 features, java 11, java 17, java 21, java 25, records, sealed classes, pattern matching, text blocks, switch expressions, LTS versions]
@@ -7,8 +7,6 @@ sidebar_position: 10
 ---
 
 # Java 8 to 25: What Matters
-
-New LTS releases arrive every two years: **8, 11, 17, 21, 25**. Interviewers often ask "what is new since Java 8?" and "which features would you actually adopt?". This page groups features by value, not just by number. Always check the JEP status for your exact JDK; some features are previews in one release and final in the next.
 
 <Outcomes items={[
   "Place the main features on the Java 8, 17, 21 and 25 timeline",

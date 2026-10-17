@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # Executors and Thread Pools
 
-Thread pools decouple **submitting work** from **running it**, bound resource usage and reuse expensive threads. The senior-level topics are how `ThreadPoolExecutor` actually decides, how to size pools, and how pools fail in production.
-
 <Outcomes items={[
   "Configure ThreadPoolExecutor and explain how it queues and rejects",
   "Size pools for CPU-bound versus blocking work",

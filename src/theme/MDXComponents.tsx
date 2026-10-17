@@ -1,5 +1,6 @@
 import MDXComponents from '@theme-original/MDXComponents';
-import {LevelIntro, LevelIntroBody, LevelQA, LevelSection} from '@site/src/components/LevelContent';
+import InterviewQA from '@site/src/components/InterviewQA';
+import {LessonDefinition, LessonDesign, LessonSlot, LessonWhen, LessonWhy, NextTopic} from '@site/src/components/Lesson';
 import {Checkpoint, Outcomes} from '@site/src/components/Interactive/Checkpoint';
 import {HashMapLab} from '@site/src/components/Interactive/HashMapLab';
 import {SagaLab} from '@site/src/components/Interactive/SagaLab';
@@ -10,10 +11,13 @@ import {IsolationLab} from '@site/src/components/Interactive/IsolationLab';
 
 export default {
   ...MDXComponents,
-  LevelSection,
-  LevelQA,
-  LevelIntro,
-  LevelIntroBody,
+  InterviewQA,
+  LessonSlot,
+  LessonDefinition,
+  LessonWhy,
+  LessonDesign,
+  LessonWhen,
+  NextTopic,
   Checkpoint,
   Outcomes,
   HashMapLab,

@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # N+1 Problem and Lazy Loading
 
-The N+1 problem is the most common JPA performance bug and a favourite interview question.
-
 <Outcomes items={[
   "Recognise the N+1 query problem and detect it",
   "Fix it with join fetch, entity graphs or batch fetching",

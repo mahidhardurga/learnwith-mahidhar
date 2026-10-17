@@ -1,407 +1,322 @@
 [
  {
   "path": "/java/core-java/oop-and-design",
-  "title": "OOP and design principles",
-  "level": "beginner"
+  "title": "OOP and design principles"
  },
  {
   "path": "/java/core-java/collections-framework",
-  "title": "Collections framework",
-  "level": "beginner"
+  "title": "Collections framework"
  },
  {
   "path": "/java/core-java/equals-hashcode",
-  "title": "equals, hashCode, compareTo",
-  "level": "beginner"
+  "title": "equals, hashCode, compareTo"
  },
  {
   "path": "/java/core-java/exceptions",
-  "title": "Exception handling",
-  "level": "beginner"
+  "title": "Exception handling"
  },
  {
   "path": "/java/core-java/streams-and-lambdas",
-  "title": "Streams and lambdas",
-  "level": "beginner"
+  "title": "Streams and lambdas"
  },
  {
   "path": "/java/core-java/modern-java",
-  "title": "Java 8 to 25 features",
-  "level": "beginner"
+  "title": "Java 8 to 25 features"
  },
  {
   "path": "/java/core-java/hashmap-internals",
-  "title": "HashMap internals",
-  "level": "mid"
+  "title": "HashMap internals"
  },
  {
   "path": "/java/core-java/concurrenthashmap",
-  "title": "ConcurrentHashMap",
-  "level": "mid"
+  "title": "ConcurrentHashMap"
  },
  {
   "path": "/java/core-java/generics",
-  "title": "Generics and PECS",
-  "level": "mid"
+  "title": "Generics and PECS"
  },
  {
   "path": "/java/core-java/immutability",
-  "title": "Immutability",
-  "level": "mid"
+  "title": "Immutability"
  },
  {
   "path": "/java/concurrency-jvm/threads-basics",
-  "title": "Threads fundamentals",
-  "level": "beginner"
+  "title": "Threads fundamentals"
  },
  {
   "path": "/java/concurrency-jvm/executors",
-  "title": "Executors and thread pools",
-  "level": "mid"
+  "title": "Executors and thread pools"
  },
  {
   "path": "/java/concurrency-jvm/completablefuture",
-  "title": "CompletableFuture",
-  "level": "mid"
+  "title": "CompletableFuture"
  },
  {
   "path": "/java/concurrency-jvm/synchronization-and-locks",
-  "title": "synchronized, volatile, locks",
-  "level": "mid"
+  "title": "synchronized, volatile, locks"
  },
  {
   "path": "/java/concurrency-jvm/garbage-collection",
-  "title": "Garbage collection",
-  "level": "mid"
+  "title": "Garbage collection"
  },
  {
   "path": "/java/concurrency-jvm/memory-model",
-  "title": "Java Memory Model",
-  "level": "senior"
+  "title": "Java Memory Model"
  },
  {
   "path": "/java/concurrency-jvm/jvm-tuning-diagnostics",
-  "title": "JVM tuning and diagnostics",
-  "level": "senior"
+  "title": "JVM tuning and diagnostics"
  },
  {
   "path": "/java/concurrency-jvm/virtual-threads",
-  "title": "Virtual threads",
-  "level": "senior"
+  "title": "Virtual threads"
  },
  {
   "path": "/spring/core/ioc-and-dependency-injection",
-  "title": "IoC and dependency injection",
-  "level": "beginner"
+  "title": "IoC and dependency injection"
  },
  {
   "path": "/spring/core/bean-lifecycle-and-scopes",
-  "title": "Bean lifecycle and scopes",
-  "level": "mid"
+  "title": "Bean lifecycle and scopes"
  },
  {
   "path": "/spring/core/aop-and-proxies",
-  "title": "AOP and proxies",
-  "level": "mid"
+  "title": "AOP and proxies"
  },
  {
   "path": "/spring/core/configuration-profiles-conditions",
-  "title": "Configuration, profiles, conditions",
-  "level": "mid"
+  "title": "Configuration, profiles, conditions"
  },
  {
   "path": "/spring/core/application-events",
-  "title": "Application events",
-  "level": "mid"
+  "title": "Application events"
  },
  {
   "path": "/spring/boot/overview",
-  "title": "Spring Boot overview",
-  "level": "beginner"
+  "title": "Spring Boot overview"
  },
  {
   "path": "/spring/boot/starters",
-  "title": "Starters and dependency management",
-  "level": "beginner"
+  "title": "Starters and dependency management"
  },
  {
   "path": "/spring/boot/configuration",
-  "title": "Configuration and properties",
-  "level": "beginner"
+  "title": "Configuration and properties"
  },
  {
   "path": "/spring/boot/exception-handling",
-  "title": "REST exception handling",
-  "level": "beginner"
+  "title": "REST exception handling"
  },
  {
   "path": "/spring/boot/validation",
-  "title": "Bean validation",
-  "level": "beginner"
+  "title": "Bean validation"
  },
  {
   "path": "/spring/boot/testing-basics",
-  "title": "Testing: JUnit and Mockito",
-  "level": "beginner"
+  "title": "Testing: JUnit and Mockito"
  },
  {
   "path": "/spring/boot/auto-configuration",
-  "title": "Auto-configuration",
-  "level": "mid"
+  "title": "Auto-configuration"
  },
  {
   "path": "/spring/boot/actuator",
-  "title": "Actuator",
-  "level": "mid"
+  "title": "Actuator"
  },
  {
   "path": "/spring/boot/testing-slices-testcontainers",
-  "title": "Slice tests and Testcontainers",
-  "level": "mid"
+  "title": "Slice tests and Testcontainers"
  },
  {
   "path": "/spring/data/jpa-basics",
-  "title": "JPA and Hibernate basics",
-  "level": "beginner"
+  "title": "JPA and Hibernate basics"
  },
  {
   "path": "/spring/data/n-plus-one-lazy-loading",
-  "title": "N+1 and lazy loading",
-  "level": "mid"
+  "title": "N+1 and lazy loading"
  },
  {
   "path": "/spring/data/transactions",
-  "title": "Transactions",
-  "level": "mid"
+  "title": "Transactions"
  },
  {
   "path": "/spring/data/sql-tuning-indexing",
-  "title": "SQL tuning and indexing",
-  "level": "mid"
+  "title": "SQL tuning and indexing"
  },
  {
   "path": "/spring/data/caching",
-  "title": "Caching",
-  "level": "mid"
+  "title": "Caching"
  },
  {
   "path": "/spring/data/locking",
-  "title": "Optimistic and pessimistic locking",
-  "level": "senior"
+  "title": "Optimistic and pessimistic locking"
  },
  {
   "path": "/spring/security/security-architecture",
-  "title": "Security architecture",
-  "level": "mid"
+  "title": "Security architecture"
  },
  {
   "path": "/spring/security/jwt",
-  "title": "JWT",
-  "level": "mid"
+  "title": "JWT"
  },
  {
   "path": "/spring/security/common-vulnerabilities",
-  "title": "Common vulnerabilities",
-  "level": "mid"
+  "title": "Common vulnerabilities"
  },
  {
   "path": "/spring/security/method-security",
-  "title": "Method security",
-  "level": "senior"
+  "title": "Method security"
  },
  {
   "path": "/spring/security/oauth2-oidc",
-  "title": "OAuth2 and OIDC",
-  "level": "senior"
+  "title": "OAuth2 and OIDC"
  },
  {
   "path": "/microservices/overview",
-  "title": "Microservices overview",
-  "level": "mid"
+  "title": "Microservices overview"
  },
  {
   "path": "/microservices/infrastructure/api-gateway",
-  "title": "API gateway",
-  "level": "mid"
+  "title": "API gateway"
  },
  {
   "path": "/microservices/infrastructure/service-discovery",
-  "title": "Service discovery",
-  "level": "mid"
+  "title": "Service discovery"
  },
  {
   "path": "/microservices/infrastructure/config-server",
-  "title": "Config server",
-  "level": "mid"
+  "title": "Config server"
  },
  {
   "path": "/microservices/communication/service-communication",
-  "title": "Service communication",
-  "level": "mid"
+  "title": "Service communication"
  },
  {
   "path": "/microservices/resilience/resilience4j",
-  "title": "Resilience4j",
-  "level": "mid"
+  "title": "Resilience4j"
  },
  {
   "path": "/microservices/observability",
-  "title": "Observability",
-  "level": "mid"
+  "title": "Observability"
  },
  {
   "path": "/microservices/data-consistency/saga",
-  "title": "Saga pattern",
-  "level": "senior"
+  "title": "Saga pattern"
  },
  {
   "path": "/microservices/data-consistency/cqrs-event-sourcing",
-  "title": "CQRS and event sourcing",
-  "level": "senior"
+  "title": "CQRS and event sourcing"
  },
  {
   "path": "/microservices/data-consistency/outbox-idempotency",
-  "title": "Outbox and idempotency",
-  "level": "senior"
+  "title": "Outbox and idempotency"
  },
  {
   "path": "/databases/relational-design",
-  "title": "Relational design",
-  "level": "beginner"
+  "title": "Relational design"
  },
  {
   "path": "/databases/sql-patterns",
-  "title": "SQL patterns",
-  "level": "beginner"
+  "title": "SQL patterns"
  },
  {
   "path": "/databases/nosql-and-redis",
-  "title": "NoSQL and Redis",
-  "level": "mid"
+  "title": "NoSQL and Redis"
  },
  {
   "path": "/databases/schema-migrations",
-  "title": "Schema migrations",
-  "level": "mid"
+  "title": "Schema migrations"
  },
  {
   "path": "/databases/acid-isolation-mvcc",
-  "title": "ACID, isolation and MVCC",
-  "level": "senior"
+  "title": "ACID, isolation and MVCC"
  },
  {
   "path": "/databases/replication-sharding",
-  "title": "Replication and sharding",
-  "level": "senior"
+  "title": "Replication and sharding"
  },
  {
   "path": "/messaging/kafka-fundamentals",
-  "title": "Kafka fundamentals",
-  "level": "mid"
+  "title": "Kafka fundamentals"
  },
  {
   "path": "/messaging/kafka-consumers-offsets",
-  "title": "Kafka consumers and offsets",
-  "level": "mid"
+  "title": "Kafka consumers and offsets"
  },
  {
   "path": "/messaging/rabbitmq-basics",
-  "title": "RabbitMQ basics",
-  "level": "mid"
+  "title": "RabbitMQ basics"
  },
  {
   "path": "/messaging/kafka-ordering-design",
-  "title": "Kafka ordering and error handling",
-  "level": "senior"
+  "title": "Kafka ordering and error handling"
  },
  {
   "path": "/devops/docker-for-java",
-  "title": "Docker for Java",
-  "level": "beginner"
+  "title": "Docker for Java"
  },
  {
   "path": "/devops/kubernetes-basics",
-  "title": "Kubernetes basics",
-  "level": "mid"
+  "title": "Kubernetes basics"
  },
  {
   "path": "/devops/ci-cd",
-  "title": "CI/CD",
-  "level": "mid"
+  "title": "CI/CD"
  },
  {
   "path": "/devops/twelve-factor",
-  "title": "Twelve-factor apps",
-  "level": "mid"
+  "title": "Twelve-factor apps"
  },
  {
   "path": "/devops/deployment-strategies",
-  "title": "Deployment strategies",
-  "level": "senior"
+  "title": "Deployment strategies"
  },
  {
   "path": "/system-design/approach-and-estimation",
-  "title": "System design approach",
-  "level": "mid"
+  "title": "System design approach"
  },
  {
   "path": "/system-design/url-shortener",
-  "title": "Design a URL shortener",
-  "level": "mid"
+  "title": "Design a URL shortener"
  },
  {
   "path": "/system-design/rate-limiter",
-  "title": "Design a rate limiter",
-  "level": "senior"
+  "title": "Design a rate limiter"
  },
  {
   "path": "/system-design/order-processing",
-  "title": "Design order processing",
-  "level": "senior"
+  "title": "Design order processing"
  },
  {
   "path": "/system-design/notification-service",
-  "title": "Design a notification service",
-  "level": "senior"
+  "title": "Design a notification service"
  },
  {
   "path": "/system-design/tradeoffs",
-  "title": "Trade-off discussions",
-  "level": "senior"
- },
- {
-  "path": "/toolkit/study-roadmap",
-  "title": "Study roadmap",
-  "level": "beginner"
+  "title": "Trade-off discussions"
  },
  {
   "path": "/toolkit/questions-fresher",
-  "title": "Beginner questions (1-35)",
-  "level": "beginner"
+  "title": "Questions: Foundations"
  },
  {
   "path": "/toolkit/coding-problems",
-  "title": "Coding problems",
-  "level": "beginner"
+  "title": "Coding problems"
  },
  {
   "path": "/toolkit/cheat-sheets",
-  "title": "Cheat sheets",
-  "level": "beginner"
+  "title": "Cheat sheets"
  },
  {
   "path": "/toolkit/questions-mid-level",
-  "title": "Mid-level questions (36-70)",
-  "level": "mid"
+  "title": "Questions: Applied"
  },
  {
   "path": "/toolkit/behavioral-star",
-  "title": "Behavioural answers (STAR)",
-  "level": "mid"
+  "title": "Behavioural answers (STAR)"
  },
  {
   "path": "/toolkit/questions-senior",
-  "title": "Senior questions (71-100)",
-  "level": "senior"
+  "title": "Questions: Advanced"
  }
 ]

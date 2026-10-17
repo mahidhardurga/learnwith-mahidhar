@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # Replication, Partitioning and Sharding
 
-A single database server eventually runs out of CPU, memory, I/O or availability. The scaling ladder is: **optimise first** (queries, indexes, caching), then **scale up**, then **read replicas**, then **partition**, and only then **shard**. Each step adds operational cost and consistency trade-offs.
-
 <Outcomes items={[
   "Explain replication, partitioning and sharding",
   "Handle replication lag in read paths",

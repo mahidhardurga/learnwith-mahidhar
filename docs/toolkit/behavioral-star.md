@@ -1,5 +1,5 @@
 ---
-title: Behavioural Interview Answers Using the STAR Method (Senior Engineers)
+title: Behavioural Interview Answers Using the STAR Method
 sidebar_label: "Behavioural answers (STAR)"
 description: How to structure behavioural answers with STAR, a story bank for common senior engineering questions - conflict, failure, ambiguity, mentoring, production incidents, trade-offs - with worked example answers and pitfalls to avoid.
 keywords: [behavioral interview questions software engineer, STAR method examples, senior engineer behavioral interview, tell me about a time, conflict with teammate, production incident story, leadership interview, engineering manager questions]
@@ -7,8 +7,6 @@ sidebar_position: 5
 ---
 
 # Behavioural Interviews and the STAR Method
-
-Behavioural rounds test **how you actually work**: ownership, communication, judgement under pressure, and growth. The same technical depth matters here: concrete numbers, trade-offs, and your **individual contribution**. A good story proves a claim; a vague one ("we worked together and it went well") proves nothing.
 
 <Outcomes items={[
   "Structure answers with STAR",

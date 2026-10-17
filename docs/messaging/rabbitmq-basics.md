@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # RabbitMQ Basics
 
-RabbitMQ is a **message broker** implementing AMQP: a smart broker routes messages from producers through **exchanges** to **queues**, and consumers receive (are pushed) messages from queues. Messages are removed when acknowledged. It excels at **task queues, work distribution and flexible routing** with per-message semantics.
-
 <Outcomes items={[
   "Describe exchanges, bindings and queues",
   "Make delivery reliable with confirms, durable queues and acks",

@@ -1,5 +1,5 @@
 ---
-title: OOP and Design Principles for Senior Java Developers
+title: OOP and Design Principles in Java
 sidebar_label: "OOP and design principles"
 description: Beyond the four pillars - composition over inheritance, SOLID with Java examples, interfaces versus abstract classes, sealed hierarchies and the design patterns senior interviews actually probe.
 keywords: [java oop, solid principles, composition over inheritance, liskov substitution, design patterns java, sealed classes, interface vs abstract class]
@@ -7,8 +7,6 @@ sidebar_position: 1
 ---
 
 # OOP and Design Principles
-
-At senior level nobody asks you to define "polymorphism". They ask you to **decide** between inheritance and composition, spot a Liskov violation in a code review, and explain how you keep a design open to change without over-engineering it.
 
 <Outcomes items={[
   "Argue composition over inheritance with a concrete example",

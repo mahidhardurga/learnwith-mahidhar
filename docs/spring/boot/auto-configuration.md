@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # Auto-Configuration
 
-Auto-configuration is the feature that makes Boot feel magical. It is simply a large set of ordinary `@Configuration` classes that are applied only when certain conditions hold, such as "this class is on the classpath" or "the user has not defined this bean".
-
 <Outcomes items={[
   "Explain how auto-configuration decides what to create",
   "Inspect and override decisions",

@@ -8,8 +8,6 @@ sidebar_position: 9
 
 # Slice Tests and Testcontainers
 
-`@SpringBootTest` loads the entire application context. That is slow and rarely necessary. **Slice tests** load only the beans for one layer; **Testcontainers** give integration tests real infrastructure instead of fragile mocks or in-memory look-alikes.
-
 <Outcomes items={[
   "Use slice tests (@WebMvcTest, @DataJpaTest) for focused checks",
   "Run real databases with Testcontainers",

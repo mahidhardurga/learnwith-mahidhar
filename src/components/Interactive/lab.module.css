@@ -457,3 +457,122 @@
   height: 100%;
   background: var(--ifm-color-primary);
 }
+
+/* ---- Refined look: soft surfaces, pill controls, no hard borders ---- */
+.panel {
+  margin: 1.2rem 0;
+  padding: 1.3rem 1.4rem;
+  border: 0;
+  border-radius: 24px;
+  background: var(--lw-surface-2);
+}
+
+.panelHead strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.015em;
+}
+
+.input {
+  border: 0;
+  border-radius: 999px;
+  background: var(--lw-surface);
+  padding: 0.5rem 1rem;
+  box-shadow: inset 0 0 0 1px var(--lw-border);
+}
+
+.primary,
+.ghost {
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  border: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.ghost {
+  background: var(--lw-surface);
+  box-shadow: inset 0 0 0 1px var(--lw-border);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--lw-border);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--ifm-color-primary-dark);
+}
+
+.option {
+  border: 0;
+  border-radius: 14px;
+  background: var(--lw-surface);
+  box-shadow: inset 0 0 0 1px var(--lw-border);
+  padding: 0.65rem 1rem;
+}
+
+.option:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px var(--ifm-color-primary);
+}
+
+.optionRight {
+  box-shadow: inset 0 0 0 1.5px var(--lw-green);
+}
+
+.optionWrong {
+  box-shadow: inset 0 0 0 1.5px #ff453a;
+}
+
+.service,
+.trace {
+  border: 0;
+  border-radius: 16px;
+  background: var(--lw-surface);
+}
+
+.serviceGood { box-shadow: inset 0 0 0 1.5px var(--lw-green); }
+.serviceBad { box-shadow: inset 0 0 0 1.5px #ff453a; }
+.serviceWarn { box-shadow: inset 0 0 0 1.5px var(--lw-amber); }
+
+.note {
+  border-left: 0;
+  border-radius: 14px;
+  background: var(--lw-surface);
+}
+
+.lane { background: var(--lw-surface); border-radius: 14px; }
+
+.consumer {
+  border: 0;
+  border-radius: 14px;
+  background: var(--lw-surface);
+  box-shadow: inset 0 0 0 1px var(--lw-border);
+}
+
+.bucketHot {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ifm-color-primary);
+  background: var(--lw-surface);
+}
+
+.outcomes {
+  margin: 1.4rem 0 0.4rem;
+  padding: 1.1rem 1.4rem;
+  border: 0;
+  border-radius: 22px;
+  background: var(--lw-surface-2);
+}
+
+.outcomesHead {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.outcomes ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.outcomes li {
+  margin: 0.25rem 0;
+}

@@ -1,12 +1,12 @@
 ---
-title: Senior Java and Microservices Interview Questions (71-100)
-sidebar_label: "Senior questions (71-100)"
-description: Thirty senior-level interview questions covering distributed consistency, resilience design, performance troubleshooting, zero-downtime change, security architecture, data scaling, technical leadership and trade-off reasoning, with structured model answers.
+title: "Java and Microservices Interview Questions: Advanced (Questions 71-100)"
+sidebar_label: "Advanced (71-100)"
+description: Thirty advanced interview questions covering distributed consistency, resilience design, performance troubleshooting, zero-downtime change, security architecture, data scaling, technical leadership and trade-off reasoning, with structured model answers.
 keywords: [senior java interview questions, senior backend engineer interview, microservices architecture interview, distributed transactions, performance troubleshooting, zero downtime deployment, technical leadership interview, system design senior, tech lead questions]
 sidebar_position: 4
 ---
 
-# Senior-Level Interview Questions (71-100)
+# Interview Questions: Advanced (71-100)
 
 Senior interviews test **judgement, breadth under constraints and leadership**: can you reason about failure, scale, trade-offs and people? Strong answers are structured: **clarify context → options → recommendation with reasons → risks and how you would validate → what you would revisit**. Avoid listing tools; show how you decide.
 

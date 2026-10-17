@@ -8,8 +8,6 @@ sidebar_position: 7
 
 # REST Exception Handling
 
-A good API returns consistent, informative errors and never leaks stack traces. Spring gives you several layers; interviewers want to know which to use and why.
-
 <Outcomes items={[
   "Centralise errors with @RestControllerAdvice",
   "Return RFC 9457 ProblemDetail responses",

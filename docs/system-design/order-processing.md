@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # Design an Order Processing System
 
-Order processing is the canonical distributed-transaction problem: one business action spans **orders, inventory, payment, shipping and notifications**, each owned by a different service with its own database. The design question is how to keep money and stock **correct** when any step can fail, time out or run twice.
-
 <Outcomes items={[
   "Model an order as a state machine",
   "Make order placement idempotent",

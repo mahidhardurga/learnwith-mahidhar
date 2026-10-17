@@ -8,8 +8,6 @@ sidebar_position: 9
 
 # CQRS and Event Sourcing
 
-These two patterns are often mentioned together but are independent. You can use CQRS without event sourcing and vice versa. Both add complexity, so the strongest interview answers include *when not to use them*.
-
 <Outcomes items={[
   "Separate the command side from the query side",
   "Explain event sourcing and replay",

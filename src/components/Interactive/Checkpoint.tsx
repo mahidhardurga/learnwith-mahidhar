@@ -12,7 +12,7 @@ export interface CheckQuestion {
 }
 
 /** A short self-test: pick an answer, get instant feedback and an explanation, see your score. */
-export function Checkpoint({title = 'Check yourself', questions}: {title?: string; questions: CheckQuestion[]}): React.JSX.Element {
+export function Checkpoint({title = 'Quick quiz', questions}: {title?: string; questions: CheckQuestion[]}): React.JSX.Element {
   const [picked, setPicked] = useState<(number | null)[]>(() => questions.map(() => null));
   const answered = picked.filter((p) => p !== null).length;
   const correct = picked.filter((p, i) => p === questions[i].answer).length;

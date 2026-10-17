@@ -8,10 +8,6 @@ sidebar_position: 1
 
 # Spring Boot Overview
 
-Spring Boot is an opinionated layer on top of the Spring Framework. It does not replace Spring: your beans, dependency injection and AOP are all plain Spring. Boot removes the setup work by choosing sensible defaults, wiring common infrastructure automatically and packaging the app so it runs with `java -jar`.
-
-This page is the map for the section. Each topic below has its own page.
-
 <Outcomes items={[
   "Describe what Spring Boot adds on top of Spring",
   "Walk through what happens at startup",

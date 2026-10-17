@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # Design a URL Shortener
 
-A classic because it is small enough to finish yet touches key generation, read-heavy scaling, caching, partitioning and analytics.
-
 <Outcomes items={[
   "Generate unique short codes and compare approaches",
   "Choose between 301 and 302 redirects",

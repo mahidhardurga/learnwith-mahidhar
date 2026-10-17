@@ -8,10 +8,6 @@ sidebar_position: 7
 
 # Saga Pattern
 
-With a database per service, one business operation (place an order) touches several databases: orders, inventory, payments. A single ACID transaction cannot span them. Distributed two-phase commit (2PC) is rarely used: it blocks resources, needs every participant to support it, and hurts availability.
-
-A **saga** is a sequence of **local transactions**, one per service. Each commits independently and then triggers the next step. If a step fails, the saga runs **compensating transactions** to semantically undo the earlier steps.
-
 <Outcomes items={[
   'Explain why a saga replaces a distributed transaction',
   'Trace a failure through compensating transactions',

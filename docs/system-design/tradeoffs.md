@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Trade-off Discussions
 
-There is no best architecture, only the best fit for **these requirements, this team and this budget**. Senior engineers are distinguished by how they articulate trade-offs: what they gain, what they pay, when the answer flips, and how they would find out they were wrong.
-
 <Outcomes items={[
   "Frame any decision as options, criteria and consequences",
   "Argue consistency versus availability and sync versus async",

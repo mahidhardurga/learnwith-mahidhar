@@ -8,8 +8,6 @@ sidebar_position: 7
 
 # Generics
 
-Generics give compile-time type safety without runtime cost, and the price is **type erasure**. Most hard generics questions are really questions about erasure.
-
 <Outcomes items={[
   "Explain type erasure and what it means at runtime",
   "Use PECS (producer extends, consumer super) correctly",

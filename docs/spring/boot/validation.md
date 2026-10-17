@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Bean Validation
 
-Validation belongs at the boundary of your service: reject bad input early, with a message the caller can act on. Boot includes Jakarta Bean Validation (Hibernate Validator) via `spring-boot-starter-validation`.
-
 <Outcomes items={[
   "Validate request bodies with Bean Validation annotations",
   "Return clear field errors",

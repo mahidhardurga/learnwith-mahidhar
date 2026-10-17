@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # Externalized Configuration and Properties
 
-The same JAR should run in dev, test and production with only configuration changing. Boot's `Environment` merges many property sources in a defined order, and later (higher-priority) sources override earlier ones.
-
 <Outcomes items={[
   "State the property source precedence order in simple terms",
   "Choose @ConfigurationProperties over @Value for groups of settings",

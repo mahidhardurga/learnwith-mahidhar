@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # Transactions: Propagation, Isolation and Rollback
 
-A transaction groups database operations so they succeed or fail together (ACID: atomicity, consistency, isolation, durability). In Spring you rarely write `begin/commit` yourself; you declare `@Transactional` and Spring does it with AOP.
-
 <Outcomes items={[
   "Explain how @Transactional works via proxies",
   "Choose propagation and isolation settings",

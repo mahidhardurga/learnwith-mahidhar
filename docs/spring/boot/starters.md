@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # Starters and Dependency Management
 
-A **starter** is a dependency descriptor with no code of its own. Adding `spring-boot-starter-web` pulls in Spring MVC, Jackson, validation hooks, an embedded Tomcat and logging, all at versions known to work together.
-
 <Outcomes items={[
   "Explain what a starter is versus the dependency BOM",
   "Override a managed version safely",

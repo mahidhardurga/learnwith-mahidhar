@@ -1,12 +1,12 @@
 ---
-title: Java, Spring Boot and Microservices Interview Questions for 3-5 Years Experience (36-70)
-sidebar_label: "Mid-level questions (36-70)"
+title: "Java, Spring Boot and Microservices Interview Questions: Applied (Questions 36-70)"
+sidebar_label: "Applied (36-70)"
 description: Thirty-five intermediate interview questions on collections internals, concurrency, JVM, Spring transactions and AOP, JPA performance, Spring Security, microservices patterns, Kafka, caching and DevOps with concise model answers.
 keywords: [java interview questions 3 years experience, spring boot interview questions 5 years, microservices interview questions, hashmap internals, transactional propagation, n+1 problem, kafka consumer group, circuit breaker interview]
 sidebar_position: 3
 ---
 
-# Interview Questions: 3-5 Years (36-70)
+# Interview Questions: Applied (36-70)
 
 At this level interviewers want **depth plus experience**: how it works internally, what goes wrong in production, and how you decided. Structure answers as **concept → internals → pitfall or trade-off → example from your work**.
 
@@ -123,7 +123,7 @@ Multi-stage build, layered jar, non-root user, `MaxRAMPercentage`, exec-form ent
 **70. What is CI/CD and what does your pipeline do?**
 Automated build, tests, scanning, image build and deployment; build once, promote the same artifact, with rollback. ([CI/CD](../devops/ci-cd.md))
 
-## Tips for this level
+## Tips for these questions
 
 - Always include **a real production story** (an outage, a slow query, a rollback).
 - Mention **trade-offs** unprompted; avoid absolutes.

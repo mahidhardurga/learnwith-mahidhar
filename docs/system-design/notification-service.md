@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # Design a Notification Service
 
-A notification service sends messages (email, SMS, push, in-app, webhooks) triggered by events elsewhere: order shipped, password reset, payment failed, weekly digest. It looks simple and is full of reliability, cost and compliance traps: duplicates annoy users, lost OTPs lock them out, floods get you blocked by providers, and ignoring opt-outs is illegal.
-
 <Outcomes items={[
   "Design a queue-based notification pipeline",
   "Handle priority, preferences and throttling",

@@ -1,12 +1,12 @@
 ---
-title: Java and Spring Interview Questions for Freshers (Questions 1-35)
-sidebar_label: "Beginner questions (1-35)"
-description: Thirty-five core Java, Spring, REST and SQL interview questions for freshers and new graduates, each with a clear model answer and links to the deeper topic pages.
+title: "Java and Spring Interview Questions: Foundations (Questions 1-35)"
+sidebar_label: "Foundations (1-35)"
+description: Thirty-five core Java, Spring, REST and SQL interview questions covering the fundamentals, each with a clear model answer and links to the deeper topic pages.
 keywords: [java interview questions for freshers, spring boot interview questions freshers, core java basics, oops interview questions, jdk jre jvm, string vs stringbuilder, rest api basics, sql joins]
 sidebar_position: 2
 ---
 
-# Interview Questions: Fresher Level (1-35)
+# Interview Questions: Foundations (1-35)
 
 At this level interviewers check **fundamentals and clarity**: do you understand the concepts, can you explain them simply and write small correct programs? Answer in two parts: **definition**, then a **tiny example or why it matters**. Links point to the deeper pages for when you want more.
 
@@ -121,10 +121,10 @@ JPA is the persistence specification, Hibernate an implementation, Spring Data J
 **35. SQL joins, primary vs foreign key, and ACID?**
 `INNER JOIN` returns matches; `LEFT JOIN` keeps all left rows. A primary key uniquely identifies a row; a foreign key references another table's key. ACID: atomicity, consistency, isolation, durability. ([SQL patterns](../databases/sql-patterns.md), [ACID](../databases/acid-isolation-mvcc.md))
 
-## Tips for fresher interviews
+## Tips for these questions
 
 - Say "I don't know, but I'd approach it by..." rather than guessing.
 - Prepare one project end to end: architecture, a bug you fixed, one trade-off you made.
 - Practise explaining concepts in **one minute** with a small example.
 - Know your resume: every technology listed can be asked about.
-- Next level: [mid-level questions](questions-mid-level.md) and the [study roadmap](study-roadmap.md).
+- Next level: [mid-level questions](questions-mid-level.md) and the [cheat sheets](cheat-sheets.md).

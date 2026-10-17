@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Approaching a System Design Problem
 
-System design rounds test **structured thinking under ambiguity**: can you turn a vague request into requirements, numbers, a sensible architecture, and honest trade-offs? At senior level the interviewer is listening for **judgement**: what you choose *not* to build, what you measure, how things fail.
-
 <Outcomes items={[
   "Follow a repeatable framework in a design interview",
   "Do back-of-the-envelope estimates",

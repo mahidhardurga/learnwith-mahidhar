@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Spring Security Architecture
 
-Spring Security is a chain of servlet **filters** that sit in front of your controllers, plus an authentication/authorization model. If you can describe the chain and the objects it passes around, most configuration questions become easy.
-
 <Outcomes items={[
   "Describe the filter chain and where authentication happens",
   "Configure SecurityFilterChain in Spring Security 6",

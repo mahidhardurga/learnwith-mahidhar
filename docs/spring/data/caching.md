@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Caching
 
-A cache stores the result of expensive work so repeat requests are fast. It is also a source of stale data and subtle bugs; "there are only two hard things: cache invalidation and naming things" is a joke for a reason.
-
 <Outcomes items={[
   "Use @Cacheable, @CachePut and @CacheEvict",
   "Compare Caffeine and Redis",

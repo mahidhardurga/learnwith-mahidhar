@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # NoSQL and Redis
 
-"NoSQL" means "not only relational": several different families of stores that trade some relational features (joins, ACID across rows, ad-hoc queries) for **scale, flexible schema, or specialised access patterns**. The senior skill is knowing **when relational is still the right answer**, which is most of the time for core transactional data.
-
 <Outcomes items={[
   "Match NoSQL families to access patterns",
   "Model data query-first",

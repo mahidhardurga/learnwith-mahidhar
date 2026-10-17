@@ -8,10 +8,6 @@ sidebar_position: 1
 
 # IoC Container and Dependency Injection
 
-**Inversion of Control**: instead of your code creating and locating its collaborators, a container creates them and hands them in. **Dependency Injection** (DI) is the mechanism: dependencies are supplied through constructors, setters or fields.
-
-The payoff is not "fewer `new` calls". It is that wiring lives in one place (the composition root), so you can swap implementations, test with fakes, and add cross-cutting behaviour (transactions, security, caching) by wrapping beans in proxies.
-
 <Outcomes items={[
   "Explain inversion of control and what the container does",
   "Prefer constructor injection and say why",

@@ -1,7 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import levelSections from './plugins/rehype-level-sections.mjs';
+import lessonParts from './plugins/rehype-lesson-parts.mjs';
 
 const config: Config = {
   title: 'LearnWith Mahidhar',
@@ -54,7 +54,7 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          rehypePlugins: [levelSections],
+          rehypePlugins: [lessonParts],
         },
         blog: false,
         theme: {
@@ -93,9 +93,7 @@ const config: Config = {
             {label: 'Interview toolkit', to: '/category/interview-toolkit'},
           ],
         },
-        {to: '/my-plan', label: 'My plan', position: 'left'},
         {to: '/quiz', label: 'Quiz', position: 'left'},
-        {type: 'custom-levelSwitcher', position: 'right'},
       ],
     },
     docs: {
@@ -119,7 +117,6 @@ const config: Config = {
         {
           title: 'Prepare',
           items: [
-            {label: 'Study roadmap', to: '/toolkit/study-roadmap'},
             {label: 'System design', to: '/system-design/approach-and-estimation'},
             {label: 'Cheat sheets', to: '/toolkit/cheat-sheets'},
           ],

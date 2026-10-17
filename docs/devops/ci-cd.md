@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # CI/CD for Java Microservices
 
-**Continuous Integration** merges small changes into the main branch frequently, with an automated build and test on each change. **Continuous Delivery** keeps main always releasable (every change can be deployed with one approval or button). **Continuous Deployment** deploys every passing change automatically. The goal is fast, safe, boring releases.
-
 <Outcomes items={[
   "Lay out the stages of a good pipeline",
   "Layer tests for fast feedback",

@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # ConcurrentHashMap
 
-`ConcurrentHashMap` (CHM) is a hash table designed for many threads reading and writing simultaneously, without a single global lock. For a senior role you should be able to explain **how** it stays correct and, more importantly, **where it does not protect you**.
-
 <Outcomes items={[
   "Explain how ConcurrentHashMap achieves thread safety without one global lock",
   "Use compute and merge for atomic per-key updates",

@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # Kubernetes Basics for Java Developers
 
-Kubernetes (K8s) runs and manages containers across a cluster: scheduling, health checking, restarting, scaling, service discovery and rolling updates. You declare the **desired state** in YAML; controllers continuously reconcile reality towards it.
-
 <Outcomes items={[
   "Describe Pods, Deployments, Services and probes",
   "Size requests and limits for JVM workloads",

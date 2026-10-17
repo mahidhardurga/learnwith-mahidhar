@@ -8,8 +8,6 @@ sidebar_position: 1
 
 # Kafka Fundamentals
 
-Kafka is a **distributed, replicated, partitioned commit log**. Producers append records to topics; consumers read them at their own pace, from any position; records are retained for a configured time regardless of consumption. That log-based design (not a queue that deletes on consume) is what distinguishes it from RabbitMQ and enables replay, many independent consumers and very high throughput.
-
 <Outcomes items={[
   'Describe topics, partitions and offsets, and where ordering is guaranteed',
   'Predict which partition a keyed record lands in and why partition count matters',

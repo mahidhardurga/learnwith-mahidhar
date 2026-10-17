@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # ACID, Isolation and MVCC
 
-[Transactions in Spring](../spring/data/transactions.md) explained the API. This page explains what the **database** actually does, which is what senior interviews probe.
-
 <Outcomes items={[
   "Define ACID and what each letter protects",
   "Explain MVCC and why readers do not block writers",

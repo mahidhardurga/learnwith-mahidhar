@@ -8,8 +8,6 @@ sidebar_position: 2
 
 # JWT
 
-A **JSON Web Token** is a compact, URL-safe, **signed** (JWS) token carrying claims. A server can verify it **without a database lookup**, which makes it popular for stateless APIs and microservices. It also has sharp edges that interviewers love.
-
 <Outcomes items={[
   "Explain the three parts of a JWT and what is signed",
   "List what a resource server must validate",

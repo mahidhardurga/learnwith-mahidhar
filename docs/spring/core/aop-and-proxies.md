@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # AOP and Proxies
 
-**Aspect-Oriented Programming** separates **cross-cutting concerns** (transactions, security, logging, metrics, caching, retries) from business logic. Spring implements AOP with **runtime proxies**. Understanding the proxy model explains nearly every "why doesn't my annotation work" question.
-
 <Outcomes items={[
   "Explain how Spring AOP uses proxies",
   "Say why self-invocation bypasses @Transactional and other aspects",

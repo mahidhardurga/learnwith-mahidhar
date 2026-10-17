@@ -1,0 +1,1446 @@
+{
+ "/java/core-java/oop-and-design": {
+  "why": "In old procedural code, any function could change shared data, so one change could break code far away. Objects keep data and behaviour together and show only a small surface, so a change stays local.",
+  "use": [
+   "You model behaviour that varies behind a stable contract (strategies, plugins, payment providers)",
+   "You need a closed set of cases the compiler can check (sealed types)",
+   "Several teams must evolve implementations independently"
+  ],
+  "avoid": [
+   "You only need to share a few lines of code, where a helper or composition is simpler than a base class",
+   "The hierarchy exists only to reuse state, not to model an is-a relationship",
+   "A plain record or function does the job without any type hierarchy"
+  ],
+  "design": [
+   "Public interfaces are your architecture boundaries: they are the hardest thing to change later, so keep them small",
+   "Prefer immutable value objects at module edges so they are safe to share and cache",
+   "A deep inheritance tree is a design smell in reviews: ask what varies and extract it"
+  ],
+  "def": "Object-oriented design means building a program from objects. Each object holds some data and the actions that work on that data, and hides the details inside. You get flexible code by depending on small, stable contracts (interfaces) instead of on concrete classes."
+ },
+ "/java/core-java/collections-framework": {
+  "why": "Without it, every project would write its own lists and hash tables with different method names and bugs. A shared framework gives everyone the same containers and tools such as sorting.",
+  "use": [
+   "You program to interfaces (List, Map) and choose the implementation by access pattern",
+   "You need ordering guarantees (LinkedHashMap, TreeMap) or sorted views",
+   "You need standard algorithms such as sort, binary search and unmodifiable wrappers"
+  ],
+  "avoid": [
+   "Data is large and primitive-heavy, where boxed collections waste memory (consider primitive arrays or specialised libraries)",
+   "Several threads mutate the collection, where plain collections are unsafe",
+   "You expose internal collections directly to callers"
+  ],
+  "design": [
+   "Unbounded queues turn slow consumers into out-of-memory errors: bound them",
+   "Size collections up front when the count is known, to avoid repeated resizing",
+   "Return unmodifiable views or copies at API boundaries"
+  ],
+  "def": "The Collections Framework is Java's ready-made set of containers: lists keep order, sets keep unique items, maps look values up by key, and queues hand items out in turn. You pick the one that matches how you use the data."
+ },
+ "/java/core-java/equals-hashcode": {
+  "why": "By default Java only compares object identity, so two `Money` objects of 5 EUR are \"different\". `equals` lets a class define value equality, and `hashCode` lets hash tables find equal objects without scanning everything.",
+  "use": [
+   "The type represents a value (money, coordinates, identifiers) and is used as a map key or set element",
+   "You deduplicate or compare objects by business fields",
+   "You use records, which generate correct implementations for you"
+  ],
+  "avoid": [
+   "The class is a mutable entity whose fields change while stored in a hash structure",
+   "Subclasses add state and still need to be equal to the parent",
+   "JPA entities where an id is null until persisted, which breaks naive implementations"
+  ],
+  "design": [
+   "Cache keys must be immutable and have stable hashCodes across processes if you share caches",
+   "For distributed caching use explicit key strings or serialisable value objects, not default hashCode",
+   "Equality on JPA entities should use a business key or a carefully implemented id check"
+  ],
+  "def": "`equals` says when two objects count as the same value. `hashCode` turns an object into a number that hash-based collections use to find it fast. If two objects are equal, they must give the same hash code."
+ },
+ "/java/core-java/hashmap-internals": {
+  "why": "Searching a list for a key takes longer as the list grows. Computing the bucket from the key keeps lookups fast no matter how many entries you store.",
+  "use": [
+   "You need fast lookup, insert and delete by key and do not need ordering",
+   "Keys are immutable and have a good hashCode and equals",
+   "Access is single-threaded or confined to one thread"
+  ],
+  "avoid": [
+   "Several threads update the same map without synchronisation (use ConcurrentHashMap)",
+   "You need ordering by insertion or by key (use LinkedHashMap or TreeMap)",
+   "Keys are mutable or have poor hash distribution"
+  ],
+  "design": [
+   "Presize with the expected count to avoid resize spikes on a hot path",
+   "Hash flooding with attacker-controlled keys is mitigated by treeification, but validate untrusted keys anyway",
+   "Large maps have a real memory cost per entry: consider the footprint before caching millions of entries"
+  ],
+  "def": "A `HashMap` stores key-value pairs in an array of buckets. It turns each key into a bucket number, so it can jump straight to where the value should be instead of searching."
+ },
+ "/java/core-java/concurrenthashmap": {
+  "why": "A normal `HashMap` breaks when threads change it together. Putting one big lock around it works but makes every thread queue up. `ConcurrentHashMap` stays safe and fast.",
+  "use": [
+   "Many threads read and update a shared map (caches, counters, registries)",
+   "You need atomic per-key updates with compute, merge or putIfAbsent",
+   "Reads dominate and must never block"
+  ],
+  "avoid": [
+   "You need consistency across several keys, where you need an external lock or a different design",
+   "You need null keys or values (they are not allowed)",
+   "A single thread owns the map"
+  ],
+  "design": [
+   "It is a building block, not a distributed cache: it lives in one JVM",
+   "Do not run slow or blocking code inside compute, since it holds a bin lock",
+   "Use LongAdder values for hot counters to avoid contention on one key"
+  ],
+  "def": "`ConcurrentHashMap` is a map that many threads can read and change at the same time without corrupting it. It locks only a small part of the map, or none, so threads rarely wait for each other."
+ },
+ "/java/core-java/immutability": {
+  "why": "Shared objects that can change cause hard bugs, especially across threads. An object that never changes can be shared freely, cached and used as a map key with no locking.",
+  "use": [
+   "The object is a value (money, ids, configuration, DTOs)",
+   "It is shared across threads or cached",
+   "You want to use it safely as a map key or set element"
+  ],
+  "avoid": [
+   "The object is large and changes often, where copying on every change is costly",
+   "A framework needs a no-arg constructor and setters (some JPA entities)",
+   "Mutability is the whole purpose, as with accumulators"
+  ],
+  "design": [
+   "Immutable messages and events are easy to serialise, replay and audit in distributed systems",
+   "Copy-on-write structures give lock-free reads for read-mostly shared data",
+   "Treat configuration as immutable snapshots that are swapped atomically"
+  ],
+  "def": "An immutable object never changes after it is created. To \"change\" it you create a new one. In Java this means final fields, no setters and defensive copies of anything mutable."
+ },
+ "/java/core-java/generics": {
+  "why": "Before generics, collections held plain `Object`, so you had to cast on every read and mistakes only showed up at runtime. Generics move those mistakes to compile time.",
+  "use": [
+   "You write reusable containers or algorithms that must stay type-safe",
+   "An API accepts or returns families of types and you document variance with wildcards",
+   "You want the compiler to remove casts"
+  ],
+  "avoid": [
+   "You need to create instances of T or check instanceof with a parameterised type (erased at runtime)",
+   "You build arrays of generic types",
+   "A concrete type is clearer than a generic one"
+  ],
+  "design": [
+   "Public generic APIs are hard to change: keep type parameters minimal",
+   "Prefer List<? extends Foo> parameters and return concrete List<Foo> to maximise flexibility",
+   "Avoid leaking raw types across module boundaries"
+  ],
+  "def": "Generics let a class or method work with a type that the caller chooses, such as `List<String>`. The compiler checks the types for you, so you do not need casts."
+ },
+ "/java/core-java/exceptions": {
+  "why": "Returning error codes is easy to ignore and mixes errors with normal results. Exceptions separate the error path from the normal path and carry a stack trace that shows where it happened.",
+  "use": [
+   "A caller can plausibly recover or retry (checked or well-documented unchecked)",
+   "You translate low-level failures into domain errors at a boundary",
+   "You need guaranteed cleanup (try-with-resources)"
+  ],
+  "avoid": [
+   "You are using exceptions for ordinary control flow",
+   "You would catch Exception or Throwable broadly and continue",
+   "The failure is a bug that should crash fast"
+  ],
+  "design": [
+   "Map exceptions to stable error codes and HTTP statuses in one place",
+   "Log once at the boundary with context and correlation id, not at every layer",
+   "Retries must only wrap idempotent, transient failures"
+  ],
+  "def": "An exception is Java's way of saying \"something went wrong, normal flow cannot continue\". Checked exceptions must be handled or declared. Unchecked ones signal bugs. `try-with-resources` closes resources safely."
+ },
+ "/java/core-java/streams-and-lambdas": {
+  "why": "Loops mix \"what to compute\" with \"how to loop\", and passing behaviour used to need bulky anonymous classes. Lambdas and streams let you say what you want in a few readable lines.",
+  "use": [
+   "You transform, filter or group collections and the pipeline stays readable",
+   "You pass small pieces of behaviour to APIs (comparators, callbacks)",
+   "The work is CPU-bound and large enough that parallel streams pay off (rarely)"
+  ],
+  "avoid": [
+   "Logic needs mutation of shared state, early exits with complex conditions or checked exceptions",
+   "The pipeline is on a hot path where boxing and allocation matter",
+   "You would use parallelStream for blocking I/O"
+  ],
+  "design": [
+   "Never run blocking calls inside a parallel stream: it starves the common pool",
+   "Prefer collectors that produce immutable results",
+   "Keep lambdas side-effect free so retries and reordering are safe"
+  ],
+  "def": "A lambda is a short piece of code you can pass around, like `x -> x * 2`. A stream is a pipeline that filters, transforms and collects data. Nothing runs until you ask for a final result."
+ },
+ "/java/core-java/modern-java": {
+  "why": "Java was known for boilerplate and heavy threads. Each release removed a pain point: less code for data classes, safer type checks, and cheap threads for blocking work.",
+  "use": [
+   "You start or upgrade a service and can target a recent LTS release",
+   "You model data with records and sealed types",
+   "You want virtual threads for blocking I/O workloads"
+  ],
+  "avoid": [
+   "A library or platform pins you to an old JDK",
+   "A feature is still in preview and the code must stay stable",
+   "The migration cost outweighs the benefit for a legacy system"
+  ],
+  "design": [
+   "Pick one LTS baseline per platform and upgrade on a schedule, not in a panic",
+   "Test with the target JDK in CI before production",
+   "Review JVM flags and GC defaults when upgrading, since they change between versions"
+  ],
+  "def": "Modern Java means the features added since Java 8: lambdas and streams, `var`, records, sealed types, pattern matching, text blocks and virtual threads. Teams usually run a long-term support release such as 17, 21 or 25."
+ },
+ "/java/concurrency-jvm/threads-basics": {
+  "why": "One thread has to wait during slow work like network calls and uses only one CPU core. Several threads let a program do other work while it waits and use all cores.",
+  "use": [
+   "Work can overlap (I/O, independent tasks) or must use several cores",
+   "A background task must run alongside a request or UI thread",
+   "You manage threads through an executor, not by hand"
+  ],
+  "avoid": [
+   "The work is trivial and the thread cost exceeds the benefit",
+   "You would create unbounded raw threads per request",
+   "Tasks share mutable state and you have no clear ownership or locking plan"
+  ],
+  "design": [
+   "Prefer executors with bounded queues over creating threads directly",
+   "Name threads so thread dumps are readable",
+   "Make shutdown part of the design: interrupt, await termination, then force"
+  ],
+  "def": "A thread is one path of execution inside a program. A program can run several threads at once, and they all share the same memory. Threads can be new, running, waiting, blocked or finished, and you stop one by asking it to stop (interrupting it)."
+ },
+ "/java/concurrency-jvm/synchronization-and-locks": {
+  "why": "When two threads change the same data, updates can be lost or one thread can see stale values. Each tool guarantees a specific kind of safety so you can reason about shared data.",
+  "use": [
+   "Several threads update the same state and you must protect an invariant",
+   "You need a thread-safe counter or flag (atomics, volatile)",
+   "You need to coordinate start, finish or limits (latch, semaphore)"
+  ],
+  "avoid": [
+   "A higher-level structure exists (ConcurrentHashMap, BlockingQueue) that already does it",
+   "You hold a lock while calling unknown code or doing I/O",
+   "The state could be confined to one thread or made immutable"
+  ],
+  "design": [
+   "Hold locks for the shortest time and never across remote calls",
+   "Document lock ordering to prevent deadlock",
+   "Prefer immutability or thread confinement before reaching for locks"
+  ],
+  "def": "These are tools that keep threads from stepping on each other. `synchronized` and locks let one thread at a time into a section of code. `volatile` makes a change visible to other threads. Atomics update a single value safely without a lock."
+ },
+ "/java/concurrency-jvm/memory-model": {
+  "why": "CPUs and compilers cache and reorder operations to run faster, so threads can see old or out-of-order values. The rules give the same guarantees on every machine.",
+  "use": [
+   "You reason about visibility of shared fields across threads",
+   "You publish objects safely (final fields, volatile, locks)",
+   "You review lock-free or double-checked code"
+  ],
+  "avoid": [
+   "You rely on timing or sleeps to make code appear correct",
+   "You share mutable objects without any synchronisation",
+   "A standard concurrent utility solves the problem"
+  ],
+  "design": [
+   "Publish shared objects immutably or through a thread-safe holder",
+   "Use a single documented mechanism per shared field (lock, volatile or atomic)",
+   "Stress-test on multiple cores, but do not treat a green run as proof"
+  ],
+  "def": "The Java Memory Model is the set of rules that says when one thread is guaranteed to see what another thread wrote. Actions such as `volatile` writes, releasing a lock, and starting or joining a thread make earlier writes visible."
+ },
+ "/java/concurrency-jvm/executors": {
+  "why": "Creating a new thread for every task is slow and unlimited, so a burst of requests can exhaust the machine. A pool reuses a fixed set of threads and queues the rest.",
+  "use": [
+   "You run many short tasks and need bounded concurrency",
+   "You need scheduled or periodic work",
+   "You separate CPU-bound and blocking work into different pools"
+  ],
+  "avoid": [
+   "You would use an unbounded queue and hide overload until memory runs out",
+   "Tasks block each other waiting inside the same pool",
+   "Virtual threads fit blocking I/O better (Java 21+)"
+  ],
+  "design": [
+   "Bound the queue and choose a rejection policy that applies backpressure",
+   "Expose pool metrics (active, queued, rejected) and alert on saturation",
+   "Shut pools down gracefully on application stop"
+  ],
+  "def": "An executor runs tasks for you on a pool of reusable threads. You submit work, and the pool decides which thread runs it, how many tasks may wait and what happens when it is full."
+ },
+ "/java/concurrency-jvm/completablefuture": {
+  "why": "Waiting on a plain `Future` blocks a thread and cannot be chained, and nested callbacks get unreadable. `CompletableFuture` lets you describe the whole async flow in one readable chain.",
+  "use": [
+   "You combine several independent remote calls in parallel and merge results",
+   "You pipeline asynchronous steps with clear error handling",
+   "You must stay on platform threads and cannot use virtual threads"
+  ],
+  "avoid": [
+   "Straightforward blocking code on virtual threads is simpler",
+   "You would block inside async stages or use the common pool for I/O",
+   "Flow needs backpressure and streaming (reactive types fit better)"
+  ],
+  "design": [
+   "Use a dedicated bounded executor for I/O stages, not the common pool",
+   "Add timeouts to every future (orTimeout) so slow dependencies cannot hang requests",
+   "Propagate trace and security context explicitly across async hops"
+  ],
+  "def": "A `CompletableFuture` is a result that will be ready later. You attach steps to it (\"then transform\", \"then combine\", \"on error\") and they run when the result arrives, without blocking a thread to wait."
+ },
+ "/java/concurrency-jvm/virtual-threads": {
+  "why": "A normal thread is heavy, so one thread per request stops scaling at a few thousand. Developers moved to hard-to-read async code to cope. Virtual threads bring back simple code at large scale.",
+  "use": [
+   "Work is dominated by blocking I/O (HTTP calls, database, messaging) and concurrency is high",
+   "You want simple sequential code instead of reactive pipelines",
+   "You are on Java 21 or later"
+  ],
+  "avoid": [
+   "Work is CPU-bound, where they give no speedup",
+   "You depend on thread pools to cap resource use and have no semaphore replacing that role",
+   "Code pins carriers with synchronized blocks around blocking calls on older JDKs"
+  ],
+  "design": [
+   "A downstream database pool or API rate limit is now your real concurrency limit: guard it with a semaphore",
+   "Do not pool virtual threads; create one per task",
+   "Review libraries for pinning and ThreadLocal-heavy caches"
+  ],
+  "def": "Virtual threads are very cheap threads managed by the JVM. When one waits on I/O it steps aside and lets another run, so you can write simple blocking code and still handle hundreds of thousands of tasks at once."
+ },
+ "/java/concurrency-jvm/garbage-collection": {
+  "why": "Freeing memory by hand causes leaks and crashes. A collector removes that whole class of bugs, at the cost of some CPU time and short pauses.",
+  "use": [
+   "You choose a collector for a service by its latency and throughput goals",
+   "You investigate pauses, high CPU or growing heap",
+   "You size heap and regions for containers"
+  ],
+  "avoid": [
+   "You tune flags without GC logs or a measurable goal",
+   "The real problem is a leak or excessive allocation in code",
+   "You copy flags from a blog post written for another JDK version"
+  ],
+  "design": [
+   "Always enable GC logging in production and ship it to your log system",
+   "Alert on pause time, allocation rate and heap after GC, not just heap used",
+   "Leave memory headroom in containers for non-heap usage"
+  ],
+  "def": "Garbage collection is the JVM automatically freeing memory of objects your program can no longer reach. The heap is split into young and old areas, and different collectors (G1, ZGC) trade short pauses against throughput."
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics": {
+  "why": "Default settings may not fit a container, and problems like stalls, leaks and CPU spikes need evidence. These tools let you find the cause without guessing.",
+  "use": [
+   "A service shows latency spikes, high memory or OOM kills",
+   "You deploy to containers and must size heap and metaspace",
+   "You need evidence about threads, allocation or locks"
+  ],
+  "avoid": [
+   "You tune on a laptop without production-like load",
+   "You change many flags at once",
+   "The bottleneck is a database or downstream call, not the JVM"
+  ],
+  "design": [
+   "Expose JVM metrics (heap, GC, threads) through Micrometer and alert on them",
+   "Keep a runbook for thread dump, heap dump and JFR capture",
+   "Set MaxRAMPercentage and leave room for off-heap memory"
+  ],
+  "def": "JVM tuning means choosing memory sizes and flags for your workload. Diagnostics means looking inside a running JVM with tools like `jcmd`, `jstack` and heap dumps to see threads, memory and slow spots."
+ },
+ "/spring/core/ioc-and-dependency-injection": {
+  "why": "When a class creates its own dependencies, it is tied to them and hard to test or replace. With injection, wiring lives in one place and classes just declare what they need.",
+  "use": [
+   "A class has collaborators that vary by environment or in tests",
+   "You want lifecycle, scopes and proxies managed centrally",
+   "You build a Spring Boot application"
+  ],
+  "avoid": [
+   "A small utility with no collaborators, where static helpers are fine",
+   "You would pull beans from the context manually inside business code (service locator)",
+   "Dependencies form a cycle that signals a design problem"
+  ],
+  "design": [
+   "Constructor injection makes dependencies explicit and supports immutable beans",
+   "Singleton beans are shared across requests, so they must be stateless or thread-safe",
+   "Keep configuration in few well-named @Configuration classes"
+  ],
+  "def": "Inversion of control means the Spring container creates your objects and hands each one the other objects it needs (its dependencies), instead of you calling `new`. Passing dependencies through the constructor is the preferred way."
+ },
+ "/spring/core/bean-lifecycle-and-scopes": {
+  "why": "Objects need setup after their dependencies arrive and cleanup on shutdown. The container runs that at the right moments so you do not scatter startup and shutdown code.",
+  "use": [
+   "A bean must open or close resources at startup and shutdown",
+   "You need per-request or per-session state (web scopes)",
+   "You hook into initialisation (PostConstruct, InitializingBean)"
+  ],
+  "avoid": [
+   "You keep mutable request state in a singleton",
+   "You depend on initialisation order between unrelated beans",
+   "Heavy work in constructors slows startup (consider lazy initialisation)"
+  ],
+  "design": [
+   "Avoid blocking or remote calls in startup callbacks that delay readiness",
+   "Use graceful shutdown hooks so in-flight work finishes",
+   "Prefer stateless singletons and pass state as method parameters"
+  ],
+  "def": "A bean is an object managed by Spring. Spring creates it, injects its dependencies, runs your setup code, lets you use it, and calls your cleanup code when the application stops. Its scope decides how many instances exist (one shared singleton by default)."
+ },
+ "/spring/core/aop-and-proxies": {
+  "why": "Concerns like transactions repeat in every service method and clutter the business code. A proxy lets you declare them once and apply them wherever needed.",
+  "use": [
+   "A concern applies to many methods (transactions, security, metrics, caching)",
+   "You write a custom annotation with behaviour",
+   "You need behaviour around calls but not inside them"
+  ],
+  "avoid": [
+   "You need to intercept internal calls or private methods (use AspectJ weaving)",
+   "Logic is business-specific and belongs in the method itself",
+   "Aspects hide control flow that teammates will not expect"
+  ],
+  "design": [
+   "Know the order of aspects when stacking transaction, security and retry",
+   "Keep aspects fast: they run on every matching call",
+   "Avoid self-invocation of advised methods by splitting beans"
+  ],
+  "def": "Aspect-oriented programming adds behaviour around method calls, such as transactions, security or logging, without editing those methods. Spring does this with a proxy: a stand-in object that runs the extra code and then calls the real method."
+ },
+ "/spring/core/configuration-profiles-conditions": {
+  "why": "Applications run in different environments and libraries must adapt to what is present. Profiles and conditions let one build adapt at startup instead of being rebuilt.",
+  "use": [
+   "Beans differ per environment (local, test, production)",
+   "You write a library or starter that should back off if the user defines a bean",
+   "You organise configuration into focused classes"
+  ],
+  "avoid": [
+   "Many overlapping profiles make behaviour hard to predict",
+   "You rely on bean overriding instead of explicit conditions",
+   "A simple property would do instead of a profile switch"
+  ],
+  "design": [
+   "Keep production behaviour defined by external configuration, not by code branches",
+   "Log the active profiles at startup",
+   "Test each supported profile combination in CI"
+  ],
+  "def": "Java configuration (`@Configuration` and `@Bean`) tells Spring which objects to create. Profiles switch sets of beans or settings per environment, and conditions create a bean only if something is true (a class on the classpath, a property, a missing bean)."
+ },
+ "/spring/core/application-events": {
+  "why": "Calling every interested class directly ties the sender to all of them, so each new reaction means editing the sender. Events reverse that: the sender announces, anyone can listen.",
+  "use": [
+   "Several independent in-process reactions follow one action",
+   "You trigger side effects only after commit (TransactionalEventListener)",
+   "You publish domain events from aggregates"
+  ],
+  "avoid": [
+   "The consumer lives in another service or must survive restarts (use a broker)",
+   "You need guaranteed delivery or ordering",
+   "A direct method call is clearer for a single consumer"
+  ],
+  "design": [
+   "Make listeners idempotent and fast, or move slow work to an async executor",
+   "Use the transactional outbox when events must reach other services",
+   "Document which events exist, since they are a hidden coupling"
+  ],
+  "def": "Application events let one part of the program announce that something happened, and other parts react through listeners. By default listeners run right away in the same thread, and you can make them asynchronous or run them only after a transaction commits."
+ },
+ "/spring/boot/overview": {
+  "why": "Early Spring needed long XML files, version juggling and an external server just to get started. Boot removes that setup so you begin with working code.",
+  "use": [
+   "You build a new Java service or REST API",
+   "You want production features (health, metrics) without assembling them",
+   "You deploy as a container or executable jar"
+  ],
+  "avoid": [
+   "You need a tiny footprint where startup and memory are critical and a lighter framework fits",
+   "The platform mandates an external application server",
+   "You are unwilling to follow its conventions and would fight them"
+  ],
+  "design": [
+   "Pin a Boot version through the BOM and upgrade on a schedule",
+   "Externalise configuration for each environment, not inside the jar",
+   "Expose health and metrics endpoints so the platform can manage the service"
+  ],
+  "def": "Spring Boot is Spring with sensible defaults. It sets things up for you based on what is on the classpath, bundles an embedded server, and adds production features like health checks, so one main class starts a working application."
+ },
+ "/spring/boot/starters": {
+  "why": "Picking compatible versions of many libraries by hand leads to conflicts that only appear at runtime. Starters and the BOM give you a set that is known to work together.",
+  "use": [
+   "You add a feature (web, security, JPA, Kafka) and want compatible dependencies",
+   "You manage versions across modules with one BOM",
+   "You exclude or replace one transitive library"
+  ],
+  "avoid": [
+   "You override many managed versions, which loses the tested alignment",
+   "You add starters you do not use and trigger unwanted auto-configuration",
+   "A small library without Boot integration is all you need"
+  ],
+  "design": [
+   "Run a dependency report and vulnerability scan in CI",
+   "Use dependency management in a parent POM or Gradle platform for multi-module builds",
+   "Review what a new starter auto-configures before enabling it in production"
+  ],
+  "def": "A starter is one dependency that pulls in everything a feature needs. For example, `spring-boot-starter-web` brings Spring MVC, JSON support and a server. The Boot BOM supplies tested versions, so you leave version numbers out."
+ },
+ "/spring/boot/auto-configuration": {
+  "why": "Setting up a data source, JSON mapper and web server is the same boilerplate in every project. Auto-configuration does the common setup and still lets you override any part.",
+  "use": [
+   "You want sensible defaults and override only what differs",
+   "You build a shared starter for several teams",
+   "You diagnose why a bean exists or does not"
+  ],
+  "avoid": [
+   "You depend on a specific bean being configured but never verified the condition",
+   "You exclude auto-configurations broadly without understanding what they provide",
+   "Behaviour changes silently after a dependency upgrade"
+  ],
+  "design": [
+   "Run the application with the conditions report when upgrading Boot or dependencies",
+   "Test custom auto-configuration with ApplicationContextRunner",
+   "Namespace your properties and document defaults"
+  ],
+  "def": "Auto-configuration is Boot creating beans for you automatically when certain conditions are met, such as a library being on the classpath. If you define your own bean, the automatic one steps aside."
+ },
+ "/spring/boot/configuration": {
+  "why": "Hard-coded settings force a new build for each environment, and secrets in code leak. Moving settings out lets the same build run anywhere.",
+  "use": [
+   "Settings differ per environment or per deployment",
+   "You group related settings and want validation at startup",
+   "You inject secrets from the platform"
+  ],
+  "avoid": [
+   "You commit secrets or environment-specific values to the repository",
+   "You scatter @Value strings across many classes",
+   "A change would require a code deploy for what is really configuration"
+  ],
+  "design": [
+   "Validate properties at startup so bad configuration fails fast",
+   "Use the platform secret store and never log secrets",
+   "Keep configuration changes reviewable and versioned"
+  ],
+  "def": "Externalised configuration means settings live outside your code, in property files, environment variables or command-line arguments, with a clear order of which wins. `@ConfigurationProperties` binds related settings into one typed object."
+ },
+ "/spring/boot/actuator": {
+  "why": "A service you cannot see into means you learn about problems from users. Actuator exposes the signals that platforms and dashboards need, with almost no code.",
+  "use": [
+   "You run on Kubernetes and need liveness and readiness probes",
+   "You want metrics and traces in your monitoring stack",
+   "You inspect runtime state in non-production environments"
+  ],
+  "avoid": [
+   "You expose sensitive endpoints (env, heapdump) publicly",
+   "You make liveness depend on downstream services",
+   "You tag metrics with unbounded values such as user ids"
+  ],
+  "design": [
+   "Expose only the endpoints you need and secure the rest",
+   "Liveness should reflect only whether this process is stuck; readiness may check dependencies",
+   "Alert on SLO-related metrics, not every raw metric"
+  ],
+  "def": "Actuator adds ready-made endpoints to your application, such as health, metrics and info. Orchestrators like Kubernetes use the health endpoints to decide when to send traffic or restart a container."
+ },
+ "/spring/boot/validation": {
+  "why": "Bad input that reaches business code fails in confusing places or corrupts data. Declaring rules next to the fields keeps them visible and gives callers precise errors.",
+  "use": [
+   "You accept external input (REST bodies, parameters, messages)",
+   "You return consistent field-level errors",
+   "You enforce a rule that several endpoints share (custom constraint)"
+  ],
+  "avoid": [
+   "The rule needs database state or heavy logic, which belongs in the service layer",
+   "You would rely on validation annotations as your only integrity guarantee",
+   "You expose entities directly instead of request DTOs"
+  ],
+  "design": [
+   "Back important rules with database constraints too, since the database is the last line of defence",
+   "Return a stable error format (ProblemDetail) that clients can parse",
+   "Validate messages from queues as strictly as HTTP input"
+  ],
+  "def": "Bean Validation lets you put rules on fields with annotations such as `@NotBlank` and `@Size`. Adding `@Valid` to a controller parameter checks them and gives you clear field errors."
+ },
+ "/spring/boot/exception-handling": {
+  "why": "Handling errors inside every controller repeats code and gives inconsistent responses. One central handler defines the mapping and format once.",
+  "use": [
+   "Several endpoints share error handling",
+   "You want a standard error body clients can rely on",
+   "You translate domain exceptions to HTTP statuses"
+  ],
+  "avoid": [
+   "You return internal messages or stack traces to clients",
+   "You catch exceptions in controllers and swallow context",
+   "You use 200 with an error flag instead of correct statuses"
+  ],
+  "design": [
+   "Include a correlation id in error responses and logs so support can trace requests",
+   "Distinguish client errors (4xx) from server errors (5xx) in alerting",
+   "Version error codes carefully, since clients depend on them"
+  ],
+  "def": "REST exception handling means turning exceptions into proper HTTP responses in one place, using `@RestControllerAdvice` and `@ExceptionHandler`. Spring 6 supports `ProblemDetail`, a standard format for error bodies."
+ },
+ "/spring/boot/testing-basics": {
+  "why": "Tests that start the whole application are slow, so people run them rarely and bugs live longer. Small isolated tests give feedback in milliseconds.",
+  "use": [
+   "Logic can be tested without infrastructure",
+   "You want fast feedback in the inner development loop",
+   "You verify interactions with a collaborator that has side effects"
+  ],
+  "avoid": [
+   "You mock everything and assert on internal calls, which makes refactoring painful",
+   "The behaviour depends on real framework wiring (use a slice test)",
+   "You test getters and trivial code"
+  ],
+  "design": [
+   "Keep the pyramid: many unit tests, fewer slice tests, a handful of end-to-end tests",
+   "Make tests deterministic: control time, randomness and concurrency",
+   "Run the whole suite in CI on every change"
+  ],
+  "def": "A unit test checks one class on its own, without starting Spring. JUnit 5 runs the test and Mockito replaces the class's collaborators with fakes. Because Spring injects through constructors, you can simply pass the fakes in."
+ },
+ "/spring/boot/testing-slices-testcontainers": {
+  "why": "In-memory stand-ins like H2 behave differently from production databases, and full-application tests are slow. Slices stay fast, and Testcontainers gives you the real database.",
+  "use": [
+   "You verify controllers, repositories or serialisation in isolation",
+   "You test SQL, migrations and locking against the real database",
+   "You need Kafka or Redis in integration tests"
+  ],
+  "avoid": [
+   "The check is pure logic that a unit test covers faster",
+   "CI cannot run Docker and you have no alternative",
+   "You use full-stack tests for everything"
+  ],
+  "design": [
+   "Reuse containers across tests and run migrations in the test setup",
+   "Pin container image versions to match production",
+   "Keep an end-to-end smoke test against a production-like environment"
+  ],
+  "def": "A slice test loads only one part of the application, for example `@WebMvcTest` for controllers or `@DataJpaTest` for repositories. Testcontainers starts real services such as a database in Docker for your tests."
+ },
+ "/spring/data/jpa-basics": {
+  "why": "Writing JDBC by hand means converting rows to objects and back in every query. JPA does that mapping and change tracking for you.",
+  "use": [
+   "You model a domain with relationships and mostly standard CRUD",
+   "You want transactions and change tracking handled for you",
+   "You use Spring Data repositories for common queries"
+  ],
+  "avoid": [
+   "You run heavy reporting or bulk updates where SQL or JDBC is clearer",
+   "You need precise control over every statement and index usage",
+   "You expose entities directly in APIs"
+  ],
+  "design": [
+   "Log and review generated SQL in tests to catch N+1 queries",
+   "Keep transactions short and avoid lazy loading in the web layer",
+   "Use projections or DTO queries for read-heavy endpoints"
+  ],
+  "def": "JPA maps Java objects to database tables, and Hibernate is the library that does the work. Objects you load inside a transaction are tracked, and their changes are written to the database as SQL when the transaction commits."
+ },
+ "/spring/data/n-plus-one-lazy-loading": {
+  "why": "Lazy loading avoids fetching data you may never use, but touching it inside a loop runs one query per row. With 1,000 rows that becomes 1,001 queries.",
+  "use": [
+   "You load lists and then read associations",
+   "You see many identical SELECTs in logs",
+   "You tune read endpoints under load"
+  ],
+  "avoid": [
+   "You switch everything to eager fetching, which loads far too much",
+   "A join fetch with collections and pagination would load everything in memory",
+   "A projection that selects needed columns is simpler"
+  ],
+  "design": [
+   "Add a query-count assertion to integration tests for critical endpoints",
+   "Prefer DTO projections for list endpoints",
+   "Disable open-in-view so lazy loading cannot hide in the view layer"
+  ],
+  "def": "The N+1 problem is when loading a list takes one query for the list plus one extra query for each item's related data. Lazy loading fetches related data only when you touch it, which is what quietly causes those extra queries."
+ },
+ "/spring/data/transactions": {
+  "why": "Without transactions, a failure halfway through leaves data half updated. Doing begin, commit and rollback by hand in every method is repetitive and easy to get wrong.",
+  "use": [
+   "A use case changes several rows or tables that must succeed or fail together",
+   "You need a consistent read snapshot",
+   "You run an after-commit side effect (TransactionalEventListener)"
+  ],
+  "avoid": [
+   "The method makes slow remote calls while holding a connection and locks",
+   "You call the transactional method from the same class (proxy bypass)",
+   "The change spans several services, where a saga is needed instead"
+  ],
+  "design": [
+   "Keep transactions short and size the connection pool for the concurrency you allow",
+   "Never call external services inside a transaction when you can avoid it",
+   "Combine REQUIRES_NEW carefully, since it uses a second connection"
+  ],
+  "def": "A transaction groups several database changes so they all succeed or all fail. `@Transactional` starts one when a method begins, commits when it ends normally, and rolls back on an unchecked exception."
+ },
+ "/spring/data/locking": {
+  "why": "When two people edit the same record, the last save wins and the other change is lost. Locking either detects that conflict or prevents it.",
+  "use": [
+   "Concurrent edits to the same record are possible (optimistic with @Version)",
+   "A hot row needs strict serialisation (pessimistic)",
+   "You can express the change as an atomic UPDATE"
+  ],
+  "avoid": [
+   "Contention is very high and optimistic retries would thrash",
+   "Locks are held across slow operations or remote calls",
+   "You lock rows in inconsistent order across code paths"
+  ],
+  "design": [
+   "Return 409 Conflict on optimistic failures and let clients retry with fresh data",
+   "Set lock timeouts and keep locking transactions short",
+   "For queues of work use SELECT FOR UPDATE SKIP LOCKED"
+  ],
+  "def": "Locking stops two users from silently overwriting each other's changes. Optimistic locking adds a version number and rejects an update if the row changed since you read it. Pessimistic locking locks the row while you work."
+ },
+ "/spring/data/sql-tuning-indexing": {
+  "why": "Reading every row is fine for hundreds of rows and far too slow for millions. An index jumps straight to the matching rows.",
+  "use": [
+   "A query filters, joins or sorts on columns that are selective",
+   "You paginate large result sets",
+   "A slow query shows a full scan in EXPLAIN"
+  ],
+  "avoid": [
+   "The table is small or the query returns most rows anyway",
+   "You add an index for every column, which slows writes and uses storage",
+   "You apply functions to indexed columns in the WHERE clause"
+  ],
+  "design": [
+   "Capture slow queries in production (slow query log, pg_stat_statements) and tune with real plans",
+   "Check index usage regularly and drop unused indexes",
+   "Size the connection pool by database capacity, not by thread count"
+  ],
+  "def": "An index is a sorted lookup structure that lets the database find rows without reading the whole table. `EXPLAIN` shows how a query will run, so you can see whether it uses an index."
+ },
+ "/spring/data/caching": {
+  "why": "Repeating the same slow query or remote call on every request wastes time and load. A cache answers repeats from memory.",
+  "use": [
+   "Reads are frequent, expensive and tolerate slightly stale data",
+   "You protect a slow or rate-limited dependency",
+   "Data is immutable or changes rarely"
+  ],
+  "avoid": [
+   "Data must be strongly consistent every time",
+   "The key space is huge and the hit rate would be low",
+   "You have no invalidation strategy"
+  ],
+  "design": [
+   "Set TTLs and size limits, and monitor hit rate and evictions",
+   "Protect against stampedes with per-key locking or request coalescing",
+   "Plan cold starts: a restart empties a local cache and floods the database"
+  ],
+  "def": "Caching keeps the result of an expensive operation so the next request can reuse it. Spring adds `@Cacheable`, `@CachePut` and `@CacheEvict`, and works with Caffeine (inside one JVM) or Redis (shared)."
+ },
+ "/spring/security/security-architecture": {
+  "why": "Checking identity in every controller is repetitive and one missed check is a vulnerability. A central filter chain applies the rules to every request before your code runs.",
+  "use": [
+   "You secure web endpoints and APIs",
+   "You need standard features: password hashing, CSRF, headers, CORS",
+   "You integrate with OAuth2 or JWT"
+  ],
+  "avoid": [
+   "You disable protections (CSRF, headers) without understanding the threat",
+   "You rely on URL rules alone where object-level checks are needed",
+   "You write custom security code where a standard mechanism exists"
+  ],
+  "design": [
+   "Deny by default and open specific paths deliberately",
+   "Add method-level and object-level authorisation, not just URL patterns",
+   "Test security rules with automated tests, including negative cases"
+  ],
+  "def": "Spring Security puts a chain of filters in front of your controllers. Authentication works out who the caller is, authorisation decides what they may do, and you describe the rules in a `SecurityFilterChain` bean."
+ },
+ "/spring/security/jwt": {
+  "why": "Server-side sessions need shared storage that every service can reach. A signed, self-contained token lets any service verify the caller on its own.",
+  "use": [
+   "Many services must verify the same identity without a shared session store",
+   "You issue short-lived access tokens with an identity provider",
+   "You need standard claims for authorisation"
+  ],
+  "avoid": [
+   "You need instant revocation and cannot accept the delay",
+   "You would store sensitive data in the payload",
+   "A simple server-side session fits a single web app better"
+  ],
+  "design": [
+   "Keep access tokens short-lived and rotate signing keys",
+   "Validate issuer, audience and algorithm explicitly",
+   "Plan revocation (deny list, short TTL, token introspection) up front"
+  ],
+  "def": "A JWT (JSON Web Token) is a signed string with three parts: header, claims and signature. A service checks the signature, expiry, issuer and audience, then trusts the claims. The contents are encoded, not secret."
+ },
+ "/spring/security/oauth2-oidc": {
+  "why": "Sharing passwords with other applications is unsafe. OAuth 2.0 hands out scoped, revocable tokens instead, and OIDC standardises login on top of it.",
+  "use": [
+   "You delegate login to an identity provider (Keycloak, Auth0, Entra ID)",
+   "Third-party or first-party clients call your APIs on behalf of users",
+   "Services need machine-to-machine access (client credentials)"
+  ],
+  "avoid": [
+   "You use implicit or password grants (discouraged)",
+   "You confuse scopes with roles and permissions",
+   "A simple internal API with one trust boundary does not need the full protocol"
+  ],
+  "design": [
+   "Use the authorization code flow with PKCE for browser and mobile clients",
+   "Validate tokens at the edge and in each resource server",
+   "Map scopes to coarse API access and enforce fine-grained rules in services"
+  ],
+  "def": "OAuth 2.0 lets an application get limited access to an API on a user's behalf using tokens, without ever seeing their password. OpenID Connect (OIDC) adds a standard way to learn who the user is (the ID token)."
+ },
+ "/spring/security/method-security": {
+  "why": "URL rules protect endpoints, but not objects: a logged-in user can ask for someone else's record by changing an id. Rules next to the business method apply however it is reached.",
+  "use": [
+   "Access depends on the object (owner, tenant, status)",
+   "Several entry points call the same service method",
+   "You want rules visible next to the code they protect"
+  ],
+  "avoid": [
+   "The check needs heavy logic, which belongs in a policy bean you can unit-test",
+   "You call advised methods from the same class (proxy bypass)",
+   "URL-level rules alone are enough"
+  ],
+  "design": [
+   "Write security tests for allowed and denied cases",
+   "Centralise complex policies in one bean",
+   "Keep tenant and owner filters in the data layer as defence in depth"
+  ],
+  "def": "Method security puts access rules on service methods with annotations such as `@PreAuthorize`. The rule can check a role, a scope or whether the user owns the object being accessed."
+ },
+ "/spring/security/common-vulnerabilities": {
+  "why": "Attackers go after the same predictable mistakes. Knowing the patterns lets you spot and avoid them while you design and review code.",
+  "use": [
+   "You review code, design APIs or answer security interview questions",
+   "You add a new endpoint that accepts input or returns user data",
+   "You prepare for a security audit"
+  ],
+  "avoid": [
+   "You rely on obscurity or client-side checks",
+   "You roll your own cryptography or authentication",
+   "You treat security as a final-phase task"
+  ],
+  "design": [
+   "Automate dependency and secret scanning in CI",
+   "Log and alert on authentication failures and access violations",
+   "Apply rate limits and size limits to every public endpoint"
+  ],
+  "def": "The common web vulnerabilities are well-known mistakes: broken access control, injection, XSS, CSRF, SSRF, unsafe deserialisation and mass assignment. Each has a standard defence, such as parameterised queries or checking object ownership."
+ },
+ "/microservices/overview": {
+  "why": "In one big application, every change ships together and one bug can bring everything down. Small independent services let each team release and scale its own part.",
+  "use": [
+   "Several teams need to ship independently and the domain has clear boundaries",
+   "Parts of the system have very different scaling or availability needs",
+   "You have the platform maturity for CI/CD, observability and on-call"
+  ],
+  "avoid": [
+   "A small team with one product, where a modular monolith is faster and cheaper",
+   "The boundaries are unclear, which produces a distributed monolith",
+   "You lack monitoring and deployment automation"
+  ],
+  "design": [
+   "Each service owns its data: share APIs and events, never tables",
+   "Every remote call can fail or be slow, so design timeouts, retries and fallbacks from the start",
+   "Budget for the platform: tracing, logging, service discovery and automated delivery"
+  ],
+  "def": "Microservices split an application into small services. Each service handles one business job, owns its own data, and can be built and deployed on its own. Services talk to each other over the network."
+ },
+ "/microservices/infrastructure/api-gateway": {
+  "why": "Without a gateway, clients must know every service address and each service repeats the same checks. A gateway hides the internal layout behind one stable address.",
+  "use": [
+   "Many clients call many services and you want one stable entry point",
+   "You apply authentication, rate limiting and routing in one place",
+   "Different clients need different aggregated responses (BFF)"
+  ],
+  "avoid": [
+   "The gateway would contain business rules or heavy aggregation logic",
+   "One shared gateway becomes a team bottleneck",
+   "A simple load balancer is enough for a single service"
+  ],
+  "design": [
+   "Run several instances and keep the gateway stateless",
+   "Set timeouts and circuit breakers on every upstream call",
+   "Apply rate limits and authentication at the edge, and authorise again inside services"
+  ],
+  "def": "An API gateway is the single front door for clients. It sends each request to the right service and handles shared jobs such as authentication, rate limiting and TLS."
+ },
+ "/microservices/infrastructure/service-discovery": {
+  "why": "Instances start, stop and move all the time, so their addresses keep changing. Fixed addresses break on the first redeploy. A directory always has the current ones.",
+  "use": [
+   "Instance addresses change dynamically outside Kubernetes",
+   "You need client-side load balancing with health awareness",
+   "You run a mixed environment of VMs and containers"
+  ],
+  "avoid": [
+   "You run on Kubernetes, where Services and DNS already do this",
+   "You add a registry for a handful of fixed services",
+   "You treat the registry as perfectly consistent"
+  ],
+  "design": [
+   "Clients should tolerate stale entries with timeouts and retries",
+   "Registry outages must not stop calls to already-known instances",
+   "Protect against self-preservation modes that keep dead instances listed"
+  ],
+  "def": "Service discovery is a live directory of which service instances are running and where. Instances register and keep saying they are alive, and callers look up healthy instances by name."
+ },
+ "/microservices/infrastructure/config-server": {
+  "why": "Copying settings into every service repository leads to differences between copies and slow, risky changes. One versioned source keeps them consistent.",
+  "use": [
+   "Many services share settings and you want central, versioned changes",
+   "You need runtime refresh for selected beans",
+   "You are not on Kubernetes or you need Git-backed history"
+  ],
+  "avoid": [
+   "You run on Kubernetes where ConfigMaps and Secrets already fit",
+   "The config server would be a single point of failure for startup",
+   "You need to store secrets in plain text"
+  ],
+  "design": [
+   "Make clients start with cached or local defaults if the server is down",
+   "Store secrets in a vault, not in the config repository",
+   "Treat configuration changes like code: review, test and roll back"
+  ],
+  "def": "A configuration server keeps application settings in one central place, often a Git repository, and serves them to each service. Services load them at startup and can refresh them without restarting."
+ },
+ "/microservices/communication/service-communication": {
+  "why": "A business flow needs several services to cooperate, but each runs separately and can fail on its own. Different styles trade speed, coupling and reliability.",
+  "use": [
+   "The caller needs an immediate answer (REST or gRPC with timeouts)",
+   "Other services should react to a fact without the producer knowing them (events)",
+   "You need efficient internal calls with strong contracts (gRPC)"
+  ],
+  "avoid": [
+   "You chain many synchronous calls on a user request path",
+   "You use messaging where an immediate result is required",
+   "You change contracts without a compatibility plan"
+  ],
+  "design": [
+   "Set timeouts, retries with backoff and circuit breakers on every remote call",
+   "Version APIs and events and keep changes backward compatible",
+   "Make consumers idempotent, since delivery is at least once"
+  ],
+  "def": "Services talk in two ways. Synchronous calls (REST or gRPC) wait for an answer. Asynchronous messages (Kafka, RabbitMQ) are sent and the sender moves on. Use a call when you need the answer now, and a message when the work can finish later."
+ },
+ "/microservices/resilience/resilience4j": {
+  "why": "When a dependency slows down, callers pile up waiting and the problem spreads. These tools fail fast, limit the damage and recover on their own.",
+  "use": [
+   "You call remote services or databases that can fail or slow down",
+   "You need to protect a critical path from a non-critical dependency",
+   "You want automatic recovery probes (half-open state)"
+  ],
+  "avoid": [
+   "You retry non-idempotent operations blindly",
+   "You hide failures behind fallbacks that return wrong data",
+   "You apply retries at several layers and multiply load on a struggling service"
+  ],
+  "design": [
+   "Define one retry budget across layers so retries do not multiply",
+   "Expose breaker state and rejections as metrics and alert on them",
+   "Test failure paths with fault injection, not only happy paths"
+  ],
+  "def": "Resilience4j is a library of safety tools for remote calls: timeout, retry, circuit breaker, bulkhead and fallback. They stop one slow or broken service from dragging down the services that call it."
+ },
+ "/microservices/data-consistency/saga": {
+  "why": "Each service has its own database, so one business action cannot be a single database transaction. A saga accepts short-lived inconsistency and repairs failures.",
+  "use": [
+   "A business flow spans several services with their own databases",
+   "You can define a meaningful compensation for each step",
+   "Eventual consistency is acceptable for the flow"
+  ],
+  "avoid": [
+   "A single database transaction could do the job",
+   "A step cannot be undone and cannot be moved last",
+   "You need strict isolation between concurrent flows"
+  ],
+  "design": [
+   "Persist saga state and use the outbox so state change and message are atomic",
+   "Give every step a timeout and a compensation path",
+   "Expose saga progress for support and monitoring"
+  ],
+  "def": "A saga keeps data correct across services without one big transaction. It runs a series of small local transactions, and if a step fails it runs compensating actions to undo the earlier steps."
+ },
+ "/microservices/data-consistency/outbox-idempotency": {
+  "why": "Saving to the database and sending a message are two steps, and a crash between them loses or duplicates the message. The outbox makes them one, and idempotency makes repeats harmless.",
+  "use": [
+   "A state change must reliably produce an event",
+   "Consumers must tolerate duplicate delivery",
+   "You expose APIs that clients may retry (idempotency keys)"
+  ],
+  "avoid": [
+   "A single consumer in the same transaction needs no event",
+   "You publish directly to the broker inside business code",
+   "You skip deduplication and assume exactly-once delivery"
+  ],
+  "design": [
+   "Order events by aggregate key and consider CDC for low-latency relay",
+   "Store processed message ids with a unique constraint and a retention period",
+   "Monitor outbox backlog and relay lag"
+  ],
+  "def": "The transactional outbox saves an event in a table in the same database transaction as the change, and a separate process publishes it. Idempotency means doing the same thing twice has the same result as doing it once."
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing": {
+  "why": "One model for both reads and writes forces compromises, since queries want convenient shapes and writes want strict rules. Splitting them lets each be optimised, and events keep a full history.",
+  "use": [
+   "Read and write loads or shapes are very different",
+   "You need a complete audit trail or time travel",
+   "You build read models from events for several consumers"
+  ],
+  "avoid": [
+   "The domain is simple CRUD",
+   "The team cannot yet handle eventual consistency and schema evolution",
+   "You would add the patterns for fashion rather than need"
+  ],
+  "design": [
+   "Version events from day one and plan upcasting for old events",
+   "Use snapshots to bound replay time",
+   "Make read models rebuildable from the event log"
+  ],
+  "def": "CQRS uses one model to change data and a different model to read it. Event sourcing stores every change as an event and rebuilds the current state by replaying them."
+ },
+ "/databases/relational-design": {
+  "why": "Copied data drifts: a customer name stored on every order goes out of date when it changes. Storing facts once, with rules enforced by the database, keeps one source of truth.",
+  "use": [
+   "You design a transactional system where correctness matters",
+   "Several applications write to the same data",
+   "You need relationships, joins and strong integrity"
+  ],
+  "avoid": [
+   "Data is naturally document-shaped and read as a whole with few relations",
+   "Extreme write scale needs a different model",
+   "You skip constraints and rely only on application validation"
+  ],
+  "design": [
+   "Choose keys and types that will still work at 100x scale (bigint, UTC time, decimal money)",
+   "Plan multi-tenancy early: shared schema with tenant id, schema per tenant or database per tenant",
+   "Design migrations as part of the schema, since change is constant"
+  ],
+  "def": "Relational design organises data into tables with keys and rules. Normalisation means storing each fact once, and constraints such as `NOT NULL`, `UNIQUE` and `FOREIGN KEY` make the database reject bad data."
+ },
+ "/databases/sql-patterns": {
+  "why": "Looping over rows in Java makes many round trips and ignores the database optimiser. Known patterns give correct and fast answers to common questions.",
+  "use": [
+   "You report, deduplicate or rank data",
+   "You process bulk changes in one statement",
+   "You paginate or upsert reliably"
+  ],
+  "avoid": [
+   "You loop in application code where one statement would do",
+   "You use OFFSET pagination on very large tables",
+   "You trust a query you never looked at in EXPLAIN"
+  ],
+  "design": [
+   "Use keyset pagination and covering indexes for high-volume lists",
+   "Make writes idempotent with upserts and unique constraints",
+   "Review plans on production-sized data, not on small test sets"
+  ],
+  "def": "SQL patterns are reusable query shapes: joins, anti-joins, grouping, window functions, CTEs, upserts and pagination. They let the database do bulk work in one statement instead of looping in your code."
+ },
+ "/databases/acid-isolation-mvcc": {
+  "why": "If transactions could see each other's half-finished work, data would be corrupted. Locking everything would make the database slow. MVCC and isolation levels give you a balance.",
+  "use": [
+   "You design concurrent writes to shared data",
+   "You choose an isolation level or locking strategy",
+   "You diagnose deadlocks, long transactions and bloat"
+  ],
+  "avoid": [
+   "You assume repeatable read prevents every anomaly",
+   "Transactions are long and hold locks across remote calls",
+   "You ignore retry logic for serialisation failures"
+  ],
+  "design": [
+   "Keep transactions short and retry on serialisation failures and deadlocks",
+   "Enforce critical invariants with constraints or locks, not only with isolation",
+   "Monitor long-running transactions, since they block cleanup and cause bloat"
+  ],
+  "def": "ACID is what a good database promises for a transaction: Atomic (all or nothing), Consistent (rules hold), Isolated (transactions do not disturb each other) and Durable (committed data survives a crash). MVCC keeps several versions of a row so readers do not block writers."
+ },
+ "/databases/replication-sharding": {
+  "why": "One database server has limited capacity and is a single point of failure. Replicas add reads and safety, and sharding adds write capacity, each with new trade-offs.",
+  "use": [
+   "Reads dominate and tolerate slight staleness (replicas)",
+   "A table is huge and queries have a natural partition key",
+   "Write volume exceeds one server (sharding)"
+  ],
+  "avoid": [
+   "A single well-indexed server still meets the load",
+   "Queries cross many shards and need joins",
+   "You would shard without a clear key or resharding plan"
+  ],
+  "design": [
+   "Route read-your-writes traffic to the primary to hide replication lag",
+   "Pick a shard key with high cardinality and even distribution",
+   "Rehearse failover and resharding before you need them"
+  ],
+  "def": "Replication copies data to other servers for safety and extra reads. Partitioning splits one big table into pieces inside a database. Sharding spreads data across several servers using a shard key."
+ },
+ "/databases/nosql-and-redis": {
+  "why": "Relational databases are not the best fit for everything: huge write rates, flexible shapes or very fast lookups need different trade-offs. NoSQL stores optimise for one access pattern.",
+  "use": [
+   "The access pattern is known and simple (lookup by key, time-series, wide rows)",
+   "You need very low latency (Redis) or huge scale",
+   "The data model is flexible or graph-like"
+  ],
+  "avoid": [
+   "You need complex joins, strong transactions and ad-hoc queries (use relational)",
+   "You choose NoSQL mainly because it is fashionable",
+   "You treat Redis as a durable system of record without planning persistence"
+  ],
+  "design": [
+   "Set a memory limit and an eviction policy for every Redis instance",
+   "Model data from the queries you need, and duplicate deliberately",
+   "Plan consistency: know whether reads can be stale and writes can conflict"
+  ],
+  "def": "NoSQL databases store data in forms other than tables: key-value, document, wide-column or graph. Redis is an in-memory key-value store used for caching, sessions, counters and rate limits."
+ },
+ "/databases/schema-migrations": {
+  "why": "Changing a database by hand differs between environments and can break the running application. Versioned scripts are repeatable, and compatible steps avoid downtime.",
+  "use": [
+   "The schema changes with every release",
+   "You deploy with rolling updates and several versions run at once",
+   "You backfill or reshape large tables"
+  ],
+  "avoid": [
+   "You edit applied migrations or alter production by hand",
+   "You run a blocking change on a large table in peak hours",
+   "You drop a column before all code stopped using it"
+  ],
+  "design": [
+   "Split risky changes into expand, migrate and contract releases",
+   "Test migrations on production-sized data and check lock behaviour",
+   "Never let ORMs auto-update production schemas"
+  ],
+  "def": "A schema migration is a versioned script that changes the database structure, such as adding a column. A tool like Flyway runs the scripts in order and remembers which have run, so every environment ends up identical."
+ },
+ "/messaging/kafka-fundamentals": {
+  "why": "In a normal queue a message disappears once it is read, so a second reader or a replay is impossible. A kept, partitioned log supports many readers, replay and very high volume.",
+  "use": [
+   "Many services consume the same stream of events independently",
+   "You need replay, reprocessing or a durable event history",
+   "Throughput is very high or you stream data between systems"
+  ],
+  "avoid": [
+   "You need simple task queues with per-message routing and priorities (RabbitMQ fits better)",
+   "You need strict global ordering across all messages",
+   "Message volume is tiny and operating a cluster is not worth it"
+  ],
+  "design": [
+   "Choose partition counts up front: changing them re-maps keys",
+   "Set replication factor 3 with min.insync.replicas 2 and acks=all for important topics",
+   "Monitor consumer lag, under-replicated partitions and disk usage"
+  ],
+  "def": "Kafka is a system for streaming messages. Producers write records to a topic, a topic is split into partitions (ordered logs), and consumers read at their own pace. Records are kept for a set time, so many consumers can read them and you can replay them."
+ },
+ "/messaging/kafka-consumers-offsets": {
+  "why": "One consumer cannot keep up with a busy topic, and uncoordinated consumers would process the same records twice. Groups share partitions automatically, and offsets let each group resume where it stopped.",
+  "use": [
+   "You scale processing by adding consumers up to the partition count",
+   "You need to resume after restarts without losing records",
+   "You want independent groups reading the same topic"
+  ],
+  "avoid": [
+   "You commit before processing and cannot afford lost records",
+   "Handlers are slow and exceed the poll interval, causing rebalance loops",
+   "You add more consumers than partitions and expect speed-up"
+  ],
+  "design": [
+   "Make handlers idempotent, since duplicates happen after rebalances and crashes",
+   "Use cooperative rebalancing or static membership to reduce pauses",
+   "Alert on lag growth per partition, not only on the total"
+  ],
+  "def": "Consumers join a consumer group and Kafka gives each partition to one consumer in the group, so the work is shared. A consumer remembers its place with an offset. Committing the offset after processing means a crash can cause a repeat, so handlers should be safe to run twice."
+ },
+ "/messaging/kafka-ordering-design": {
+  "why": "Without a key, related events can land in different partitions and be handled out of order, and one bad record can block a partition forever. Keys and a dead-letter topic fix both.",
+  "use": [
+   "Events for one entity must be processed in order",
+   "Consumers need defined retry and failure handling",
+   "You evolve event schemas across independent teams"
+  ],
+  "avoid": [
+   "You need global ordering across all events (it costs all parallelism)",
+   "One key produces most of the traffic (hot partition)",
+   "You retry forever on a record that can never succeed"
+  ],
+  "design": [
+   "Use bounded retries with backoff, then a dead-letter topic with alerting and a replay tool",
+   "Version events with a schema registry and compatibility rules",
+   "Pair Kafka with the outbox pattern for reliable publishing from a database"
+  ],
+  "def": "Kafka only guarantees order inside one partition. Records with the same key go to the same partition, so using an id as the key keeps that item's events in order. Failing records are retried a few times and then moved to a dead-letter topic."
+ },
+ "/messaging/rabbitmq-basics": {
+  "why": "Services need to hand off work without waiting, and a busy consumer should not lose requests. A broker holds the messages, routes them and redelivers them if a consumer fails.",
+  "use": [
+   "You need work queues with acknowledgements and retries",
+   "You need flexible routing patterns (topic, fanout, headers)",
+   "Message volume is moderate and per-message semantics matter"
+  ],
+  "avoid": [
+   "You need replay of old events or very high-throughput streaming",
+   "You need strict ordering with parallel consumers",
+   "You use auto-acknowledge and cannot afford lost messages"
+  ],
+  "design": [
+   "Use quorum queues, publisher confirms and manual acks for important data",
+   "Tune prefetch to balance throughput and fairness",
+   "Add a dead-letter exchange and alert on its depth"
+  ],
+  "def": "RabbitMQ is a message broker. Producers send to an exchange, the exchange routes messages to queues using bindings, and consumers take messages from queues and acknowledge them. It suits task queues and flexible routing."
+ },
+ "/devops/twelve-factor": {
+  "why": "Apps built for a single server break on elastic platforms: files on local disk, hard-coded settings and slow startup all get in the way. The factors make a service portable and easy to scale.",
+  "use": [
+   "You build services to run on containers or a PaaS",
+   "You review a service for operational readiness",
+   "You explain cloud-native design in an interview"
+  ],
+  "avoid": [
+   "You treat the list as dogma where a trade-off is justified",
+   "A batch or stateful system genuinely needs local state (design for it explicitly)",
+   "You stop at twelve and ignore observability and security"
+  ],
+  "design": [
+   "Keep services stateless and store state in backing services",
+   "Make startup and shutdown fast and graceful so autoscaling works",
+   "Use the same build artifact in every environment, differing only in configuration"
+  ],
+  "def": "The twelve-factor app is a checklist for services that run well in the cloud: one codebase, declared dependencies, config in the environment, stateless processes, logs as streams, and fast start and stop."
+ },
+ "/devops/docker-for-java": {
+  "why": "\"Works on my machine\" comes from differences in operating system, libraries and Java version. An image carries all of that, so what you test is what you run.",
+  "use": [
+   "You deploy to Kubernetes, ECS or any container platform",
+   "You want reproducible builds and local environments (Compose)",
+   "You need isolation between services"
+  ],
+  "avoid": [
+   "You run as root or include build tools in the runtime image",
+   "You ignore container memory limits when sizing the heap",
+   "A simple managed runtime meets the need without containers"
+  ],
+  "design": [
+   "Scan images for vulnerabilities in CI and pin base image versions",
+   "Use exec-form entrypoints so the JVM receives SIGTERM and shuts down gracefully",
+   "Layer the jar so dependency layers are cached between builds"
+  ],
+  "def": "Docker packs your application and everything it needs into an image that runs the same everywhere. For Java, a multi-stage build produces a small image with a Java runtime, your jar and a non-root user."
+ },
+ "/devops/kubernetes-basics": {
+  "why": "Running containers by hand on single machines does not scale or heal. Kubernetes automates scheduling, healing, scaling and rollouts from a description.",
+  "use": [
+   "You run many services that need scaling, self-healing and rolling updates",
+   "You standardise deployment across teams",
+   "You need service discovery and load balancing built in"
+  ],
+  "avoid": [
+   "You run a single small application where a simpler platform is cheaper to operate",
+   "The team lacks capacity to operate or buy a managed cluster",
+   "You set CPU limits and memory limits without understanding JVM behaviour"
+  ],
+  "design": [
+   "Separate liveness (is the process stuck) from readiness (can it take traffic)",
+   "Set requests close to real usage and memory limits above heap plus off-heap",
+   "Use PodDisruptionBudgets and topology spread for availability during maintenance"
+  ],
+  "def": "Kubernetes runs containers across many machines. You declare what you want (for example three copies of a service) and Kubernetes keeps it that way: restarting failures, rolling out new versions and routing traffic."
+ },
+ "/devops/ci-cd": {
+  "why": "Manual builds and releases are slow and inconsistent, so teams release rarely and in big risky batches. Automation makes small, frequent releases safe.",
+  "use": [
+   "Several developers merge to a shared codebase daily",
+   "You want repeatable releases and fast feedback",
+   "You promote the same artifact through environments"
+  ],
+  "avoid": [
+   "You rebuild per environment, so what you tested is not what you ship",
+   "The pipeline is slow and flaky, so people bypass it",
+   "You store long-lived secrets in pipeline variables without rotation"
+  ],
+  "design": [
+   "Keep the main branch always releasable and the pipeline fast",
+   "Sign artifacts and scan dependencies and images",
+   "Track lead time, deployment frequency, change failure rate and time to restore"
+  ],
+  "def": "Continuous integration builds and tests every change automatically. Continuous delivery keeps every build ready to release. A pipeline compiles, tests, scans, builds an image and deploys it through environments."
+ },
+ "/devops/deployment-strategies": {
+  "why": "Replacing everything at once causes downtime and exposes every user to any bug. Gradual strategies limit the risk and give you a quick way back.",
+  "use": [
+   "You need zero-downtime releases (rolling, blue-green)",
+   "You want to test a change on a small share of traffic (canary)",
+   "You ship incomplete features behind flags"
+  ],
+  "avoid": [
+   "A change cannot run alongside the old version (incompatible schema or protocol)",
+   "You lack the metrics to judge a canary",
+   "Flags pile up and are never removed"
+  ],
+  "design": [
+   "Make schema and API changes backward compatible across at least one release",
+   "Automate rollback on error-rate or latency regressions",
+   "Clean up feature flags with an owner and an expiry date"
+  ],
+  "def": "A deployment strategy is how a new version replaces the old one. Rolling updates swap instances gradually, blue-green switches between two environments, and canary sends a small share of traffic to the new version first. Feature flags let you ship code switched off."
+ },
+ "/system-design/approach-and-estimation": {
+  "why": "Open-ended problems tempt you to name technologies straight away. Without requirements and numbers, any design can be defended and none can be judged. A framework keeps the discussion structured.",
+  "use": [
+   "You prepare for or run a system design discussion",
+   "You need a quick capacity estimate to choose between designs",
+   "You present a design to stakeholders"
+  ],
+  "avoid": [
+   "You jump to technology before understanding requirements",
+   "You optimise details before the high-level design is agreed",
+   "You skip failure scenarios"
+  ],
+  "design": [
+   "State assumptions and numbers aloud so the interviewer can correct them",
+   "Separate read and write paths and estimate each",
+   "Close with trade-offs, bottlenecks and what you would build first"
+  ],
+  "def": "A system design interview asks you to design a large system on a whiteboard. A reliable approach is to clarify requirements, estimate the scale, define the API and data, sketch the architecture, then go deep on the hard parts and discuss trade-offs."
+ },
+ "/system-design/url-shortener": {
+  "why": "Long URLs are hard to share and track. A short code is easy to share, and the redirect lets you count clicks. The problem is simple to state yet covers caching, uniqueness and scale.",
+  "use": [
+   "You need a simple key-to-URL mapping at high read volume",
+   "You discuss unique id generation and caching",
+   "You explain analytics off the critical path"
+  ],
+  "avoid": [
+   "You need guaranteed global ordering or complex queries on links",
+   "Codes must not be guessable and you chose sequential ids without protection",
+   "You put analytics writes on the redirect path"
+  ],
+  "design": [
+   "Cache hot codes in memory and serve most redirects without the database",
+   "Generate ids in ranges per node to avoid a central counter bottleneck",
+   "Count clicks asynchronously through a queue and aggregate in batches"
+  ],
+  "def": "A URL shortener turns a long URL into a short code and redirects visitors who open it. The key questions are how to create unique codes, where to store them, and how to make redirects fast with caching."
+ },
+ "/system-design/rate-limiter": {
+  "why": "Without limits, one abusive or buggy client can use up the capacity and slow the service for everyone. A limiter shares capacity fairly and tells clients to back off.",
+  "use": [
+   "You expose a public or shared API",
+   "You protect expensive endpoints or downstream dependencies",
+   "You need per-user, per-key or per-IP limits"
+  ],
+  "avoid": [
+   "The limiter becomes a single point of failure for all traffic",
+   "You count approximately where billing needs exact numbers",
+   "Legitimate bursts are rejected because the window is too strict"
+  ],
+  "design": [
+   "Decide fail-open versus fail-closed per endpoint",
+   "Return 429 with Retry-After and rate limit headers",
+   "Use token bucket for bursts and layer limits at gateway and service"
+  ],
+  "def": "A rate limiter caps how many requests a client can make in a time window. The popular method is the token bucket: tokens refill at a steady rate, each request uses one, and requests with no token are rejected."
+ },
+ "/system-design/order-processing": {
+  "why": "An order touches several services with separate databases, and any step can fail after earlier ones succeeded. Clear states and compensations keep the business consistent.",
+  "use": [
+   "A flow spans inventory, payment and shipping with separate data stores",
+   "You need to retry safely without charging twice",
+   "You must support cancellation and returns"
+  ],
+  "avoid": [
+   "A single database could handle the whole operation",
+   "You rely on synchronous chains with no recovery path",
+   "Payment outcome is unknown and you have no reconciliation job"
+  ],
+  "design": [
+   "Use idempotency keys on order creation and payment calls",
+   "Persist saga state and publish events through the outbox",
+   "Run a reconciliation job and alert on orders stuck in a state beyond a threshold"
+  ],
+  "def": "Order processing coordinates inventory, payment and shipping across services. The order moves through states (for example pending, paid, shipped), and a saga undoes earlier steps if a later one fails."
+ },
+ "/system-design/notification-service": {
+  "why": "Every service needs to notify users, and each integrating providers on its own repeats work and risks spam. One service gives a single place for preferences, limits, retries and tracking.",
+  "use": [
+   "Many services send user notifications through several channels",
+   "You need preferences, opt-outs and rate limits in one place",
+   "You schedule and send bulk campaigns"
+  ],
+  "avoid": [
+   "A single service sends a handful of emails and a library is enough",
+   "Bulk and transactional traffic share one queue, so campaigns delay urgent messages",
+   "You ignore provider rate limits and failover"
+  ],
+  "design": [
+   "Separate queues by priority and channel, with dead-letter handling",
+   "Deduplicate with stable ids and retry transient errors with backoff and jitter",
+   "Honour consent and quiet hours, and keep an audit trail"
+  ],
+  "def": "A notification service sends email, SMS and push messages for other services. It accepts requests into a queue, applies user preferences, sends through workers with retries, and tracks delivery."
+ },
+ "/system-design/tradeoffs": {
+  "why": "No design is best at everything, and interviews and reviews test whether you understand the costs of your choices. A repeatable way to compare options makes decisions clear and defensible.",
+  "use": [
+   "You justify an architecture in an interview or review",
+   "You choose between consistency models, data stores or communication styles",
+   "You write a decision record"
+  ],
+  "avoid": [
+   "You present one option as obviously right without costs",
+   "You optimise for scale the product does not need yet",
+   "You decide by familiarity rather than requirement"
+  ],
+  "design": [
+   "Write down the decision, alternatives, consequences and review date",
+   "Quantify with real numbers: latency, volume, cost, team size",
+   "Prefer reversible decisions early and invest more in irreversible ones"
+  ],
+  "def": "A trade-off is choosing one quality at the cost of another, such as consistency over availability or simple over scalable. A good answer names the options, compares them to the requirements, picks one and says what you give up."
+ },
+ "/toolkit/coding-problems": {
+  "why": "Interviewers need a comparable way to see how you solve problems. Patterns repeat, so practising by pattern works better than memorising answers.",
+  "use": [
+   "You prepare for a live coding round",
+   "You want a pattern-first way to practise",
+   "You review solutions with their complexity"
+  ],
+  "avoid": [
+   "You memorise answers without understanding why they work",
+   "You start coding before clarifying input and edge cases",
+   "You skip testing your own solution aloud"
+  ],
+  "design": [
+   "Practise explaining while coding, not only solving",
+   "Always state time and space complexity and name the pattern",
+   "Re-solve missed problems after a week"
+  ],
+  "def": "Coding interview problems test whether you can spot a known pattern, such as hashing, two pointers, a sliding window, a stack or dynamic programming, and turn it into clean, correct code with the right complexity."
+ },
+ "/toolkit/behavioral-star": {
+  "why": "Technical skill alone does not show how you work with others. Past behaviour is how interviewers judge ownership and judgement, and a structure keeps your answer focused.",
+  "use": [
+   "You prepare stories for leadership, conflict, failure and impact questions",
+   "You need concise answers under three minutes",
+   "You want to show senior-level ownership"
+  ],
+  "avoid": [
+   "You describe what the team did without your own actions",
+   "You choose stories with no measurable outcome",
+   "You blame others when discussing failures"
+  ],
+  "design": [
+   "Prepare six to eight stories that map to many questions",
+   "Quantify results: latency, cost, incidents, delivery time",
+   "Rehearse aloud and time yourself"
+  ],
+  "def": "A behavioural question asks what you did in a past situation. The STAR method structures the answer as Situation, Task, Action and Result, spending most of the time on what you did and what came out of it."
+ },
+ "/microservices/observability": {
+  "why": "A single user request passes through many services, so finding why it was slow or failed is guesswork without shared context. Traces, logs and metrics together turn it into a lookup.",
+  "use": [
+   "You run several services and need to find where latency or errors come from",
+   "You define SLOs and alert on user-visible symptoms",
+   "You debug incidents quickly with correlated data"
+  ],
+  "avoid": [
+   "You alert on every metric instead of user impact",
+   "You log unstructured text with no correlation id",
+   "You tag metrics with unbounded labels such as user ids"
+  ],
+  "design": [
+   "Propagate trace context across HTTP, messaging and async boundaries",
+   "Sample traces to control cost, but always keep errors and slow requests",
+   "Review dashboards and alerts after each incident"
+  ],
+  "def": "Observability is being able to see what your system is doing. Metrics show numbers over time, logs record events, and traces follow one request across all the services it touches using a shared trace id."
+ }
+}

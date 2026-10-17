@@ -8,8 +8,6 @@ sidebar_position: 3
 
 # The Java Memory Model (JMM)
 
-The JMM defines **when a write by one thread is guaranteed to be visible to a read in another thread**. Without those guarantees, correct-looking code fails intermittently and only on some hardware. Understanding it separates seniors from people who "add `synchronized` until it works".
-
 <Outcomes items={[
   "Explain happens-before and why it matters",
   "State what volatile and final guarantee",

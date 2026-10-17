@@ -8,8 +8,6 @@ sidebar_position: 5
 
 # CompletableFuture
 
-`Future` can only block (`get()`). `CompletableFuture` (Java 8) is a `Future` you can **complete manually and compose**: chain transformations, combine results and react to failures without blocking threads.
-
 <Outcomes items={[
   "Chain async steps with thenApply, thenCompose and thenCombine",
   "Handle errors with exceptionally and handle",

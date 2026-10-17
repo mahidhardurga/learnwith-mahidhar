@@ -47,7 +47,7 @@
 .tag {
   font-weight: 700;
   color: var(--ifm-color-primary);
-  background: rgba(124, 92, 255, 0.14);
+  background: var(--lw-accent-soft);
   padding: 0.15rem 0.7rem;
   border-radius: 999px;
 }
@@ -71,7 +71,7 @@
 }
 
 .card:focus-visible {
-  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.5), none;
+  box-shadow: 0 0 0 3px var(--lw-accent-soft);
 }
 
 .face {

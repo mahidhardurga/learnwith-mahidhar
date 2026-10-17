@@ -64,54 +64,40 @@ Layout is swizzle-friendly: run `npm run swizzle @docusaurus/theme-classic DocIt
 
 ## UI customisations
 
-- `src/pages/index.tsx` + `index.module.css`: the landing page (hero, level tracks, topic grid, quiz, progress). Page counts are computed from the docs, not hard-coded.
+- `src/pages/index.tsx` + `index.module.css`: the landing page (hero, the ten parts, topic grid, labs). Page counts are computed from the docs, not hard-coded.
 - `src/data/flashcards.ts` + `src/components/Flashcards/`: the 60-second quiz. Add cards by appending to the array (link each to a docs page).
 - `src/components/progress.ts`, `MarkComplete.tsx`, `src/theme/DocItem/Footer`, `src/theme/DocSidebarItem/Link`: "Mark as done" button and sidebar ticks. Progress lives only in the visitor's `localStorage`; nothing is sent to any server.
 - `src/css/custom.css`: design tokens and theme (dark by default). Fonts are self-hosted through `@fontsource-variable/*`, so no request goes to Google Fonts.
 - The docs intro is served at `/guide`; `/` is the landing page.
 
-## Experience-level personalisation
+## Lesson structure
 
-Visitors pick Beginner, Mid-level, Senior or Show everything (navbar switcher, hero, `/my-plan`). The choice lives in `localStorage` (`lw-level-v1`) and adapts: sidebar dots and a chip on each page (core / review / stretch / later), the quiz deck, topic counts on the homepage, and a week-by-week plan at `/my-plan`.
+Every topic page follows the same ten parts, in this fixed order:
 
-**When you add a page**, register it in `src/data/levels.ts`:
+1 Definition, 2 Why it exists, 3 How it works, 4 Example code, 5 System design considerations, 6 When to use it (and when not), 7 Common mistakes, 8 Interview questions, 9 Check yourself (labs and quiz), 10 Key takeaways and next topic.
 
-1. Add it to `PAGES` with its permalink, a short title and the level at which it becomes core interview material (`beginner`, `mid`, `senior`).
-2. Optionally add it to one or more `PLANS` weeks.
-3. If you use a flashcard, point its `link` at the page.
+A part that does not apply to a topic is skipped, and the numbers stay fixed (a page can go 1, 2, 3, 5, 6...). There is one version of every page for every reader: no experience levels.
 
-Check coverage (every doc mapped, every plan link real) with a script that compares `docs/**/*.md` permalinks against `PAGES`; unmapped pages simply show no level chip.
+How it works:
 
-### Level-adaptive page content
+- `plugins/rehype-lesson-parts.mjs` sorts each page's `##` sections into the ten parts at build time, so the order in the markdown does not matter. Original section headings become sub-headings inside their part. Pitfalls, interview questions, Check yourself and Key takeaways are recognised by name.
+- `src/data/section-slots.json` maps a page's other `##` headings to a part (`{"/page/path": {"Heading text": 5}}`). Unmapped headings go to part 3 (How it works).
+- `src/data/lessons.json` holds the written parts per page: `def` (the definition: short, plain words, 2-3 sentences), `why`, `use`, `avoid` and optional `design` bullets. Parts 1, 2, 5 and 6 are injected from it, and the "next topic" card in part 10 is automatic.
+- `src/data/pages.json` lists every guide page (path and short title). Add new pages there.
+- Interview questions (`**1. Question?**` followed by the answer) become click-to-open accordions automatically.
+- `npm run validate:content` checks the data files against the markdown. Restart the dev server after editing any data file or the plugin; if a change does not show up, delete `.docusaurus` and `node_modules/.cache`.
 
-Pages adapt to the chosen level, live: sections above your level collapse into a labelled "Stretch" or "Advanced" row, beginner basics fold into a "Refresher" for seniors, and each interview question follows the same rule. A "Show all sections" button on every page overrides it. "Show everything" disables all of this.
+**Writing style for definitions:** two or three short sentences, everyday words, the real definition first. No jargon without a one-line explanation.
 
-How it works: `plugins/rehype-level-sections.mjs` wraps every H2 section (and every numbered interview question) at build time; `src/components/LevelContent.tsx` expands or collapses them from the level in `localStorage`.
+**Interactive components** (`src/components/Interactive/`, registered in `src/theme/MDXComponents.tsx`):
 
-**When you write or edit a page:**
-
-- Give each H2 a level in `src/data/section-overrides.json` (key = plain heading text without backticks; a trailing `*` matches numbered headings, e.g. `"3. *"`). Unlisted headings default to the page's own level.
-- `Key takeaways`, `Pitfalls` and the questions container are never collapsed; questions are levelled by position (earlier = easier).
-- Run `npm run validate:levels` to catch headings without a level or keys that no longer match.
-- Restart `npm start` after changing the plugin or the JSON files.
-- The three `toolkit/questions-*` pages are organised by level already and are not gated.
-
-**Interactive learning components** (`src/components/Interactive/`, registered in `src/theme/MDXComponents.tsx`):
-
-- `<Outcomes items={[...]} />` goes before the first H2; `<Checkpoint questions={[{q, options, answer, why}]} />` goes under a `## Check yourself` heading before the interview questions. Headings starting "Try it" or "Check yourself" are never collapsed by level.
-- Labs: `HashMapLab`, `SagaLab`, `KafkaLab`, `CircuitBreakerLab`, `TokenBucketLab`, `IsolationLab`. Put each under a `## Try it: ...` heading.
-- The sticky bar under the breadcrumbs (`src/components/LevelChip.tsx`) shows topic N of M for the section, reading progress, and the level chip. Reading order is the `sidebar_position` front matter.
-
-**Level-specific writing (so Beginner does not read like Senior):**
-
-- `src/data/level-intros.json`: `{ "/page/path": { "beginner": "...", "senior": "..." } }`. Beginners see a "Start here: the simple version" box and the original intro folds into "Show the standard introduction"; seniors see a "Senior focus" box; mid-level sees the page as written.
-- `src/data/level-section-notes.json`: `{ "/page/path": { "Plain heading text": "plain-words note" } }`. Shown to beginners as "In plain words" at the top of that section. Keys follow the same rules as section overrides (trailing `*` wildcard).
-- Text supports `` `code` ``, `**bold**` and blank-line paragraphs. `npm run validate:levels` checks page paths and note headings.
-- If a change to the plugin does not show up, stop the dev server and delete `.docusaurus` and `node_modules/.cache` (Docusaurus caches compiled MDX).
+- `<Outcomes items={[...]} />` goes before the first H2. `<Checkpoint questions={[{q, options, answer, why}]} />` goes under a `## Check yourself` heading.
+- Labs: `HashMapLab`, `SagaLab`, `KafkaLab`, `CircuitBreakerLab`, `TokenBucketLab`, `IsolationLab`. Put each under a `## Try it: ...` heading; it lands in part 9.
+- The sticky bar under the breadcrumbs (`src/components/LessonBar.tsx`) shows topic N of M for the section, reading progress and reading time. Reading order is the `sidebar_position` front matter.
 
 ### Navigation and layout (keep it simple)
 
-- Navbar: **Topics** (dropdown to each section's overview), **My plan**, **Quiz**, and the level picker. Add new top-level sections to the Topics dropdown in `docusaurus.config.ts`.
+- Navbar: **Topics** (dropdown to each section's overview), and **Quiz**. Add new top-level sections to the Topics dropdown in `docusaurus.config.ts`.
 - Every page needs a short `sidebar_label` in its front matter (the sidebar is narrow; the full `title` is for SEO). One sidebar section is open at a time.
-- The homepage is deliberately minimal (choose level, start learning, topic grid). The quiz lives at `/quiz`; progress lives on `/my-plan`.
-- The theme avoids gradients, glows and animation; keep new components in the same plain style.
+- The homepage is a large-type hero, the ten parts, the topic grid and the labs. The quiz lives at `/quiz`.
+- The look is Apple-style: neutral surfaces, system font stack, translucent navbar, soft rounded cards. Colours and spacing are tokens at the top of `src/css/custom.css`.

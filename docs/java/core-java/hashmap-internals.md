@@ -8,8 +8,6 @@ sidebar_position: 4
 
 # HashMap Internals
 
-`HashMap` is the most asked Java internals topic because it exercises hashing, data structures, memory layout and concurrency in one object.
-
 <Outcomes items={[
   "Compute a key's bucket by hand: hashCode, spread, mask",
   'Explain when a bucket turns into a tree and when the table resizes instead',

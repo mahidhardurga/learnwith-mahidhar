@@ -8,8 +8,6 @@ sidebar_position: 6
 
 # Virtual Threads
 
-Virtual threads (JEP 444, final in **Java 21**) are lightweight threads managed by the JVM, not the OS. They let you write simple **blocking, thread-per-request** code and still scale to hundreds of thousands of concurrent tasks.
-
 <Outcomes items={[
   "Explain what virtual threads solve and what they do not",
   "Describe pinning and how to avoid it",
