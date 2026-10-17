@@ -298,4 +298,60 @@ export const FLASHCARDS: Flashcard[] = [
       'Set a maximum number of steps, a token or cost budget and a timeout. Use least-privilege tools, approval for risky actions, and log every step.',
     link: '/ai/agents/ai-agents',
   },
+  {
+    category: 'AI',
+    question: 'When should you fine-tune instead of using RAG?',
+    answer:
+      'Fine-tune to change style, format or a narrow skill. Use RAG for facts that are private or change often. Try a better prompt first.',
+    link: '/ai/foundations/fine-tuning-and-model-choice',
+  },
+  {
+    category: 'AI',
+    question: 'Who runs a tool when an LLM uses tool calling?',
+    answer:
+      'Your code. The model only asks for a call with arguments. Your code validates the request, runs the tool and returns the result.',
+    link: '/ai/prompting/structured-output-and-tool-calling',
+  },
+  {
+    category: 'AI',
+    question: 'What does MCP standardise?',
+    answer:
+      'How AI applications connect to tools and data. A server exposes tools, resources and prompts over JSON-RPC, and any MCP-capable application can use it.',
+    link: '/ai/agents/model-context-protocol',
+  },
+  {
+    category: 'AI',
+    question: 'When is a multi-agent design worth it?',
+    answer:
+      'When one context cannot hold the work, sub-tasks can run in parallel, or parts need different permissions. Otherwise one agent or a workflow is cheaper.',
+    link: '/ai/agents/multi-agent-patterns',
+  },
+  {
+    category: 'AI',
+    question: 'Why enforce rules in code instead of the prompt?',
+    answer:
+      'A model can ignore or be tricked out of prompt instructions. A code check before the action runs cannot be talked around.',
+    link: '/ai/safety/guardrails-and-safety',
+  },
+  {
+    category: 'AI',
+    question: 'What makes a prompt injection serious?',
+    answer:
+      'A session that has private data, untrusted content and a way to send data out or act. Removing any one of the three greatly reduces the risk.',
+    link: '/ai/safety/prompt-injection-and-security',
+  },
+  {
+    category: 'AI',
+    question: 'Why do LLM features need evals?',
+    answer:
+      'Answers vary and small changes shift results across many cases. Running a fixed set of realistic cases and scoring it shows whether a change helped.',
+    link: '/ai/production/evals-and-testing',
+  },
+  {
+    category: 'AI',
+    question: 'What risk does semantic caching add?',
+    answer:
+      'A similar but different question can return a wrong stored answer. Use a strict similarity threshold and keep the user or tenant in the cache key.',
+    link: '/ai/production/observability-latency-caching',
+  },
 ];

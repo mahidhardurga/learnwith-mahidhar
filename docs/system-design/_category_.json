@@ -3,6 +3,6 @@
   "position": 8,
   "link": {
     "type": "generated-index",
-    "description": "Design problems for Java microservice engineers: URL shortener, rate limiter, order processing, notification service and trade-off discussions."
+    "description": "Design problems for Java microservice and AI engineers: URL shortener, rate limiter, order processing, notification service, trade-offs, a RAG chatbot and an AI agent platform."
   }
 }

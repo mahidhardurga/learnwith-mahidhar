@@ -11,6 +11,7 @@ import {IsolationLab} from '@site/src/components/Interactive/IsolationLab';
 import {TokenCostLab} from '@site/src/components/Interactive/TokenCostLab';
 import {RagLab} from '@site/src/components/Interactive/RagLab';
 import {AgentLab} from '@site/src/components/Interactive/AgentLab';
+import {GuardrailLab} from '@site/src/components/Interactive/GuardrailLab';
 
 export default {
   ...MDXComponents,
@@ -32,4 +33,5 @@ export default {
   TokenCostLab,
   RagLab,
   AgentLab,
+  GuardrailLab,
 };

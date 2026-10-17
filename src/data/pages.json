@@ -350,5 +350,49 @@
  {
   "path": "/ai/agents/ai-agents",
   "title": "AI agents"
+ },
+ {
+  "path": "/ai/foundations/fine-tuning-and-model-choice",
+  "title": "Fine-tuning and model choice"
+ },
+ {
+  "path": "/ai/prompting/structured-output-and-tool-calling",
+  "title": "Structured output and tool calling"
+ },
+ {
+  "path": "/ai/agents/model-context-protocol",
+  "title": "MCP"
+ },
+ {
+  "path": "/ai/agents/multi-agent-patterns",
+  "title": "Multi-agent patterns"
+ },
+ {
+  "path": "/ai/safety/guardrails-and-safety",
+  "title": "Guardrails and safety"
+ },
+ {
+  "path": "/ai/safety/prompt-injection-and-security",
+  "title": "Prompt injection and security"
+ },
+ {
+  "path": "/ai/production/evals-and-testing",
+  "title": "Evals and testing"
+ },
+ {
+  "path": "/ai/production/observability-latency-caching",
+  "title": "Observability, latency and caching"
+ },
+ {
+  "path": "/ai/production/spring-ai-and-langchain4j",
+  "title": "Spring AI and LangChain4j"
+ },
+ {
+  "path": "/system-design/design-a-rag-chatbot",
+  "title": "Design a RAG chatbot"
+ },
+ {
+  "path": "/system-design/design-an-ai-agent-platform",
+  "title": "Design an AI agent platform"
  }
 ]

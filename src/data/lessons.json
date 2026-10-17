@@ -1554,5 +1554,159 @@
    "A mistake is costly and cannot be approved or undone",
    "You cannot set step, budget and permission limits"
   ]
+ },
+ "/ai/foundations/fine-tuning-and-model-choice": {
+  "def": "Fine-tuning means training an existing model further on your own examples, so its behaviour, style or format changes. Choosing a model means testing candidates on your task and picking the cheapest one that is good enough.",
+  "why": "A general model is not always right for your task, and the largest model is slow and costly. Fine-tuning adapts behaviour, and careful model choice and routing keep quality up and cost down.",
+  "use": [
+   "A prompt cannot give you a consistent style, format or narrow skill",
+   "A small model must match a large one on one task (distillation)",
+   "You choose or switch models and want evidence from your own tests"
+  ],
+  "avoid": [
+   "You want to teach facts that change (use RAG)",
+   "You have not tried a better prompt first",
+   "You pick a model from a leaderboard without testing your own cases"
+  ]
+ },
+ "/ai/prompting/structured-output-and-tool-calling": {
+  "def": "Structured output makes a model reply in a fixed shape, usually JSON that your code can read. Tool calling lets the model ask your code to run a function, and then continue with the result.",
+  "why": "A program cannot do much with a paragraph of prose, and a model alone cannot look things up or change anything. These two features let a model fit into normal software: it returns data you can parse and asks for actions you can control.",
+  "use": [
+   "Your code needs a label, number or record from the model",
+   "The model needs live data or must trigger an action",
+   "You want to validate and limit what the model can do"
+  ],
+  "avoid": [
+   "A plain text answer is enough",
+   "You would pass model-made arguments straight to a database, shell or URL",
+   "You give the model many overlapping tools"
+  ]
+ },
+ "/ai/agents/model-context-protocol": {
+  "def": "The Model Context Protocol (MCP) is an open standard for connecting AI applications to tools and data. A server exposes tools, resources and prompts, and any MCP-capable application can use them.",
+  "why": "Without a standard, every AI application needs a custom connector for every tool, so the work multiplies. With MCP you write a connector once as a server and many applications can use it.",
+  "use": [
+   "You want one tool or data source available to several AI applications",
+   "You use ready-made servers for common systems",
+   "You want a standard way to describe tools to agents"
+  ],
+  "avoid": [
+   "One application needs one simple function (a normal tool is enough)",
+   "You would install a server you cannot trust or review",
+   "You connect many servers and flood the context with tool descriptions"
+  ]
+ },
+ "/ai/agents/multi-agent-patterns": {
+  "def": "A multi-agent system uses several model-driven agents that work together, each with its own instructions, tools and context. Common patterns are orchestrator and workers, pipelines, parallel work, routers and evaluator loops.",
+  "why": "One agent can run out of context, cannot do independent work in parallel, and holds all permissions at once. Splitting the work solves those problems, at the price of more tokens and more to manage.",
+  "use": [
+   "One context cannot hold the work",
+   "Sub-tasks are independent and can run in parallel",
+   "Different parts need different tools or permissions"
+  ],
+  "avoid": [
+   "A single agent or a fixed workflow would work",
+   "You cannot cap steps and budget for each agent",
+   "The hand-offs would be long free text"
+  ]
+ },
+ "/ai/safety/guardrails-and-safety": {
+  "def": "Guardrails are checks and limits in your code around a model: on inputs, outputs, actions and resource use. The model suggests, and your code decides what is allowed.",
+  "why": "A model can be wrong, can be tricked and can ignore instructions in a prompt. Code checks are the only reliable way to stop a bad output or action from causing harm.",
+  "use": [
+   "The model can trigger actions or show text to users",
+   "Mistakes would be costly or hard to undo",
+   "You need an audit trail of what was allowed or blocked"
+  ],
+  "avoid": [
+   "You rely on the prompt alone to enforce rules",
+   "Filters block so much that users work around them",
+   "Everything is allowed except a short banned list"
+  ]
+ },
+ "/ai/safety/prompt-injection-and-security": {
+  "def": "Prompt injection is when text from an untrusted source contains instructions and the model follows them. It can come from the user (direct) or hide in content the model reads, such as a web page or email (indirect).",
+  "why": "A model treats instructions and data as the same thing, text, and cannot reliably tell them apart. So untrusted content can steer it, and the system must be designed so that even a fooled model cannot do serious harm.",
+  "use": [
+   "The model reads outside content (web, email, documents, tool results)",
+   "The model has tools that send data or change things",
+   "You review an AI feature for security"
+  ],
+  "avoid": [
+   "You trust a firm sentence in the system prompt as protection",
+   "One session has private data, untrusted content and outbound actions together",
+   "Tools run with system-wide rights instead of the user's"
+  ]
+ },
+ "/ai/production/evals-and-testing": {
+  "def": "Evals are repeatable tests that run an LLM feature over many realistic cases and score the results. They show whether a change made things better or worse.",
+  "why": "Model answers vary, and a small change to a prompt, model or document can shift results across many cases. A few manual tries cannot show that, so you measure on a fixed set.",
+  "use": [
+   "Before changing a prompt, model, retrieval or tool",
+   "To gate releases in your build pipeline",
+   "To compare models and prompt versions on your own cases"
+  ],
+  "avoid": [
+   "You judge a change from two or three examples",
+   "The set has only easy cases",
+   "You trust a model judge without checking it against people"
+  ]
+ },
+ "/ai/production/observability-latency-caching": {
+  "def": "Observability means recording enough about every model call (tokens, latency, cost, prompt version, tool calls) to explain what happened. Latency work and caching make the feature faster and cheaper.",
+  "why": "Model calls are slow, costly and variable. Without records you cannot explain a wrong or slow answer, or a surprising bill, and without caching and limits you pay for repeated work and fail under rate limits.",
+  "use": [
+   "Any LLM feature in production",
+   "You need to find the cause of slow or wrong answers",
+   "You need to control cost and survive provider limits and outages"
+  ],
+  "avoid": [
+   "You log full prompts with personal data and keep them forever",
+   "You use semantic caching with a loose threshold",
+   "You cache private answers without the user in the key"
+  ]
+ },
+ "/ai/production/spring-ai-and-langchain4j": {
+  "def": "Spring AI and LangChain4j are Java libraries for working with LLMs. They handle messages, structured output, tools, RAG, memory and many providers, so you do not write that plumbing yourself.",
+  "why": "Calling a model API directly means repeating the same code for messages, parsing, the tool loop and vector stores. A library does that once and lets you switch providers more easily.",
+  "use": [
+   "You build Java services that call LLMs (Spring AI for Spring Boot, LangChain4j for any Java)",
+   "You need tools, RAG or structured output quickly",
+   "You want one interface over several providers"
+  ],
+  "avoid": [
+   "You spread library types through all business code",
+   "You copy examples written for another version",
+   "You let the library run tool loops with no limits"
+  ]
+ },
+ "/system-design/design-a-rag-chatbot": {
+  "def": "A RAG chatbot answers employee questions from company documents. An ingestion pipeline builds a searchable index, and for each question the system retrieves allowed chunks, builds a prompt and generates an answer with citations.",
+  "why": "Employees cannot find answers across thousands of documents, and a plain model does not know the company's private or changing information. RAG supplies the right text at question time, with sources and permission checks.",
+  "use": [
+   "Answers must come from private or changing documents",
+   "Users need citations they can check",
+   "Different users may read different documents"
+  ],
+  "avoid": [
+   "A few short documents fit in the prompt",
+   "You cannot enforce permissions at retrieval",
+   "Nobody will measure answer quality"
+  ]
+ },
+ "/system-design/design-an-ai-agent-platform": {
+  "def": "An AI agent platform runs agents for many teams. It queues runs, executes the agent loop with saved state, routes model calls through a gateway, runs tools in sandboxes, asks humans for approval and tracks cost and traces.",
+  "why": "Every team building agents alone would repeat the same hard parts: crash recovery, safety, limits, credentials and cost control. A shared platform solves them once and keeps teams isolated.",
+  "use": [
+   "Several teams run agents and need shared limits, safety and accounting",
+   "Runs are long, call many tools and sometimes wait for approval",
+   "You need audit, cost control and isolation"
+  ],
+  "avoid": [
+   "One team has one simple agent (a library is enough)",
+   "You would build a platform before you know what agents you need",
+   "You cannot staff it or buy it managed"
+  ]
  }
 }

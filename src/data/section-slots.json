@@ -451,5 +451,66 @@
   "Workflow or agent?": 6,
   "Example: an agent loop with a step limit": 4,
   "System design considerations": 5
+ },
+ "/ai/foundations/fine-tuning-and-model-choice": {
+  "Prompt, RAG or fine-tune?": 6,
+  "How to choose a model": 6,
+  "Example: route easy requests to a cheaper model": 4,
+  "System design considerations": 5
+ },
+ "/ai/prompting/structured-output-and-tool-calling": {
+  "Example: validate output and arguments": 4,
+  "System design considerations": 5
+ },
+ "/ai/agents/model-context-protocol": {
+  "Example: the messages": 4,
+  "System design considerations": 5
+ },
+ "/ai/agents/multi-agent-patterns": {
+  "One agent or several?": 6,
+  "What it costs": 6,
+  "Example: workers in parallel": 4,
+  "System design considerations": 5
+ },
+ "/ai/safety/guardrails-and-safety": {
+  "Human approval": 5,
+  "When a check is unsure": 5,
+  "Example: decide before anything runs": 4,
+  "System design considerations": 5
+ },
+ "/ai/safety/prompt-injection-and-security": {
+  "Defences that work": 5,
+  "Example: block sending after untrusted content": 4,
+  "System design considerations": 5
+ },
+ "/ai/production/evals-and-testing": {
+  "Example: compare two prompt versions": 4,
+  "System design considerations": 5
+ },
+ "/ai/production/observability-latency-caching": {
+  "Example: a cache that also records usage": 4,
+  "Rate limits, timeouts and retries": 5,
+  "System design considerations": 5
+ },
+ "/ai/production/spring-ai-and-langchain4j": {
+  "Spring AI": 4,
+  "LangChain4j": 4,
+  "Choosing": 6,
+  "System design considerations": 5
+ },
+ "/system-design/design-a-rag-chatbot": {
+  "7. Access control": 5,
+  "8. Quality and evaluation": 5,
+  "9. Scaling and cost": 5,
+  "10. Failure scenarios": 5,
+  "11. Trade-offs": 6
+ },
+ "/system-design/design-an-ai-agent-platform": {
+  "6. Tool gateway and sandbox": 5,
+  "7. Safety and approvals": 5,
+  "8. Multi-tenancy and budgets": 5,
+  "9. Observability and evals": 5,
+  "10. Failure scenarios": 5,
+  "11. Trade-offs": 6
  }
 }
