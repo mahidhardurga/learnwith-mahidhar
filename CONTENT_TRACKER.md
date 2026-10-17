@@ -147,7 +147,7 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 ## Open items
 
 - **Review**: nothing is marked "reviewed" yet. Suggested order: Spring Boot and Microservices (written first), then the rest.
-- Confirm the contact email on `src/pages/contact.md` (currently a placeholder address, `hello@learnwith.mahidhardurga.in`).
+- Contact email on `src/pages/contact.md` is `learnwithmahidhar@gmail.com` (confirmed by the owner).
 - Replace the default Docusaurus logo, favicon and social card in `static/img/`.
 - Some pages state version-sensitive facts (Java 25 features, Spring Boot 3.5/4 differences, Kafka 4.0 KRaft, Kubernetes behaviour). Re-check against current docs before publishing, and re-check yearly.
 - Before **Phase 2** (AdSense, analytics, cookie consent, affiliate links): update the Privacy Policy, add `ads.txt`, and swizzle layout components for ad slots (see README).
