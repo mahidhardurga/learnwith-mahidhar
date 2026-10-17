@@ -21,6 +21,7 @@ Every page has a short intro, concepts explained plainly, code examples, Mermaid
 | **Microservices** | Decomposition, gateway, discovery, config, Resilience4j, saga, CQRS, outbox and idempotency, observability | [Microservices overview](microservices/overview.md) |
 | **Databases** | Relational design, ACID and MVCC, SQL patterns, replication and sharding, NoSQL and Redis, zero-downtime migrations | [ACID and MVCC](databases/acid-isolation-mvcc.md) |
 | **Messaging** | Kafka architecture, consumer groups and delivery semantics, ordering and dead-letter design, RabbitMQ | [Kafka fundamentals](messaging/kafka-fundamentals.md) |
+| **AI and LLMs** | LLM basics, tokens and cost, prompt and context engineering, embeddings, RAG, AI agents | [What is an LLM](ai/foundations/what-is-an-llm.md) |
 | **DevOps and Cloud** | Docker for Java, Kubernetes, CI/CD, twelve-factor apps, deployment strategies | [Docker for Java](devops/docker-for-java.md) |
 | **System Design** | A framework and worked designs: URL shortener, rate limiter, order processing, notification service, trade-offs | [Approach and estimation](system-design/approach-and-estimation.md) |
 | **Interview Toolkit** | 100 interview questions, STAR answers, 16 coding problems with tested solutions, cheat sheets | [Cheat sheets](toolkit/cheat-sheets.md) |

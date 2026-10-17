@@ -167,3 +167,9 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 - Example code (part 4) and System design (part 5) come from sections a page already had, and are skipped otherwise. Adding standalone examples and design notes to the pages that lack them is a sensible follow-up.
 - The three question banks keep their file names (and URLs) but are now titled Foundations (1-35), Applied (36-70) and Advanced (71-100).
 - UI: Apple-style neutrals, system font stack, translucent navbar, numbered part headers, redesigned home page. Colours and spacing are tokens at the top of `src/css/custom.css`.
+
+## AI and LLMs section (first batch of 8)
+
+New top-level section at `docs/ai/` (sidebar position 6): Foundations (what is an LLM, tokens and context window, credits, pricing and cost), Prompting (prompt engineering, context engineering), Retrieval (embeddings and vector databases, RAG), Agents (AI agents). Written provider-neutral with short Java snippets; every snippet was compiled and run (outputs shown on the pages) using stand-in models, since real model calls need an API key. Labs: `TokenCostLab`, `RagLab`, `AgentLab`. Eight quiz cards were added under the "AI" category.
+
+Not yet written (planned second batch): structured output and tool calling, Model Context Protocol (MCP), multi-agent patterns, guardrails and safety, evals, observability and caching, prompt injection and security, Spring AI and LangChain4j, design a RAG chatbot, design an AI agent platform. Model names, prices and context sizes change quickly, so the pages avoid quoting them as facts; re-check the wording when you review.

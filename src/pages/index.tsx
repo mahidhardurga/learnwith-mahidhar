@@ -18,6 +18,7 @@ const TOPICS: Topic[] = [
   {title: 'Microservices', blurb: 'Gateway, resilience, saga, CQRS, outbox and observability.', prefix: 'microservices/', to: '/microservices/overview'},
   {title: 'Databases', blurb: 'Schema design, isolation and MVCC, SQL, sharding, NoSQL and migrations.', prefix: 'databases/', to: '/category/databases'},
   {title: 'Messaging', blurb: 'Kafka and RabbitMQ: groups, delivery, ordering and dead letters.', prefix: 'messaging/', to: '/category/messaging'},
+  {title: 'AI and LLMs', blurb: 'Tokens, prompts, context, embeddings, RAG and AI agents in plain words.', prefix: 'ai/', to: '/category/ai-and-llms'},
   {title: 'DevOps and cloud', blurb: 'Docker, Kubernetes, CI/CD, twelve-factor and deployment strategies.', prefix: 'devops/', to: '/category/devops--cloud'},
   {title: 'System design', blurb: 'URL shortener, rate limiter, orders, notifications and trade-offs.', prefix: 'system-design/', to: '/category/system-design'},
   {title: 'Interview toolkit', blurb: 'Questions by level, STAR answers, coding problems and cheat sheets.', prefix: 'toolkit/', to: '/category/interview-toolkit'},

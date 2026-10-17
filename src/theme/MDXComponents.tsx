@@ -8,6 +8,9 @@ import {KafkaLab} from '@site/src/components/Interactive/KafkaLab';
 import {CircuitBreakerLab} from '@site/src/components/Interactive/CircuitBreakerLab';
 import {TokenBucketLab} from '@site/src/components/Interactive/TokenBucketLab';
 import {IsolationLab} from '@site/src/components/Interactive/IsolationLab';
+import {TokenCostLab} from '@site/src/components/Interactive/TokenCostLab';
+import {RagLab} from '@site/src/components/Interactive/RagLab';
+import {AgentLab} from '@site/src/components/Interactive/AgentLab';
 
 export default {
   ...MDXComponents,
@@ -26,4 +29,7 @@ export default {
   CircuitBreakerLab,
   TokenBucketLab,
   IsolationLab,
+  TokenCostLab,
+  RagLab,
+  AgentLab,
 };

@@ -1,0 +1,8 @@
+{
+  "label": "AI and LLMs",
+  "position": 6,
+  "link": {
+    "type": "generated-index",
+    "description": "Large language models, tokens and cost, prompt and context engineering, embeddings, RAG and AI agents, explained in plain words with small Java examples."
+  }
+}

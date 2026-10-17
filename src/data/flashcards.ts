@@ -1,4 +1,4 @@
-export type Category = 'Java' | 'Spring' | 'Microservices' | 'Data' | 'Messaging' | 'Design';
+export type Category = 'Java' | 'Spring' | 'Microservices' | 'Data' | 'Messaging' | 'Design' | 'AI';
 
 export interface Flashcard {
   category: Category;
@@ -8,7 +8,7 @@ export interface Flashcard {
   link: string;
 }
 
-export const CATEGORIES: Category[] = ['Java', 'Spring', 'Microservices', 'Data', 'Messaging', 'Design'];
+export const CATEGORIES: Category[] = ['Java', 'Spring', 'Microservices', 'Data', 'Messaging', 'Design', 'AI'];
 
 export const FLASHCARDS: Flashcard[] = [
   {
@@ -241,5 +241,61 @@ export const FLASHCARDS: Flashcard[] = [
     answer:
       'Head-of-line blocking: a 10M-message blast would delay password resets. Use separate topics, queues and workers per priority class and channel.',
     link: '/system-design/notification-service',
+  },
+  {
+    category: 'AI',
+    question: 'What does an LLM actually do when it writes an answer?',
+    answer:
+      'It predicts the next token, adds it to the text, and repeats. It continues text in the most likely way, so it can sound sure while being wrong.',
+    link: '/ai/foundations/what-is-an-llm',
+  },
+  {
+    category: 'AI',
+    question: 'How does a chatbot appear to remember a conversation?',
+    answer:
+      'The model is stateless. The application resends the earlier messages with every call, which is why long chats cost more.',
+    link: '/ai/foundations/what-is-an-llm',
+  },
+  {
+    category: 'AI',
+    question: 'What does the context window limit?',
+    answer:
+      'The tokens in one call, counting input and output together. A 7,500 token prompt with 1,000 tokens of output does not fit an 8,000 token window.',
+    link: '/ai/foundations/tokens-and-context-window',
+  },
+  {
+    category: 'AI',
+    question: 'How is the cost of one LLM call worked out?',
+    answer:
+      'Input tokens times the input price plus output tokens times the output price. Prices are per million tokens, and output usually costs more.',
+    link: '/ai/foundations/credits-pricing-cost',
+  },
+  {
+    category: 'AI',
+    question: 'What is the difference between prompt engineering and context engineering?',
+    answer:
+      'Prompt engineering is how you word the instructions. Context engineering is choosing everything the model sees on each call: instructions, tools, documents, history and memory.',
+    link: '/ai/prompting/context-engineering',
+  },
+  {
+    category: 'AI',
+    question: 'Why embed documents instead of using keyword search only?',
+    answer:
+      "Embeddings capture meaning, so a question like 'money back' finds a page about refunds. Combine both, since keywords are better for exact codes and names.",
+    link: '/ai/retrieval/embeddings-vector-databases',
+  },
+  {
+    category: 'AI',
+    question: 'A RAG bot answers wrongly. What do you check first?',
+    answer:
+      'What was retrieved. If the right chunk is missing, fix chunking, search or filters. If it was retrieved but ignored, fix the prompt or reduce noise.',
+    link: '/ai/retrieval/rag',
+  },
+  {
+    category: 'AI',
+    question: 'How do you keep an AI agent from looping or costing too much?',
+    answer:
+      'Set a maximum number of steps, a token or cost budget and a timeout. Use least-privilege tools, approval for risky actions, and log every step.',
+    link: '/ai/agents/ai-agents',
   },
 ];

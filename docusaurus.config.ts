@@ -88,6 +88,7 @@ const config: Config = {
             {label: 'Microservices', to: '/microservices/overview'},
             {label: 'Databases', to: '/category/databases'},
             {label: 'Messaging (Kafka, RabbitMQ)', to: '/category/messaging'},
+            {label: 'AI and LLMs', to: '/category/ai-and-llms'},
             {label: 'DevOps and Cloud', to: '/category/devops--cloud'},
             {label: 'System design', to: '/category/system-design'},
             {label: 'Interview toolkit', to: '/category/interview-toolkit'},
@@ -112,6 +113,7 @@ const config: Config = {
             {label: 'Spring Boot', to: '/spring/boot/overview'},
             {label: 'Microservices', to: '/microservices/overview'},
             {label: 'Databases', to: '/databases/acid-isolation-mvcc'},
+            {label: 'AI and LLMs', to: '/ai/foundations/what-is-an-llm'},
           ],
         },
         {

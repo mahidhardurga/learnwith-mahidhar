@@ -92,7 +92,7 @@ How it works:
 **Interactive components** (`src/components/Interactive/`, registered in `src/theme/MDXComponents.tsx`):
 
 - `<Outcomes items={[...]} />` goes before the first H2. `<Checkpoint questions={[{q, options, answer, why}]} />` goes under a `## Check yourself` heading.
-- Labs: `HashMapLab`, `SagaLab`, `KafkaLab`, `CircuitBreakerLab`, `TokenBucketLab`, `IsolationLab`. Put each under a `## Try it: ...` heading; it lands in part 9.
+- Labs: `HashMapLab`, `SagaLab`, `KafkaLab`, `CircuitBreakerLab`, `TokenBucketLab`, `IsolationLab`, `TokenCostLab`, `RagLab`, `AgentLab`. Put each under a `## Try it: ...` heading; it lands in part 9.
 - The sticky bar under the breadcrumbs (`src/components/LessonBar.tsx`) shows topic N of M for the section, reading progress and reading time. Reading order is the `sidebar_position` front matter.
 
 ### Navigation and layout (keep it simple)

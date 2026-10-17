@@ -318,5 +318,37 @@
  {
   "path": "/toolkit/questions-senior",
   "title": "Questions: Advanced"
+ },
+ {
+  "path": "/ai/foundations/what-is-an-llm",
+  "title": "What is an LLM"
+ },
+ {
+  "path": "/ai/foundations/tokens-and-context-window",
+  "title": "Tokens and context window"
+ },
+ {
+  "path": "/ai/foundations/credits-pricing-cost",
+  "title": "Credits, pricing and cost"
+ },
+ {
+  "path": "/ai/prompting/prompt-engineering",
+  "title": "Prompt engineering"
+ },
+ {
+  "path": "/ai/prompting/context-engineering",
+  "title": "Context engineering"
+ },
+ {
+  "path": "/ai/retrieval/embeddings-vector-databases",
+  "title": "Embeddings and vector databases"
+ },
+ {
+  "path": "/ai/retrieval/rag",
+  "title": "RAG"
+ },
+ {
+  "path": "/ai/agents/ai-agents",
+  "title": "AI agents"
  }
 ]

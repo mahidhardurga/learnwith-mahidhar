@@ -1442,5 +1442,117 @@
    "Review dashboards and alerts after each incident"
   ],
   "def": "Observability is being able to see what your system is doing. Metrics show numbers over time, logs record events, and traces follow one request across all the services it touches using a shared trace id."
+ },
+ "/ai/foundations/what-is-an-llm": {
+  "def": "A large language model (LLM) is a program trained on a huge amount of text to predict the next token (a small piece of a word). By predicting one token after another, it writes answers, summaries and code.",
+  "why": "Writing rules by hand for every language task is impossible. Training one model on a huge amount of text gives a single tool that can handle many tasks from plain instructions. The price is that it produces likely text, not checked facts.",
+  "use": [
+   "You need to understand, write, summarise, translate or classify text",
+   "You can describe the task in plain language or with a few examples",
+   "A mistake can be caught by a person or a check"
+  ],
+  "avoid": [
+   "You need exact, always-correct answers (calculations, lookups in a database)",
+   "The answer depends on information the model cannot see",
+   "A wrong answer would be costly and nothing checks it"
+  ]
+ },
+ "/ai/foundations/tokens-and-context-window": {
+  "def": "A token is the small piece of text a model reads and writes, roughly four characters of English. The context window is the maximum number of tokens the model can handle in one call, counting your input and its answer together.",
+  "why": "Models cannot work on raw letters or unlimited text. Splitting text into tokens gives a fixed vocabulary to work with, and the window limits how much one call can hold. Tokens are also what providers charge for.",
+  "use": [
+   "You check whether a prompt fits before you send it",
+   "You estimate cost, speed or rate limits",
+   "You decide how much history and how many documents to include"
+  ],
+  "avoid": [
+   "You count characters or words and assume that is the limit",
+   "You fill the whole window because it is allowed",
+   "You reuse token counts from one model for another"
+  ]
+ },
+ "/ai/foundations/credits-pricing-cost": {
+  "def": "LLM providers charge per token, with separate prices for input and output tokens. Credits are a prepaid balance that is spent as you use the service.",
+  "why": "Running large models costs real compute for every token. Per-token pricing makes the bill follow usage, and prepaid credits let you cap what you can spend. Without tracking, one long prompt or one looping agent can use up the balance.",
+  "use": [
+   "You plan the monthly cost of an AI feature before building it",
+   "You choose between a small and a large model",
+   "You set budgets and alerts per user or feature"
+  ],
+  "avoid": [
+   "You judge cost by the price per token alone, without counting tokens per call",
+   "You send the full history on every call without trimming",
+   "You hard-code prices that providers change often"
+  ]
+ },
+ "/ai/prompting/prompt-engineering": {
+  "def": "Prompt engineering is writing the input to a model so that it gives useful, reliable output. A good prompt states the task, gives the needed context and examples, and says what format to answer in.",
+  "why": "A model does exactly what the text tells it, so unclear instructions give unclear answers. Better prompts improve results without retraining the model, which makes them the cheapest first thing to try.",
+  "use": [
+   "The model gives the right kind of answer but not reliably",
+   "You need a fixed output format that your code can read",
+   "You want to improve quality without changing the model"
+  ],
+  "avoid": [
+   "The model lacks the information, since wording cannot add facts (use retrieval)",
+   "You judge a prompt from one or two answers",
+   "The prompt keeps growing with patches after every bug"
+  ]
+ },
+ "/ai/prompting/context-engineering": {
+  "def": "Context engineering is choosing what information the model sees on each call: instructions, tools, documents, history and memory. The aim is the smallest set of information that lets the model do the task well.",
+  "why": "Prompts alone are not enough once an application runs many steps. The context fills with history and tool results, which costs money, slows calls and distracts the model. Managing it on purpose keeps answers accurate.",
+  "use": [
+   "The application runs many steps or long conversations (agents, chat)",
+   "You add documents or tool results to the model input",
+   "Answers get worse or costs grow as sessions get longer"
+  ],
+  "avoid": [
+   "The task is a single short call, where plain prompt wording is enough",
+   "You add everything just in case",
+   "You keep every old tool result in the history"
+  ]
+ },
+ "/ai/retrieval/embeddings-vector-databases": {
+  "def": "An embedding is a list of numbers that represents the meaning of a text, so texts with similar meaning have similar numbers. A vector database stores embeddings and quickly finds the ones closest to a query.",
+  "why": "Keyword search misses answers that use different words, such as \"money back\" versus \"refund\". Embeddings let you search by meaning, and a vector database makes that fast on large collections.",
+  "use": [
+   "You search by meaning rather than exact words",
+   "You build retrieval for RAG",
+   "You find similar items (documents, products, questions)"
+  ],
+  "avoid": [
+   "You need exact matches for ids, codes or names (use keyword search or both)",
+   "You have only a few documents that fit in the prompt",
+   "You would add a separate vector engine before checking whether pgvector is enough"
+  ]
+ },
+ "/ai/retrieval/rag": {
+  "def": "RAG (retrieval-augmented generation) means finding the most relevant pieces of your own data and putting them in the prompt, so the model answers from them. The model uses your documents instead of relying only on what it learned in training.",
+  "why": "A model does not know your private documents or recent events, and it may invent answers when it lacks facts. RAG supplies the facts at question time without retraining, and lets you show sources.",
+  "use": [
+   "Answers must come from private or frequently changing documents",
+   "Users need sources they can check",
+   "The knowledge base is too large to put in every prompt"
+  ],
+  "avoid": [
+   "You want to change the model's style or behaviour (use prompting or fine-tuning)",
+   "Only a few short documents are needed (put them straight into the prompt)",
+   "You have no way to test whether retrieval finds the right text"
+  ]
+ },
+ "/ai/agents/ai-agents": {
+  "def": "An AI agent is a program where an LLM decides the next step in a loop, using tools. The model asks for an action, your code runs it, the result goes back to the model, and this repeats until the task is done or a limit is reached.",
+  "why": "Some tasks cannot be written as fixed steps, because what to do next depends on what was just found. An agent lets the model choose the steps, so one system can handle open-ended work. That freedom needs limits to stay safe and affordable.",
+  "use": [
+   "The steps depend on what is found along the way (research, debugging, multi-step lookups)",
+   "The task needs several tools combined",
+   "A person can review risky actions"
+  ],
+  "avoid": [
+   "The steps are known in advance (use a fixed workflow: cheaper and more predictable)",
+   "A mistake is costly and cannot be approved or undone",
+   "You cannot set step, budget and permission limits"
+  ]
  }
 }

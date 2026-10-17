@@ -416,5 +416,40 @@
   "Logging that you can search": 5,
   "Metrics": 5,
   "Health and dependency visibility": 5
+ },
+ "/ai/foundations/what-is-an-llm": {
+  "Limits you must design around": 5,
+  "Example: the model is stateless": 4
+ },
+ "/ai/foundations/tokens-and-context-window": {
+  "Example: check that a prompt fits": 4
+ },
+ "/ai/foundations/credits-pricing-cost": {
+  "Example: estimate the cost": 4,
+  "Ways to control cost": 5,
+  "System design considerations": 5
+ },
+ "/ai/prompting/prompt-engineering": {
+  "Example: a few-shot classification prompt": 4,
+  "System design considerations": 5
+ },
+ "/ai/prompting/context-engineering": {
+  "Example: build a context within a token budget": 4,
+  "System design considerations": 5
+ },
+ "/ai/retrieval/embeddings-vector-databases": {
+  "Example: rank by cosine similarity": 4,
+  "When to use which store": 6,
+  "System design considerations": 5
+ },
+ "/ai/retrieval/rag": {
+  "Example: chunk and build a prompt": 4,
+  "System design considerations": 5,
+  "RAG, fine-tuning or a long context?": 6
+ },
+ "/ai/agents/ai-agents": {
+  "Workflow or agent?": 6,
+  "Example: an agent loop with a step limit": 4,
+  "System design considerations": 5
  }
 }
