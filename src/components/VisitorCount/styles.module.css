@@ -1,0 +1,43 @@
+/* Small pill that sits in the navbar on every page. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0.25rem;
+  padding: 0.22rem 0.75rem;
+  border-radius: 999px;
+  background: var(--lw-surface-2);
+  color: var(--lw-text-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The hidden attribute must win over display: inline-flex. */
+.badge[hidden] {
+  display: none;
+}
+
+.number {
+  color: var(--lw-text);
+  font-weight: 600;
+}
+
+/* On narrow screens keep icon and number only; the words stay available to screen readers. */
+@media (max-width: 996px) {
+  /* the mobile search button is positioned over the right edge, so leave room for it */
+  .badge {
+    margin-right: 4.7rem;
+  }
+
+  .suffix {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

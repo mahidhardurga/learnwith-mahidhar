@@ -95,6 +95,7 @@ const config: Config = {
           ],
         },
         {to: '/quiz', label: 'Quiz', position: 'left'},
+        {type: 'custom-visitorCount', position: 'right'},
       ],
     },
     docs: {
