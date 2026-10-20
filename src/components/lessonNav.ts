@@ -15,11 +15,23 @@ export function flatten(items: SidebarNode[]): SidebarNode[] {
   });
 }
 
-/** The top-level section (Java, Microservices, ...) that holds this page, as an ordered list of its pages. */
+/** The pages directly inside a category (a topic that has sub-topics counts once, as its own page). */
+function childDocs(cat: SidebarNode): SidebarNode[] {
+  const own = cat.href && !cat.href.startsWith('/category/') ? [{type: 'link', href: cat.href, label: cat.label}] : [];
+  const kids = (cat.items ?? []).flatMap((i): SidebarNode[] =>
+    i.type === 'link' ? [i] : i.href && !i.href.startsWith('/category/') ? [{type: 'link', href: i.href, label: i.label}] : [],
+  );
+  return [...own, ...kids];
+}
+
+/** The deepest category that holds this page, with its pages in reading order. */
 export function findSection(items: SidebarNode[], href: string): {category?: string; docs: SidebarNode[]} | null {
   for (const i of items) {
-    const docs = flatten([i]);
-    if (docs.some((d) => d.href === href)) return {category: i.type === 'category' ? i.label : undefined, docs};
+    if (i.type !== 'category') continue;
+    const deeper = findSection(i.items ?? [], href);
+    if (deeper) return deeper;
+    const docs = childDocs(i);
+    if (docs.some((d) => d.href === href)) return {category: i.label, docs};
   }
   return null;
 }

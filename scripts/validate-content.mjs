@@ -4,7 +4,6 @@ import path from 'path';
 
 const pages = JSON.parse(fs.readFileSync('src/data/pages.json', 'utf8'));
 const lessons = JSON.parse(fs.readFileSync('src/data/lessons.json', 'utf8'));
-const known = new Set(pages.map((p) => p.path));
 
 function mdFor(p) {
   const rel = p.slice(1);
@@ -19,7 +18,7 @@ const report = (msg) => {
 };
 
 for (const p of Object.keys(lessons)) {
-  if (!known.has(p)) report(`UNKNOWN PAGE  ${p}`);
+  if (!fs.existsSync(mdFor(p))) report(`UNKNOWN PAGE  ${p}`);
 }
 
 for (const pg of pages) {

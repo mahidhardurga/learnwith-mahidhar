@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import {useAllDocsData} from '@docusaurus/plugin-content-docs/client';
+import PAGES from '@site/src/data/pages.json';
 import styles from './index.module.css';
 
 interface Stack {
@@ -25,11 +25,10 @@ const STACKS: Stack[] = [
   {title: 'Interview toolkit', mark: 'Tk', color: '#868e96', blurb: 'Interview questions, STAR answers, coding problems and cheat sheets.', prefix: 'toolkit/', to: '/category/interview-toolkit'},
 ];
 
+/** Topic counts come from pages.json, so sub-topic pages are not counted. */
 function usePageCounts() {
-  const all = useAllDocsData();
-  const docs = Object.values(all)[0]?.versions[0]?.docs ?? [];
-  const real = docs.filter((d) => d.id !== 'intro' && !d.path.startsWith('/category/'));
-  return {total: real.length, byPrefix: (prefix: string) => real.filter((d) => d.id.startsWith(prefix)).length};
+  const paths = (PAGES as {path: string}[]).map((p) => p.path);
+  return {total: paths.length, byPrefix: (prefix: string) => paths.filter((p) => p.startsWith('/' + prefix)).length};
 }
 
 export default function Home(): React.JSX.Element {

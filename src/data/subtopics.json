@@ -1,0 +1,178 @@
+{
+ "java/core-java/oop-and-design": {
+  "label": "OOP and design",
+  "subs": [
+   "encapsulation",
+   "abstraction",
+   "inheritance",
+   "polymorphism",
+   "composition-over-inheritance",
+   "interface-vs-abstract-class",
+   "single-responsibility",
+   "open-closed",
+   "liskov-substitution",
+   "interface-segregation",
+   "dependency-inversion"
+  ]
+ },
+ "java/core-java/generics": {
+  "label": "Generics",
+  "subs": [
+   "generic-classes",
+   "generic-methods",
+   "bounded-types",
+   "wildcards",
+   "pecs",
+   "type-erasure"
+  ]
+ },
+ "java/core-java/exceptions": {
+  "label": "Exception handling",
+  "subs": [
+   "checked-vs-unchecked",
+   "try-catch-finally",
+   "try-with-resources",
+   "custom-exceptions",
+   "exception-chaining",
+   "multi-catch"
+  ]
+ },
+ "java/core-java/immutability": {
+  "label": "Immutability",
+  "subs": [
+   "immutable-class",
+   "defensive-copies",
+   "immutable-collections",
+   "withers",
+   "string-immutability"
+  ]
+ },
+ "java/core-java/modern-java": {
+  "label": "Java 8 to 25 features",
+  "versions": [
+   {
+    "label": "Java 8 (LTS)",
+    "items": [
+     "java/core-java/streams-and-lambdas",
+     "java/core-java/streams-and-lambdas/lambda-expressions",
+     "java/core-java/streams-and-lambdas/functional-interfaces",
+     "java/core-java/streams-and-lambdas/method-references",
+     "java/core-java/streams-and-lambdas/map-filter-collect",
+     "java/core-java/streams-and-lambdas/grouping-and-collectors",
+     "java/core-java/streams-and-lambdas/flatmap",
+     "java/core-java/streams-and-lambdas/reduce",
+     "java/core-java/streams-and-lambdas/parallel-streams",
+     "java/core-java/streams-and-lambdas/optional",
+     "java/core-java/modern-java/default-and-static-interface-methods",
+     "java/core-java/modern-java/date-and-time-api"
+    ]
+   },
+   {
+    "label": "Java 9",
+    "items": [
+     "java/core-java/modern-java/modules",
+     "java/core-java/modern-java/collection-factory-methods",
+     "java/core-java/modern-java/private-interface-methods",
+     "java/core-java/modern-java/stream-takewhile-dropwhile",
+     "java/core-java/modern-java/optional-additions",
+     "java/core-java/modern-java/try-with-resources-existing-variable"
+    ]
+   },
+   {
+    "label": "Java 10",
+    "items": [
+     "java/core-java/modern-java/var",
+     "java/core-java/modern-java/copyof-and-unmodifiable-collectors"
+    ]
+   },
+   {
+    "label": "Java 11 (LTS)",
+    "items": [
+     "java/core-java/modern-java/string-methods",
+     "java/core-java/modern-java/http-client",
+     "java/core-java/modern-java/files-readstring-writestring",
+     "java/core-java/modern-java/predicate-not",
+     "java/core-java/modern-java/var-in-lambda-parameters",
+     "java/core-java/modern-java/single-file-source"
+    ]
+   },
+   {
+    "label": "Java 12",
+    "items": [
+     "java/core-java/modern-java/collectors-teeing",
+     "java/core-java/modern-java/string-indent-and-transform"
+    ]
+   },
+   {
+    "label": "Java 14",
+    "items": [
+     "java/core-java/modern-java/switch-expressions",
+     "java/core-java/modern-java/helpful-npe-messages"
+    ]
+   },
+   {
+    "label": "Java 15",
+    "items": [
+     "java/core-java/modern-java/text-blocks"
+    ]
+   },
+   {
+    "label": "Java 16",
+    "items": [
+     "java/core-java/modern-java/records",
+     "java/core-java/modern-java/pattern-matching-instanceof",
+     "java/core-java/modern-java/stream-tolist"
+    ]
+   },
+   {
+    "label": "Java 17 (LTS)",
+    "items": [
+     "java/core-java/modern-java/sealed-classes",
+     "java/core-java/modern-java/random-generators"
+    ]
+   },
+   {
+    "label": "Java 18",
+    "items": [
+     "java/core-java/modern-java/utf8-by-default"
+    ]
+   },
+   {
+    "label": "Java 21 (LTS)",
+    "items": [
+     "java/core-java/modern-java/virtual-threads",
+     "java/core-java/modern-java/pattern-matching-switch",
+     "java/core-java/modern-java/record-patterns",
+     "java/core-java/modern-java/sequenced-collections"
+    ]
+   },
+   {
+    "label": "Java 22",
+    "items": [
+     "java/core-java/modern-java/unnamed-variables"
+    ]
+   },
+   {
+    "label": "Java 23",
+    "items": [
+     "java/core-java/modern-java/markdown-doc-comments"
+    ]
+   },
+   {
+    "label": "Java 24",
+    "items": [
+     "java/core-java/modern-java/stream-gatherers"
+    ]
+   },
+   {
+    "label": "Java 25 (LTS)",
+    "items": [
+     "java/core-java/modern-java/scoped-values",
+     "java/core-java/modern-java/flexible-constructor-bodies",
+     "java/core-java/modern-java/module-import-declarations",
+     "java/core-java/modern-java/compact-source-files"
+    ]
+   }
+  ]
+ }
+}

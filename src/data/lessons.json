@@ -193,7 +193,7 @@
    "Test with the target JDK in CI before production",
    "Review JVM flags and GC defaults when upgrading, since they change between versions"
   ],
-  "def": "Modern Java means the features added since Java 8: lambdas and streams, `var`, records, sealed types, pattern matching, text blocks and virtual threads. Teams usually run a long-term support release such as 17, 21 or 25.",
+  "def": "This section lists the features added to Java from version 8 to 25, grouped by the version that introduced them. Versions marked LTS (8, 11, 17, 21, 25) are the long-term support releases most teams run. Versions 13, 19 and 20 have no section: their main features were previews that became final in a later version.",
   "exampleFrom": "Records (16)"
  },
  "/java/concurrency-jvm/threads-basics": {
@@ -1746,5 +1746,605 @@
    "You would build a platform before you know what agents you need",
    "You cannot staff it or buy it managed"
   ]
+ },
+ "/java/core-java/oop-and-design/encapsulation": {
+  "def": "Encapsulation means keeping an object's data private and letting other code change it only through methods. The object can then protect its own rules, so it never ends up in an invalid state.",
+  "example": {
+   "title": "A bank account that protects its balance",
+   "lang": "java",
+   "code": "class BankAccount {\n    private long balanceCents;                  // hidden: nobody can set it directly\n\n    void deposit(long cents) {\n        if (cents <= 0) throw new IllegalArgumentException(\"Deposit must be positive\");\n        balanceCents += cents;\n    }\n\n    void withdraw(long cents) {\n        if (cents > balanceCents) throw new IllegalStateException(\"Not enough money\");\n        balanceCents -= cents;\n    }\n\n    long balance() { return balanceCents; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        BankAccount account = new BankAccount();\n        account.deposit(5_000);\n        account.withdraw(1_200);\n        System.out.println(account.balance());\n        try {\n            account.withdraw(10_000);\n        } catch (IllegalStateException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}\n\n// Output:\n// 3800\n// Not enough money"
+  }
+ },
+ "/java/core-java/oop-and-design/abstraction": {
+  "def": "Abstraction means showing what something does and hiding how it does it. In Java you describe the \"what\" with an interface or an abstract class, and callers depend on that instead of on a concrete class.",
+  "example": {
+   "title": "Checkout does not care how the payment is made",
+   "lang": "java",
+   "code": "interface PaymentMethod {\n    String pay(int amount);              // the \"what\": pay an amount\n}\n\nclass Card implements PaymentMethod {\n    public String pay(int amount) { return \"Charged \" + amount + \" to the card\"; }\n}\n\nclass Upi implements PaymentMethod {\n    public String pay(int amount) { return \"Sent \" + amount + \" by UPI\"; }\n}\n\nclass Checkout {\n    String complete(PaymentMethod method, int amount) {\n        return method.pay(amount);       // works with any payment method\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Checkout checkout = new Checkout();\n        System.out.println(checkout.complete(new Card(), 500));\n        System.out.println(checkout.complete(new Upi(), 250));\n    }\n}\n\n// Output:\n// Charged 500 to the card\n// Sent 250 by UPI"
+  }
+ },
+ "/java/core-java/oop-and-design/inheritance": {
+  "def": "Inheritance lets a class reuse and extend another class with `extends`. The child class gets the parent's fields and methods and can add new ones or change existing ones. Use it for a true \"is-a\" relationship.",
+  "example": {
+   "title": "A manager is an employee with extras",
+   "lang": "java",
+   "code": "class Employee {\n    protected final String name;\n    protected final int salary;\n\n    Employee(String name, int salary) {\n        this.name = name;\n        this.salary = salary;\n    }\n\n    int yearlyPay() { return salary * 12; }\n}\n\nclass Manager extends Employee {\n    private final int bonus;\n\n    Manager(String name, int salary, int bonus) {\n        super(name, salary);             // reuse the parent's constructor\n        this.bonus = bonus;\n    }\n\n    @Override\n    int yearlyPay() { return super.yearlyPay() + bonus; }   // change inherited behaviour\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Employee dev = new Employee(\"Asha\", 5_000);\n        Manager lead = new Manager(\"Ravi\", 7_000, 10_000);\n        System.out.println(dev.name + \" earns \" + dev.yearlyPay());\n        System.out.println(lead.name + \" earns \" + lead.yearlyPay());\n    }\n}\n\n// Output:\n// Asha earns 60000\n// Ravi earns 94000"
+  }
+ },
+ "/java/core-java/oop-and-design/polymorphism": {
+  "def": "Polymorphism means one call can run different code depending on the real object. You call a method on a parent type, and Java picks the child's version while the program runs.",
+  "example": {
+   "title": "One loop, three different areas",
+   "lang": "java",
+   "code": "abstract class Shape {\n    abstract double area();\n}\n\nclass Circle extends Shape {\n    private final double r;\n    Circle(double r) { this.r = r; }\n    double area() { return Math.PI * r * r; }\n}\n\nclass Square extends Shape {\n    private final double side;\n    Square(double side) { this.side = side; }\n    double area() { return side * side; }\n}\n\nclass Triangle extends Shape {\n    private final double base, height;\n    Triangle(double base, double height) { this.base = base; this.height = height; }\n    double area() { return 0.5 * base * height; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Shape[] shapes = {new Circle(1), new Square(2), new Triangle(3, 4)};\n        for (Shape shape : shapes) {\n            // same call, the version that runs depends on the real object\n            System.out.printf(\"%s -> %.2f%n\", shape.getClass().getSimpleName(), shape.area());\n        }\n    }\n}\n\n// Output:\n// Circle -> 3.14\n// Square -> 4.00\n// Triangle -> 6.00"
+  }
+ },
+ "/java/core-java/oop-and-design/composition-over-inheritance": {
+  "def": "Composition means building a class by holding other objects and using them, instead of extending a class. It keeps classes loosely coupled and easy to change, so it is usually preferred over inheritance when you only want to reuse behaviour.",
+  "example": {
+   "title": "A notifier that can swap how it sends messages",
+   "lang": "java",
+   "code": "interface Sender {\n    void send(String message);\n}\n\nclass EmailSender implements Sender {\n    public void send(String message) { System.out.println(\"Email: \" + message); }\n}\n\nclass SmsSender implements Sender {\n    public void send(String message) { System.out.println(\"SMS: \" + message); }\n}\n\nclass OrderNotifier {\n    private final Sender sender;                 // \"has a\" sender, not \"is a\" sender\n\n    OrderNotifier(Sender sender) { this.sender = sender; }\n\n    void orderShipped(int orderId) { sender.send(\"Order \" + orderId + \" has shipped\"); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        new OrderNotifier(new EmailSender()).orderShipped(101);\n        new OrderNotifier(new SmsSender()).orderShipped(102);   // swapped without touching OrderNotifier\n    }\n}\n\n// Output:\n// Email: Order 101 has shipped\n// SMS: Order 102 has shipped"
+  }
+ },
+ "/java/core-java/oop-and-design/interface-vs-abstract-class": {
+  "def": "An interface describes what a type can do and holds no state. An abstract class can also hold shared fields and partly finished code. A class can implement many interfaces but extend only one class.",
+  "example": {
+   "title": "An abstract base class plus an interface",
+   "lang": "java",
+   "code": "interface Flyable {\n    void fly();\n    default String speed() { return \"slow\"; }       // an interface can offer a default method\n}\n\nabstract class Animal {\n    protected final String name;                    // state can live in an abstract class\n    Animal(String name) { this.name = name; }\n    abstract String sound();                        // each animal must define this\n    void introduce() { System.out.println(name + \" says \" + sound()); }\n}\n\nclass Bird extends Animal implements Flyable {      // one class, many interfaces\n    Bird(String name) { super(name); }\n    String sound() { return \"tweet\"; }\n    public void fly() { System.out.println(name + \" is flying, speed \" + speed()); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Bird bird = new Bird(\"Robin\");\n        bird.introduce();\n        bird.fly();\n    }\n}\n\n// Output:\n// Robin says tweet\n// Robin is flying, speed slow"
+  }
+ },
+ "/java/core-java/oop-and-design/single-responsibility": {
+  "def": "The single responsibility principle says a class should have one reason to change. Each class does one job, so a change to one concern does not break another.",
+  "example": {
+   "title": "Calculating an invoice and printing it are two jobs",
+   "lang": "java",
+   "code": "import java.util.List;\n\nrecord Item(String name, int price) { }\n\nclass Invoice {                                   // job 1: know the items and the total\n    private final List<Item> items;\n    Invoice(List<Item> items) { this.items = items; }\n    List<Item> items() { return items; }\n    int total() { return items.stream().mapToInt(Item::price).sum(); }\n}\n\nclass InvoicePrinter {                            // job 2: format the invoice as text\n    String print(Invoice invoice) {\n        StringBuilder out = new StringBuilder();\n        for (Item item : invoice.items()) out.append(item.name()).append(\": \").append(item.price()).append('\\n');\n        return out.append(\"Total: \").append(invoice.total()).toString();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Invoice invoice = new Invoice(List.of(new Item(\"Book\", 300), new Item(\"Pen\", 20)));\n        System.out.println(new InvoicePrinter().print(invoice));   // changing the format never touches Invoice\n    }\n}\n\n// Output:\n// Book: 300\n// Pen: 20\n// Total: 320"
+  }
+ },
+ "/java/core-java/oop-and-design/open-closed": {
+  "def": "The open/closed principle says code should be open for extension but closed for modification. You add new behaviour by adding new classes, not by editing code that already works.",
+  "example": {
+   "title": "Adding a new discount without touching the checkout",
+   "lang": "java",
+   "code": "interface Discount {\n    int apply(int price);\n}\n\nclass NoDiscount implements Discount {\n    public int apply(int price) { return price; }\n}\n\nclass FestivalDiscount implements Discount {\n    public int apply(int price) { return price * 90 / 100; }\n}\n\nclass StudentDiscount implements Discount {            // new rule: only a new class was added\n    public int apply(int price) { return price * 80 / 100; }\n}\n\nclass Checkout {\n    int total(int price, Discount discount) { return discount.apply(price); }   // never needs to change\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Checkout checkout = new Checkout();\n        System.out.println(checkout.total(1_000, new NoDiscount()));\n        System.out.println(checkout.total(1_000, new FestivalDiscount()));\n        System.out.println(checkout.total(1_000, new StudentDiscount()));\n    }\n}\n\n// Output:\n// 1000\n// 900\n// 800"
+  }
+ },
+ "/java/core-java/oop-and-design/liskov-substitution": {
+  "def": "The Liskov substitution principle says a child class must work anywhere its parent is expected, without surprising the caller. If code that works with the parent breaks when it gets the child, the hierarchy is wrong.",
+  "example": {
+   "title": "A Square that breaks code written for Rectangle, and a fix",
+   "lang": "java",
+   "code": "class Rectangle {\n    protected int width, height;\n    void setWidth(int w) { width = w; }\n    void setHeight(int h) { height = h; }\n    int area() { return width * height; }\n}\n\nclass BadSquare extends Rectangle {                  // a square keeps both sides equal...\n    @Override void setWidth(int w) { width = w; height = w; }\n    @Override void setHeight(int h) { width = h; height = h; }\n}\n\ninterface Shape { int area(); }                      // the fix: no false \"is-a\"\nrecord Rect(int width, int height) implements Shape { public int area() { return width * height; } }\nrecord Sq(int side) implements Shape { public int area() { return side * side; } }\n\nclass Demo {\n    public static void main(String[] args) {\n        Rectangle r = new BadSquare();\n        r.setWidth(4);\n        r.setHeight(5);\n        System.out.println(\"Expected 20, got \" + r.area());   // surprise: the caller's assumption broke\n\n        System.out.println(new Rect(4, 5).area());\n        System.out.println(new Sq(4).area());\n    }\n}\n\n// Output:\n// Expected 20, got 25\n// 20\n// 16"
+  }
+ },
+ "/java/core-java/oop-and-design/interface-segregation": {
+  "def": "The interface segregation principle says no class should be forced to implement methods it does not use. Prefer several small interfaces over one big one.",
+  "example": {
+   "title": "A basic printer is not forced to scan",
+   "lang": "java",
+   "code": "interface Printer { String print(String text); }\ninterface Scanner { String scan(); }\n\nclass BasicPrinter implements Printer {              // only what it can really do\n    public String print(String text) { return \"Printing: \" + text; }\n}\n\nclass OfficeMachine implements Printer, Scanner {    // a machine that can do both\n    public String print(String text) { return \"Printing: \" + text; }\n    public String scan() { return \"Scanned page\"; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Printer simple = new BasicPrinter();\n        OfficeMachine office = new OfficeMachine();\n        System.out.println(simple.print(\"report\"));\n        System.out.println(office.print(\"invoice\"));\n        System.out.println(office.scan());\n    }\n}\n\n// Output:\n// Printing: report\n// Printing: invoice\n// Scanned page"
+  }
+ },
+ "/java/core-java/oop-and-design/dependency-inversion": {
+  "def": "The dependency inversion principle says high-level code should depend on an abstraction, not on a concrete class. The concrete class is passed in from outside, which makes it easy to swap and to test.",
+  "example": {
+   "title": "A service that gets its sender from outside",
+   "lang": "java",
+   "code": "interface MessageSender {\n    void send(String to, String text);\n}\n\nclass OrderService {\n    private final MessageSender sender;                // depends on the interface only\n\n    OrderService(MessageSender sender) { this.sender = sender; }\n\n    void placeOrder(String customer) { sender.send(customer, \"Your order is confirmed\"); }\n}\n\nclass FakeSender implements MessageSender {            // in a test, pass a fake instead of a real sender\n    String lastMessage;\n    public void send(String to, String text) { lastMessage = to + \": \" + text; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        FakeSender fake = new FakeSender();\n        new OrderService(fake).placeOrder(\"asha@example.com\");\n        System.out.println(fake.lastMessage);\n    }\n}\n\n// Output:\n// asha@example.com: Your order is confirmed"
+  }
+ },
+ "/java/core-java/generics/generic-classes": {
+  "def": "A generic class works with a type that you choose when you use it, written like `Box<String>`. The compiler checks the type for you, so you do not need casts.",
+  "example": {
+   "title": "A box that holds any one type, and a pair of two types",
+   "lang": "java",
+   "code": "class Box<T> {\n    private T value;\n\n    void set(T value) { this.value = value; }\n    T get() { return value; }\n}\n\nclass Pair<K, V> {\n    final K key;\n    final V value;\n    Pair(K key, V value) { this.key = key; this.value = value; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Box<String> name = new Box<>();\n        name.set(\"Asha\");\n        String text = name.get();                 // no cast needed\n        System.out.println(text.toUpperCase());\n\n        Pair<String, Integer> age = new Pair<>(\"Asha\", 30);\n        System.out.println(age.key + \" is \" + age.value);\n\n        // name.set(42);                          // compile error: the box only holds a String\n    }\n}\n\n// Output:\n// ASHA\n// Asha is 30"
+  }
+ },
+ "/java/core-java/generics/generic-methods": {
+  "def": "A generic method has its own type parameter, written before the return type. Java works out the type from the arguments, so one method can serve many types safely.",
+  "example": {
+   "title": "One method that works for any list or array",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Util {\n    static <T> T firstOf(List<T> list) {\n        return list.get(0);\n    }\n\n    static <T> void swap(T[] array, int i, int j) {\n        T temp = array[i];\n        array[i] = array[j];\n        array[j] = temp;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        String firstName = Util.firstOf(List.of(\"Asha\", \"Ravi\"));   // T is String\n        int firstNumber = Util.firstOf(List.of(10, 20, 30));        // T is Integer\n        System.out.println(firstName + \" \" + firstNumber);\n\n        Integer[] numbers = {1, 2, 3};\n        Util.swap(numbers, 0, 2);\n        System.out.println(java.util.Arrays.toString(numbers));\n    }\n}\n\n// Output:\n// Asha 10\n// [3, 2, 1]"
+  }
+ },
+ "/java/core-java/generics/bounded-types": {
+  "def": "A bounded type parameter limits which types are allowed, using `extends`. Inside the method you can then call the methods of the bound, such as `compareTo`.",
+  "example": {
+   "title": "A max method that only accepts things that can be compared",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Util {\n    static <T extends Comparable<T>> T max(List<T> items) {\n        T best = items.get(0);\n        for (T item : items) {\n            if (item.compareTo(best) > 0) best = item;   // allowed because T is Comparable\n        }\n        return best;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(Util.max(List.of(3, 9, 4)));\n        System.out.println(Util.max(List.of(\"pear\", \"apple\", \"zebra\")));\n        // Util.max(List.of(new Object()));            // compile error: Object is not Comparable\n    }\n}\n\n// Output:\n// 9\n// zebra"
+  }
+ },
+ "/java/core-java/generics/wildcards": {
+  "def": "A wildcard `?` stands for \"some unknown type\". `? extends Number` means \"Number or any subtype\", which is good for reading. `?` alone means any type at all.",
+  "example": {
+   "title": "Summing a list of any number type",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    static double sum(List<? extends Number> numbers) {\n        double total = 0;\n        for (Number n : numbers) total += n.doubleValue();\n        return total;\n    }\n\n    static void printAll(List<?> items) {            // any kind of list\n        for (Object item : items) System.out.print(item + \" \");\n        System.out.println();\n    }\n\n    public static void main(String[] args) {\n        System.out.println(sum(List.of(1, 2, 3)));            // List<Integer>\n        System.out.println(sum(List.of(1.5, 2.5)));           // List<Double>\n        printAll(List.of(\"a\", \"b\"));\n        printAll(List.of(1, 2));\n    }\n}\n\n// Output:\n// 6.0\n// 4.0\n// a b \n// 1 2 "
+  }
+ },
+ "/java/core-java/generics/pecs": {
+  "def": "PECS means: if a collection only gives you values, use `? extends T` (producer extends). If it only receives values, use `? super T` (consumer super). It makes a method accept more types while staying type-safe.",
+  "example": {
+   "title": "Copy from a producer into a consumer",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Demo {\n    // source produces Ts (extends), destination consumes Ts (super)\n    static <T> void copy(List<? extends T> source, List<? super T> destination) {\n        for (T item : source) destination.add(item);\n    }\n\n    public static void main(String[] args) {\n        List<Integer> integers = List.of(1, 2, 3);\n        List<Number> numbers = new ArrayList<>();\n        List<Object> objects = new ArrayList<>();\n\n        copy(integers, numbers);       // Integers can go into a list of Number\n        copy(integers, objects);       // and into a list of Object\n        System.out.println(numbers);\n        System.out.println(objects);\n    }\n}\n\n// Output:\n// [1, 2, 3]\n// [1, 2, 3]"
+  }
+ },
+ "/java/core-java/generics/type-erasure": {
+  "def": "Type erasure means generic type arguments exist only at compile time. At run time `List<String>` and `List<Integer>` are both just `List`, so you cannot ask a list what type it holds.",
+  "example": {
+   "title": "Two different lists, the same class at run time",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> strings = new ArrayList<>();\n        List<Integer> integers = new ArrayList<>();\n        System.out.println(strings.getClass() == integers.getClass());   // true: the type arguments are gone\n\n        // Because of erasure, a raw type can sneak the wrong type in...\n        @SuppressWarnings({\"unchecked\", \"rawtypes\"})\n        List<String> sneaky = (List) integers;\n        integers.add(42);\n        try {\n            String s = sneaky.get(0);                                      // ...and the cast fails here, at run time\n        } catch (ClassCastException e) {\n            System.out.println(\"ClassCastException: \" + e.getMessage().substring(0, 30) + \"...\");\n        }\n    }\n}\n\n// Output:\n// true\n// ClassCastException: class java.lang.Integer cannot..."
+  }
+ },
+ "/java/core-java/exceptions/checked-vs-unchecked": {
+  "def": "A checked exception must be caught or declared with `throws`, so the compiler makes you deal with it. An unchecked exception (a `RuntimeException`) needs no declaration and usually means a bug in the code.",
+  "example": {
+   "title": "Reading a missing file (checked) and bad input (unchecked)",
+   "lang": "java",
+   "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\n\nclass Demo {\n    // IOException is checked: the method must declare it\n    static String readFile(String name) throws IOException {\n        return Files.readString(Path.of(name));\n    }\n\n    // IllegalArgumentException is unchecked: no declaration needed\n    static int percent(int part, int whole) {\n        if (whole == 0) throw new IllegalArgumentException(\"whole must not be zero\");\n        return part * 100 / whole;\n    }\n\n    public static void main(String[] args) {\n        try {\n            readFile(\"missing.txt\");\n        } catch (IOException e) {\n            System.out.println(\"Could not read: \" + e.getClass().getSimpleName());\n        }\n        try {\n            percent(1, 0);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Bad input: \" + e.getMessage());\n        }\n    }\n}\n\n// Output:\n// Could not read: NoSuchFileException\n// Bad input: whole must not be zero"
+  }
+ },
+ "/java/core-java/exceptions/try-catch-finally": {
+  "def": "Code that might fail goes in `try`. `catch` handles a specific problem, and `finally` always runs afterwards, whether or not an exception happened. Catch the most specific exception first.",
+  "example": {
+   "title": "Parsing a number, with cleanup that always runs",
+   "lang": "java",
+   "code": "class Demo {\n    static int parse(String text) {\n        try {\n            return Integer.parseInt(text);\n        } catch (NumberFormatException e) {\n            System.out.println(\"Not a number: \" + text);\n            return -1;\n        } finally {\n            System.out.println(\"finished parsing \" + text);   // runs in both cases\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(parse(\"42\"));\n        System.out.println(parse(\"abc\"));\n    }\n}\n\n// Output:\n// finished parsing 42\n// 42\n// Not a number: abc\n// finished parsing abc\n// -1"
+  }
+ },
+ "/java/core-java/exceptions/try-with-resources": {
+  "def": "try-with-resources closes things like files and connections for you, even when an exception happens. The resource must implement `AutoCloseable`. If both the body and `close` fail, the close error is attached to the first one as a suppressed exception.",
+  "example": {
+   "title": "A resource that is closed automatically, in reverse order",
+   "lang": "java",
+   "code": "class Resource implements AutoCloseable {\n    private final String name;\n\n    Resource(String name) {\n        this.name = name;\n        System.out.println(\"open \" + name);\n    }\n\n    void use() { System.out.println(\"use \" + name); }\n\n    @Override\n    public void close() { System.out.println(\"close \" + name); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (Resource db = new Resource(\"database\"); Resource file = new Resource(\"file\")) {\n            db.use();\n            file.use();\n            throw new IllegalStateException(\"something failed\");\n        } catch (IllegalStateException e) {\n            System.out.println(\"caught: \" + e.getMessage());     // resources were already closed\n        }\n    }\n}\n\n// Output:\n// open database\n// open file\n// use database\n// use file\n// close file\n// close database\n// caught: something failed"
+  }
+ },
+ "/java/core-java/exceptions/custom-exceptions": {
+  "def": "A custom exception is your own exception class, named after the problem, such as `InsufficientFundsException`. It can carry extra data so the caller knows exactly what went wrong.",
+  "example": {
+   "title": "An exception that carries the missing amount",
+   "lang": "java",
+   "code": "class InsufficientFundsException extends Exception {\n    private final long missing;\n\n    InsufficientFundsException(long missing) {\n        super(\"Missing \" + missing + \" to complete the payment\");\n        this.missing = missing;\n    }\n\n    long missing() { return missing; }\n}\n\nclass Wallet {\n    private long balance = 500;\n\n    void pay(long amount) throws InsufficientFundsException {\n        if (amount > balance) throw new InsufficientFundsException(amount - balance);\n        balance -= amount;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Wallet wallet = new Wallet();\n        try {\n            wallet.pay(800);\n        } catch (InsufficientFundsException e) {\n            System.out.println(e.getMessage());\n            System.out.println(\"Top up at least \" + e.missing());\n        }\n    }\n}\n\n// Output:\n// Missing 300 to complete the payment\n// Top up at least 300"
+  }
+ },
+ "/java/core-java/exceptions/exception-chaining": {
+  "def": "Exception chaining means wrapping a low-level exception inside a higher-level one and keeping the original as its cause. The caller gets a meaningful message, and the full story is still available through `getCause()`.",
+  "example": {
+   "title": "Wrapping a parse error in a service error",
+   "lang": "java",
+   "code": "class ConfigException extends RuntimeException {\n    ConfigException(String message, Throwable cause) {\n        super(message, cause);                         // keep the original as the cause\n    }\n}\n\nclass Demo {\n    static int readPort(String text) {\n        try {\n            return Integer.parseInt(text);\n        } catch (NumberFormatException e) {\n            throw new ConfigException(\"Invalid server port in config\", e);\n        }\n    }\n\n    public static void main(String[] args) {\n        try {\n            readPort(\"80x\");\n        } catch (ConfigException e) {\n            System.out.println(e.getMessage());\n            System.out.println(\"Caused by: \" + e.getCause());\n        }\n    }\n}\n\n// Output:\n// Invalid server port in config\n// Caused by: java.lang.NumberFormatException: For input string: \"80x\""
+  }
+ },
+ "/java/core-java/exceptions/multi-catch": {
+  "def": "A multi-catch handles several exception types in one block, written `catch (A | B e)`. Use it when the handling is the same. You can also rethrow an exception after logging it, so callers still see the failure.",
+  "example": {
+   "title": "One handler for two kinds of failure",
+   "lang": "java",
+   "code": "class Demo {\n    static int divide(String a, String b) {\n        try {\n            return Integer.parseInt(a) / Integer.parseInt(b);\n        } catch (NumberFormatException | ArithmeticException e) {   // same handling for both\n            System.out.println(\"Cannot calculate: \" + e.getMessage());\n            throw e;                                                  // log it, then let the caller know\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(divide(\"10\", \"2\"));\n        for (String[] pair : new String[][] {{\"10\", \"0\"}, {\"ten\", \"2\"}}) {\n            try {\n                divide(pair[0], pair[1]);\n            } catch (RuntimeException e) {\n                System.out.println(\"caller saw \" + e.getClass().getSimpleName());\n            }\n        }\n    }\n}\n\n// Output:\n// 5\n// Cannot calculate: / by zero\n// caller saw ArithmeticException\n// Cannot calculate: For input string: \"ten\"\n// caller saw NumberFormatException"
+  }
+ },
+ "/java/core-java/immutability/immutable-class": {
+  "def": "An immutable class creates objects that never change. Make the class `final`, make all fields `private final`, set them in the constructor, and give no setters. Methods that \"change\" the object return a new one.",
+  "example": {
+   "title": "A Money class where plus() returns a new object",
+   "lang": "java",
+   "code": "final class Money {\n    private final long amount;\n    private final String currency;\n\n    Money(long amount, String currency) {\n        this.amount = amount;\n        this.currency = currency;\n    }\n\n    Money plus(Money other) {\n        if (!currency.equals(other.currency)) throw new IllegalArgumentException(\"Different currencies\");\n        return new Money(amount + other.amount, currency);     // a new object, the old ones stay unchanged\n    }\n\n    @Override public String toString() { return amount + \" \" + currency; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Money a = new Money(500, \"INR\");\n        Money b = new Money(250, \"INR\");\n        Money total = a.plus(b);\n        System.out.println(a + \" + \" + b + \" = \" + total);\n        System.out.println(\"a is still \" + a);\n    }\n}\n\n// Output:\n// 500 INR + 250 INR = 750 INR\n// a is still 500 INR"
+  }
+ },
+ "/java/core-java/immutability/defensive-copies": {
+  "def": "A defensive copy means copying a mutable object when it goes into or comes out of your class. Without it, the caller keeps a reference to your internal data and can change it behind your back, even if the field is `final`.",
+  "example": {
+   "title": "Copying a list on the way in, and exposing a read-only view",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\n\nfinal class Team {\n    private final List<String> members;\n\n    Team(List<String> members) {\n        this.members = new ArrayList<>(members);               // copy on the way in\n    }\n\n    List<String> members() {\n        return Collections.unmodifiableList(members);          // read-only view on the way out\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(List.of(\"Asha\", \"Ravi\"));\n        Team team = new Team(names);\n\n        names.add(\"Hacker\");                                    // the caller changes its own list\n        System.out.println(team.members());                     // the team is not affected\n\n        try {\n            team.members().add(\"Hacker\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"cannot change the team from outside\");\n        }\n    }\n}\n\n// Output:\n// [Asha, Ravi]\n// cannot change the team from outside"
+  }
+ },
+ "/java/core-java/immutability/immutable-collections": {
+  "def": "`List.of`, `Set.of` and `Map.of` create collections that cannot be changed. `List.copyOf` makes an independent immutable snapshot, while `Collections.unmodifiableList` is only a read-only window onto a list that can still change.",
+  "example": {
+   "title": "List.copyOf is a snapshot, unmodifiableList is a live view",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\nimport java.util.Map;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> source = new ArrayList<>(List.of(\"a\", \"b\"));\n\n        List<String> snapshot = List.copyOf(source);                 // independent copy\n        List<String> view = Collections.unmodifiableList(source);    // live read-only view\n\n        source.add(\"c\");\n        System.out.println(\"snapshot: \" + snapshot);                   // unchanged\n        System.out.println(\"view:     \" + view);                       // shows the change\n\n        Map<String, Integer> stock = Map.of(\"apple\", 5, \"pear\", 2);\n        try {\n            stock.put(\"fig\", 1);\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Map.of is immutable\");\n        }\n    }\n}\n\n// Output:\n// snapshot: [a, b]\n// view:     [a, b, c]\n// Map.of is immutable"
+  }
+ },
+ "/java/core-java/immutability/withers": {
+  "def": "A \"wither\" is a method that returns a copy of an immutable object with one value changed, for example `withEmail(...)`. It gives you the convenience of updating without making the object mutable.",
+  "example": {
+   "title": "Changing one field by creating a modified copy",
+   "lang": "java",
+   "code": "record User(String name, String email, int age) {\n    User withEmail(String newEmail) { return new User(name, newEmail, age); }\n    User withAge(int newAge) { return new User(name, email, newAge); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        User original = new User(\"Asha\", \"asha@old.com\", 30);\n        User updated = original.withEmail(\"asha@new.com\").withAge(31);\n\n        System.out.println(original);      // unchanged\n        System.out.println(updated);       // the modified copy\n    }\n}\n\n// Output:\n// User[name=Asha, email=asha@old.com, age=30]\n// User[name=Asha, email=asha@new.com, age=31]"
+  }
+ },
+ "/java/core-java/immutability/string-immutability": {
+  "def": "A Java `String` can never be changed after it is created. Methods like `toUpperCase()` or `replace()` return a new String and leave the original alone. Use `StringBuilder` when you build text in a loop.",
+  "example": {
+   "title": "String methods return new strings; StringBuilder changes in place",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        String name = \"asha\";\n        name.toUpperCase();                         // result thrown away: name is unchanged\n        System.out.println(name);\n\n        String upper = name.toUpperCase();          // keep the new String\n        System.out.println(upper);\n\n        StringBuilder builder = new StringBuilder();   // mutable, ideal for loops\n        for (int i = 1; i <= 3; i++) builder.append(i).append(' ');\n        System.out.println(builder.toString().trim());\n    }\n}\n\n// Output:\n// asha\n// ASHA\n// 1 2 3"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/lambda-expressions": {
+  "def": "A lambda is a short piece of code you can pass around, written `(input) -> result`. It replaces a bulky anonymous class when an interface has just one method.",
+  "example": {
+   "title": "Sorting with a lambda instead of an anonymous class",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(List.of(\"Ravi\", \"Asha\", \"Meera\", \"Jo\"));\n\n        // the lambda is the \"how to compare\" code, passed like a value\n        names.sort((a, b) -> a.length() - b.length());\n        System.out.println(names);\n\n        Runnable greeting = () -> System.out.println(\"Hello from a lambda\");\n        greeting.run();\n\n        Comparator<String> alphabetical = (a, b) -> a.compareTo(b);\n        names.sort(alphabetical);\n        System.out.println(names);\n    }\n}\n\n// Output:\n// [Jo, Ravi, Asha, Meera]\n// Hello from a lambda\n// [Asha, Jo, Meera, Ravi]"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/functional-interfaces": {
+  "def": "A functional interface has exactly one abstract method, so a lambda can stand in for it. Java provides common ones: `Function` (input to output), `Predicate` (yes or no), `Supplier` (gives a value) and `Consumer` (uses a value).",
+  "example": {
+   "title": "The four built-in shapes, and your own",
+   "lang": "java",
+   "code": "import java.util.function.Consumer;\nimport java.util.function.Function;\nimport java.util.function.Predicate;\nimport java.util.function.Supplier;\n\n@FunctionalInterface\ninterface Discount {                            // your own functional interface\n    int apply(int price);\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Function<String, Integer> length = s -> s.length();\n        Predicate<Integer> isEven = n -> n % 2 == 0;\n        Supplier<String> greeting = () -> \"Hello\";\n        Consumer<String> printer = s -> System.out.println(\"Got: \" + s);\n        Discount tenPercent = price -> price * 90 / 100;\n\n        System.out.println(length.apply(\"lambda\"));\n        System.out.println(isEven.test(7));\n        printer.accept(greeting.get());\n        System.out.println(tenPercent.apply(200));\n    }\n}\n\n// Output:\n// 6\n// false\n// Got: Hello\n// 180"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/method-references": {
+  "def": "A method reference is a shorter lambda that just calls an existing method, written `Class::method`. Use it when the lambda would only pass its argument straight to that method.",
+  "example": {
+   "title": "Replacing small lambdas with method references",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> names = List.of(\"asha\", \"ravi\", \"meera\");\n\n        names.stream().map(s -> s.toUpperCase()).forEach(s -> System.out.println(s));   // lambdas\n        names.stream().map(String::toUpperCase).forEach(System.out::println);           // same, shorter\n\n        // other kinds: static method and constructor\n        List<Integer> numbers = List.of(\"1\", \"2\", \"3\").stream().map(Integer::parseInt).toList();\n        System.out.println(numbers);\n    }\n}\n\n// Output:\n// ASHA\n// RAVI\n// MEERA\n// ASHA\n// RAVI\n// MEERA\n// [1, 2, 3]"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/map-filter-collect": {
+  "def": "A stream is a pipeline for data. `filter` keeps items that match, `map` changes each item, and `collect` or `toList` gathers the result. Nothing runs until that final step.",
+  "example": {
+   "title": "Names of adults, in capitals",
+   "lang": "java",
+   "code": "import java.util.List;\n\nrecord Person(String name, int age) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Person> people = List.of(new Person(\"Asha\", 30), new Person(\"Ravi\", 17), new Person(\"Meera\", 25));\n\n        List<String> adults = people.stream()\n                .filter(p -> p.age() >= 18)          // keep adults\n                .map(p -> p.name().toUpperCase())    // turn each Person into a name\n                .toList();                           // run the pipeline and collect\n\n        System.out.println(adults);\n    }\n}\n\n// Output:\n// [ASHA, MEERA]"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/grouping-and-collectors": {
+  "def": "Collectors turn a stream into a result. `groupingBy` splits items into groups, `counting` counts them, `joining` builds one string, and `toMap` builds a map.",
+  "example": {
+   "title": "Group words by length, count them, and join them",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> words = List.of(\"java\", \"go\", \"rust\", \"c\", \"python\", \"sql\");\n\n        Map<Integer, List<String>> byLength = words.stream()\n                .collect(Collectors.groupingBy(String::length));\n        System.out.println(byLength);\n\n        Map<Integer, Long> counts = words.stream()\n                .collect(Collectors.groupingBy(String::length, Collectors.counting()));\n        System.out.println(counts);\n\n        System.out.println(words.stream().collect(Collectors.joining(\", \", \"[\", \"]\")));\n    }\n}\n\n// Output:\n// {1=[c], 2=[go], 3=[sql], 4=[java, rust], 6=[python]}\n// {1=1, 2=1, 3=1, 4=2, 6=1}\n// [java, go, rust, c, python, sql]"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/flatmap": {
+  "def": "`flatMap` turns each item into a stream and joins all of those streams into one. Use it when each item holds a list and you want one flat list of everything.",
+  "example": {
+   "title": "From a list of orders to one list of items",
+   "lang": "java",
+   "code": "import java.util.List;\n\nrecord Order(int id, List<String> items) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Order> orders = List.of(\n                new Order(1, List.of(\"book\", \"pen\")),\n                new Order(2, List.of(\"lamp\")),\n                new Order(3, List.of(\"pen\", \"bag\")));\n\n        List<String> allItems = orders.stream()\n                .flatMap(order -> order.items().stream())    // many lists become one stream\n                .distinct()\n                .toList();\n\n        System.out.println(allItems);\n    }\n}\n\n// Output:\n// [book, pen, lamp, bag]"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/reduce": {
+  "def": "`reduce` combines all items of a stream into a single value by applying an operation again and again, such as adding numbers. It needs a starting value and a rule for combining two values.",
+  "example": {
+   "title": "Adding numbers, and finding the longest word",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> numbers = List.of(4, 8, 15, 16, 23, 42);\n\n        int sum = numbers.stream().reduce(0, (a, b) -> a + b);       // start at 0, add each number\n        System.out.println(sum);\n\n        // for sums, the built-in is simpler and avoids boxing\n        System.out.println(numbers.stream().mapToInt(Integer::intValue).sum());\n\n        String longest = List.of(\"java\", \"kotlin\", \"go\").stream()\n                .reduce(\"\", (a, b) -> b.length() > a.length() ? b : a);\n        System.out.println(longest);\n    }\n}\n\n// Output:\n// 108\n// 108\n// kotlin"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/optional": {
+  "def": "`Optional` is a box that holds a value or is empty. It makes \"there may be no result\" visible in the method signature, so callers must decide what to do instead of hitting a `NullPointerException`.",
+  "example": {
+   "title": "Finding a user that may not exist",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Optional;\n\nrecord User(String name, String email) { }\n\nclass Demo {\n    static Optional<User> findByName(List<User> users, String name) {\n        return users.stream().filter(u -> u.name().equals(name)).findFirst();\n    }\n\n    public static void main(String[] args) {\n        List<User> users = List.of(new User(\"Asha\", \"asha@example.com\"));\n\n        String email = findByName(users, \"Asha\")\n                .map(User::email)\n                .orElse(\"unknown\");\n        System.out.println(email);\n\n        String missing = findByName(users, \"Nobody\")\n                .map(User::email)\n                .orElse(\"unknown\");               // no NullPointerException, just a default\n        System.out.println(missing);\n    }\n}\n\n// Output:\n// asha@example.com\n// unknown"
+  }
+ },
+ "/java/core-java/streams-and-lambdas/parallel-streams": {
+  "def": "A parallel stream splits the work across several CPU cores. It can speed up heavy calculations on large data, but it adds overhead, so it is slower for small lists. Never use it for blocking calls or with shared mutable state.",
+  "example": {
+   "title": "Same result, computed on several cores",
+   "lang": "java",
+   "code": "import java.util.stream.LongStream;\n\nclass Demo {\n    static boolean isPrime(long n) {\n        if (n < 2) return false;\n        for (long i = 2; i * i <= n; i++) if (n % i == 0) return false;\n        return true;\n    }\n\n    public static void main(String[] args) {\n        long sequential = LongStream.rangeClosed(1, 200_000).filter(Demo::isPrime).count();\n        long parallel = LongStream.rangeClosed(1, 200_000).parallel().filter(Demo::isPrime).count();\n\n        System.out.println(sequential + \" primes (one core)\");\n        System.out.println(parallel + \" primes (many cores)\");   // same answer, because each check is independent\n    }\n}\n\n// Output:\n// 17984 primes (one core)\n// 17984 primes (many cores)"
+  }
+ },
+ "/java/core-java/modern-java/var": {
+  "def": "`var` lets the compiler work out the type of a local variable from the value on the right, so you do not repeat a long type name. The variable is still strongly typed; it is just not written out.",
+  "example": {
+   "title": "Less typing, same safety",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    public static void main(String[] args) {\n        var names = new ArrayList<String>();          // inferred as ArrayList<String>\n        names.add(\"Asha\");\n\n        var ages = new HashMap<String, Integer>();    // inferred as HashMap<String, Integer>\n        ages.put(\"Asha\", 30);\n\n        for (var entry : ages.entrySet()) {           // handy for long types\n            System.out.println(entry.getKey() + \" -> \" + entry.getValue());\n        }\n\n        // names = 5;                                 // still a compile error: the type is fixed\n        System.out.println(names);\n    }\n}\n\n// Output:\n// Asha -> 30\n// [Asha]"
+  }
+ },
+ "/java/core-java/modern-java/records": {
+  "def": "A record is a short way to declare a class that only carries data. You list the fields once, and Java creates the constructor, getters, `equals`, `hashCode` and `toString`. The fields are final.",
+  "example": {
+   "title": "A data class in one line",
+   "lang": "java",
+   "code": "record Point(int x, int y) {\n    double distanceFromOrigin() { return Math.sqrt(x * x + y * y); }   // records can have methods\n\n    Point {                                                            // compact constructor: validation\n        if (x < 0 || y < 0) throw new IllegalArgumentException(\"coordinates must be positive\");\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Point p = new Point(3, 4);\n        System.out.println(p);                          // toString is generated\n        System.out.println(p.x() + \", \" + p.y());       // accessors are generated\n        System.out.println(p.equals(new Point(3, 4)));  // equals compares the values\n        System.out.println(p.distanceFromOrigin());\n    }\n}\n\n// Output:\n// Point[x=3, y=4]\n// 3, 4\n// true\n// 5.0"
+  }
+ },
+ "/java/core-java/modern-java/text-blocks": {
+  "def": "A text block is a multi-line string written between triple quotes. It keeps line breaks and removes the common indentation, so JSON, SQL and HTML are easy to read in code without `\\n` and escaped quotes.",
+  "example": {
+   "title": "A JSON string without escaping",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        String name = \"Asha\";\n\n        String json = \"\"\"\n                {\n                  \"name\": \"%s\",\n                  \"active\": true\n                }\n                \"\"\".formatted(name);\n\n        String sql = \"\"\"\n                SELECT id, name\n                FROM users\n                WHERE active = true\n                \"\"\";\n\n        System.out.print(json);\n        System.out.print(sql);\n    }\n}\n\n// Output:\n// {\n//   \"name\": \"Asha\",\n//   \"active\": true\n// }\n// SELECT id, name\n// FROM users\n// WHERE active = true"
+  }
+ },
+ "/java/core-java/modern-java/switch-expressions": {
+  "def": "A switch expression returns a value and uses `->`, so there is no fall-through and no `break`. The compiler checks that every case is covered, which makes it safer than the old switch statement.",
+  "example": {
+   "title": "Turning a day into a number of hours",
+   "lang": "java",
+   "code": "enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }\n\nclass Demo {\n    static int workHours(Day day) {\n        return switch (day) {\n            case MON, TUE, WED, THU -> 8;\n            case FRI -> 6;\n            case SAT, SUN -> 0;            // if a case is missing, it does not compile\n        };\n    }\n\n    public static void main(String[] args) {\n        for (Day day : Day.values()) {\n            System.out.println(day + \": \" + workHours(day));\n        }\n    }\n}\n\n// Output:\n// MON: 8\n// TUE: 8\n// WED: 8\n// THU: 8\n// FRI: 6\n// SAT: 0\n// SUN: 0"
+  }
+ },
+ "/java/core-java/modern-java/sealed-classes": {
+  "def": "A sealed class or interface lists exactly which classes may extend it, using `permits`. The compiler then knows every possible subtype, so a `switch` over it is checked for completeness without a `default`.",
+  "example": {
+   "title": "A closed set of payment types",
+   "lang": "java",
+   "code": "sealed interface Payment permits Card, Upi, Cash { }\n\nrecord Card(String number) implements Payment { }\nrecord Upi(String id) implements Payment { }\nrecord Cash() implements Payment { }\n\nclass Demo {\n    static String describe(Payment payment) {\n        return switch (payment) {                   // no default: the compiler knows all cases\n            case Card c -> \"Card ending \" + c.number().substring(c.number().length() - 4);\n            case Upi u -> \"UPI \" + u.id();\n            case Cash c -> \"Cash\";\n        };\n    }\n\n    public static void main(String[] args) {\n        System.out.println(describe(new Card(\"1234567812345678\")));\n        System.out.println(describe(new Upi(\"asha@bank\")));\n        System.out.println(describe(new Cash()));\n        // adding a new Payment type makes describe() fail to compile until you handle it\n    }\n}\n\n// Output:\n// Card ending 5678\n// UPI asha@bank\n// Cash"
+  }
+ },
+ "/java/core-java/modern-java/default-and-static-interface-methods": {
+  "def": "Since Java 8 an interface can contain methods with a body. A `default` method gives implementing classes a ready-made behaviour they may override, and a `static` method belongs to the interface itself. This let Java add new methods to old interfaces without breaking existing classes.",
+  "example": {
+   "title": "An interface with a default method and a static helper",
+   "lang": "java",
+   "code": "interface Greeter {\n    String name();\n\n    default String greet() {                      // implementing classes get this for free\n        return \"Hello, \" + name() + \"!\";\n    }\n\n    static Greeter of(String name) {              // a helper that lives on the interface\n        return () -> name;\n    }\n}\n\nclass Polite implements Greeter {\n    public String name() { return \"Asha\"; }\n\n    @Override\n    public String greet() { return \"Good morning, \" + name(); }   // can still override it\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(Greeter.of(\"Ravi\").greet());\n        System.out.println(new Polite().greet());\n    }\n}\n\n// Output:\n// Hello, Ravi!\n// Good morning, Asha"
+  }
+ },
+ "/java/core-java/modern-java/date-and-time-api": {
+  "def": "The `java.time` package (Java 8) replaced the old `Date` and `Calendar`. Its classes, such as `LocalDate`, `LocalDateTime`, `Duration` and `Period`, are immutable and clear, and they handle months, days and formatting correctly.",
+  "example": {
+   "title": "Adding months, measuring days and formatting a date",
+   "lang": "java",
+   "code": "import java.time.LocalDate;\nimport java.time.Period;\nimport java.time.format.DateTimeFormatter;\nimport java.time.temporal.ChronoUnit;\n\nclass Demo {\n    public static void main(String[] args) {\n        LocalDate start = LocalDate.of(2026, 1, 31);\n\n        System.out.println(start.plusMonths(1));                       // 2026-02-28: month-end is handled\n        System.out.println(start.getDayOfWeek());\n\n        LocalDate end = LocalDate.of(2026, 12, 25);\n        System.out.println(ChronoUnit.DAYS.between(start, end) + \" days\");\n        System.out.println(Period.between(start, end));\n\n        System.out.println(start.format(DateTimeFormatter.ofPattern(\"dd MMM yyyy\")));\n    }\n}\n\n// Output:\n// 2026-02-28\n// SATURDAY\n// 328 days\n// P10M25D\n// 31 Jan 2026"
+  }
+ },
+ "/java/core-java/modern-java/collection-factory-methods": {
+  "def": "`List.of`, `Set.of` and `Map.of` (Java 9) create small immutable collections in one line. They do not allow `null`, and `Set.of` and `Map.of` reject duplicates.",
+  "example": {
+   "title": "Immutable collections in one line",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport java.util.Set;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> languages = List.of(\"Java\", \"Kotlin\", \"Scala\");\n        Set<Integer> primes = Set.of(2, 3, 5);\n        Map<String, Integer> ages = Map.of(\"Asha\", 30, \"Ravi\", 28);\n        Map<String, Integer> many = Map.ofEntries(Map.entry(\"a\", 1), Map.entry(\"b\", 2));\n\n        System.out.println(languages);\n        System.out.println(primes.contains(3));\n        System.out.println(ages.get(\"Asha\") + \" \" + many.get(\"b\"));\n\n        try {\n            languages.add(\"Go\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"immutable\");\n        }\n        try {\n            List.of(\"a\", null);\n        } catch (NullPointerException e) {\n            System.out.println(\"null is not allowed\");\n        }\n    }\n}\n\n// Output:\n// [Java, Kotlin, Scala]\n// true\n// 30 2\n// immutable\n// null is not allowed"
+  }
+ },
+ "/java/core-java/modern-java/private-interface-methods": {
+  "def": "Since Java 9 an interface can have `private` methods. They let several default methods share code inside the interface without exposing that code to anyone else.",
+  "example": {
+   "title": "Two default methods sharing one private helper",
+   "lang": "java",
+   "code": "interface Logger {\n    default void info(String message)  { System.out.println(format(\"INFO\", message)); }\n    default void error(String message) { System.out.println(format(\"ERROR\", message)); }\n\n    private String format(String level, String message) {      // hidden helper, Java 9\n        return \"[\" + level + \"] \" + message;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Logger logger = new Logger() { };\n        logger.info(\"started\");\n        logger.error(\"something failed\");\n    }\n}\n\n// Output:\n// [INFO] started\n// [ERROR] something failed"
+  }
+ },
+ "/java/core-java/modern-java/stream-takewhile-dropwhile": {
+  "def": "`takeWhile` keeps items from the start of a stream until a condition first fails. `dropWhile` skips items from the start until the condition first fails and keeps the rest. Java 9 also added `Stream.iterate` with a stop condition.",
+  "example": {
+   "title": "Cutting a stream at the first item that fails a test",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.stream.Stream;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> numbers = List.of(1, 2, 3, 10, 4, 5);\n\n        System.out.println(numbers.stream().takeWhile(n -> n < 5).toList());   // stops at 10\n        System.out.println(numbers.stream().dropWhile(n -> n < 5).toList());   // starts at 10\n\n        // iterate with a condition, like a for loop (Java 9)\n        System.out.println(Stream.iterate(1, n -> n <= 100, n -> n * 3).toList());\n    }\n}\n\n// Output:\n// [1, 2, 3]\n// [10, 4, 5]\n// [1, 3, 9, 27, 81]"
+  }
+ },
+ "/java/core-java/modern-java/optional-additions": {
+  "def": "Java 9 added `ifPresentOrElse` (do one thing if there is a value, another if not), `or` (try another Optional) and `stream` (turn an Optional into a stream of zero or one items).",
+  "example": {
+   "title": "Handling both cases without an if statement",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Optional;\n\nclass Demo {\n    public static void main(String[] args) {\n        Optional<String> found = Optional.of(\"Asha\");\n        Optional<String> missing = Optional.empty();\n\n        found.ifPresentOrElse(n -> System.out.println(\"Hello \" + n), () -> System.out.println(\"nobody\"));\n        missing.ifPresentOrElse(n -> System.out.println(\"Hello \" + n), () -> System.out.println(\"nobody\"));\n\n        System.out.println(missing.or(() -> Optional.of(\"backup\")).get());      // try another source\n\n        List<String> names = List.of(\"Asha\", \"Ravi\").stream()\n                .map(n -> n.equals(\"Ravi\") ? Optional.<String>empty() : Optional.of(n))\n                .flatMap(Optional::stream)                                       // drops the empty ones\n                .toList();\n        System.out.println(names);\n    }\n}\n\n// Output:\n// Hello Asha\n// nobody\n// backup\n// [Asha]"
+  }
+ },
+ "/java/core-java/modern-java/try-with-resources-existing-variable": {
+  "def": "Before Java 9 a resource had to be declared inside the `try (...)` parentheses. Now you can pass a variable that already exists, as long as it is final or effectively final, and Java still closes it for you.",
+  "example": {
+   "title": "Using an existing variable as the resource",
+   "lang": "java",
+   "code": "class Connection implements AutoCloseable {\n    Connection() { System.out.println(\"opened\"); }\n    void query() { System.out.println(\"query\"); }\n    @Override public void close() { System.out.println(\"closed\"); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Connection connection = new Connection();      // declared earlier\n\n        try (connection) {                              // Java 9: no need to declare it again\n            connection.query();\n        }\n    }\n}\n\n// Output:\n// opened\n// query\n// closed"
+  }
+ },
+ "/java/core-java/modern-java/modules": {
+  "def": "The Java Platform Module System (Java 9) groups packages into named modules. A `module-info.java` file says what the module needs (`requires`) and which packages other modules may use (`exports`), so internal packages stay hidden.",
+  "example": {
+   "title": "A module that exports one package and keeps another internal",
+   "lang": "java",
+   "code": "// file: com.shop/module-info.java\nmodule com.shop {\n    exports com.shop.api;            // other modules may use this package\n    // com.shop.internal is not exported: it stays private to the module\n}\n\n// file: com.shop/com/shop/api/Greeter.java\npackage com.shop.api;\n\npublic class Greeter {\n    public static String greet() { return com.shop.internal.Helper.hello(); }\n    public static void main(String[] args) { System.out.println(greet()); }\n}\n\n// file: com.shop/com/shop/internal/Helper.java\npackage com.shop.internal;\n\npublic class Helper {\n    public static String hello() { return \"Hello from inside the module\"; }\n}\n\n// compile and run:\n//   javac -d out --module-source-path . -m com.shop\n//   java --module-path out -m com.shop/com.shop.api.Greeter\n\n// Output:\n// Hello from inside the module"
+  }
+ },
+ "/java/core-java/modern-java/copyof-and-unmodifiable-collectors": {
+  "def": "Java 10 added `List.copyOf`, `Set.copyOf` and `Map.copyOf` to make an immutable copy of an existing collection. It also added `Collectors.toUnmodifiableList`, `toUnmodifiableSet` and `toUnmodifiableMap` for streams.",
+  "example": {
+   "title": "Copying a list and collecting a stream into an immutable list",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> mutable = new ArrayList<>(List.of(\"a\", \"b\"));\n        List<String> copy = List.copyOf(mutable);          // immutable snapshot\n\n        mutable.add(\"c\");\n        System.out.println(copy);                           // unchanged\n\n        List<Integer> squares = List.of(1, 2, 3).stream()\n                .map(n -> n * n)\n                .collect(Collectors.toUnmodifiableList());\n        System.out.println(squares);\n\n        try {\n            squares.add(16);\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"cannot change it\");\n        }\n    }\n}\n\n// Output:\n// [a, b]\n// [1, 4, 9]\n// cannot change it"
+  }
+ },
+ "/java/core-java/modern-java/string-methods": {
+  "def": "Java 11 added useful `String` methods: `isBlank` (empty or only spaces), `strip` (trim that understands Unicode), `lines` (split into lines as a stream) and `repeat`.",
+  "example": {
+   "title": "The four new String helpers",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        System.out.println(\"   \".isBlank());                       // true\n        System.out.println(\"[\" + \"  hi  \".strip() + \"]\");           // [hi]\n        System.out.println(\"ab\".repeat(3));\n\n        \"first\\nsecond\\nthird\".lines()\n                .map(line -> \"> \" + line)\n                .forEach(System.out::println);\n    }\n}\n\n// Output:\n// true\n// [hi]\n// ababab\n// > first\n// > second\n// > third"
+  }
+ },
+ "/java/core-java/modern-java/http-client": {
+  "def": "Java 11 made `java.net.http.HttpClient` a standard part of Java. It sends HTTP requests, supports HTTP/2, and can work synchronously or asynchronously, so you no longer need an extra library for simple calls.",
+  "example": {
+   "title": "Calling a small local server (so it runs without internet)",
+   "lang": "java",
+   "code": "import com.sun.net.httpserver.HttpServer;\nimport java.net.InetSocketAddress;\nimport java.net.URI;\nimport java.net.http.HttpClient;\nimport java.net.http.HttpRequest;\nimport java.net.http.HttpResponse;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);   // a tiny server for the example\n        server.createContext(\"/hello\", exchange -> {\n            byte[] body = \"Hello from the server\".getBytes();\n            exchange.sendResponseHeaders(200, body.length);\n            exchange.getResponseBody().write(body);\n            exchange.close();\n        });\n        server.start();\n\n        HttpClient client = HttpClient.newHttpClient();\n        HttpRequest request = HttpRequest.newBuilder(\n                URI.create(\"http://localhost:\" + server.getAddress().getPort() + \"/hello\")).build();\n\n        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());\n        System.out.println(response.statusCode() + \" \" + response.body());\n        server.stop(0);\n    }\n}\n\n// Output:\n// 200 Hello from the server"
+  }
+ },
+ "/java/core-java/modern-java/files-readstring-writestring": {
+  "def": "Java 11 added `Files.readString` and `Files.writeString` to read or write a whole text file in one line, with UTF-8 by default.",
+  "example": {
+   "title": "Write a file and read it back",
+   "lang": "java",
+   "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        Path file = Files.createTempFile(\"notes\", \".txt\");\n\n        Files.writeString(file, \"Java 11 makes this easy\\nSecond line\");\n        String text = Files.readString(file);\n\n        System.out.println(text);\n        Files.delete(file);\n    }\n}\n\n// Output:\n// Java 11 makes this easy\n// Second line"
+  }
+ },
+ "/java/core-java/modern-java/predicate-not": {
+  "def": "`Predicate.not` (Java 11) reverses a condition so you can use it with a method reference, for example `filter(Predicate.not(String::isBlank))` instead of writing a lambda with `!`.",
+  "example": {
+   "title": "Keeping only the non-blank lines",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.function.Predicate;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> lines = List.of(\"first\", \"  \", \"second\", \"\");\n\n        List<String> filled = lines.stream()\n                .filter(Predicate.not(String::isBlank))       // reads like plain English\n                .toList();\n\n        System.out.println(filled);\n    }\n}\n\n// Output:\n// [first, second]"
+  }
+ },
+ "/java/core-java/modern-java/var-in-lambda-parameters": {
+  "def": "Java 11 lets you write `var` for lambda parameters. It does not change behaviour, but it lets you add annotations such as `@NonNull` to a parameter without writing out its type.",
+  "example": {
+   "title": "Using var for lambda parameters",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.function.BiFunction;\n\nclass Demo {\n    public static void main(String[] args) {\n        BiFunction<Integer, Integer, Integer> add = (var a, var b) -> a + b;\n        System.out.println(add.apply(2, 3));\n\n        List<String> names = List.of(\"asha\", \"ravi\");\n        names.forEach((var name) -> System.out.println(name.toUpperCase()));\n    }\n}\n\n// Output:\n// 5\n// ASHA\n// RAVI"
+  }
+ },
+ "/java/core-java/modern-java/single-file-source": {
+  "def": "Java 11 can run a `.java` file directly with `java Hello.java`. It compiles the file in memory and runs it, which is handy for small scripts and for learning.",
+  "example": {
+   "title": "One file, one command",
+   "lang": "java",
+   "code": "// file: Hello.java\nclass Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello from a single source file\");\n    }\n}\n\n// run it with one command, no javac step:\n//   java Hello.java\n\n// Output:\n// Hello from a single source file"
+  }
+ },
+ "/java/core-java/modern-java/collectors-teeing": {
+  "def": "`Collectors.teeing` (Java 12) runs two collectors over the same stream at once and combines their two results. It saves you from going through the data twice.",
+  "example": {
+   "title": "Count and total in one pass, then compute the average",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.stream.Collectors;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> marks = List.of(70, 80, 90, 100);\n\n        double average = marks.stream().collect(Collectors.teeing(\n                Collectors.counting(),                        // first result: how many\n                Collectors.summingInt(Integer::intValue),     // second result: the total\n                (count, total) -> (double) total / count));   // combine them\n\n        System.out.println(average);\n    }\n}\n\n// Output:\n// 85.0"
+  }
+ },
+ "/java/core-java/modern-java/string-indent-and-transform": {
+  "def": "Java 12 added `String.indent` (add or remove leading spaces on every line) and `String.transform` (pass a string through a function so you can chain steps).",
+  "example": {
+   "title": "Indenting text and chaining a transformation",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        String block = \"line one\\nline two\";\n        System.out.print(block.indent(4));\n\n        String result = \"  java  \"\n                .transform(String::strip)\n                .transform(s -> s + \"!\")\n                .transform(String::toUpperCase);\n        System.out.println(result);\n    }\n}\n\n// Output:\n//     line one\n//     line two\n// JAVA!"
+  }
+ },
+ "/java/core-java/modern-java/helpful-npe-messages": {
+  "def": "Since Java 14 (on by default from Java 15) a `NullPointerException` tells you exactly which part was null, for example \"because the return value of Demo.findCity() is null\". You no longer have to guess in a long chain of calls.",
+  "example": {
+   "title": "The exception now names the null part",
+   "lang": "java",
+   "code": "class Demo {\n    static String findCity() { return null; }\n\n    public static void main(String[] args) {\n        try {\n            System.out.println(findCity().length());\n        } catch (NullPointerException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}\n\n// Output:\n// Cannot invoke \"String.length()\" because the return value of \"Demo.findCity()\" is null"
+  }
+ },
+ "/java/core-java/modern-java/pattern-matching-instanceof": {
+  "def": "Pattern matching for `instanceof` (Java 16) checks a type and gives you a typed variable in one step. You no longer need a separate cast after the check.",
+  "example": {
+   "title": "No cast after instanceof",
+   "lang": "java",
+   "code": "class Demo {\n    static String describe(Object value) {\n        if (value instanceof String s && s.length() > 3) {      // s is a String right here\n            return \"long text: \" + s.toUpperCase();\n        } else if (value instanceof Integer i) {\n            return \"number plus one: \" + (i + 1);\n        }\n        return \"something else\";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(describe(\"hello\"));\n        System.out.println(describe(41));\n        System.out.println(describe(\"hi\"));\n    }\n}\n\n// Output:\n// long text: HELLO\n// number plus one: 42\n// something else"
+  }
+ },
+ "/java/core-java/modern-java/stream-tolist": {
+  "def": "`Stream.toList()` (Java 16) ends a stream with an unmodifiable list, so you no longer write `collect(Collectors.toList())` for the common case.",
+  "example": {
+   "title": "A shorter way to finish a stream",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> names = List.of(\"asha\", \"ravi\", \"meera\").stream()\n                .map(String::toUpperCase)\n                .toList();                                    // Java 16\n\n        System.out.println(names);\n        try {\n            names.add(\"JO\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"the list is unmodifiable\");\n        }\n    }\n}\n\n// Output:\n// [ASHA, RAVI, MEERA]\n// the list is unmodifiable"
+  }
+ },
+ "/java/core-java/modern-java/random-generators": {
+  "def": "Java 17 added the `RandomGenerator` interface and a factory with many modern algorithms. You pick an algorithm by name and can seed it, so the same seed always gives the same numbers.",
+  "example": {
+   "title": "A seeded generator gives repeatable numbers",
+   "lang": "java",
+   "code": "import java.util.random.RandomGenerator;\nimport java.util.random.RandomGeneratorFactory;\n\nclass Demo {\n    public static void main(String[] args) {\n        RandomGenerator rng = RandomGeneratorFactory.of(\"Xoshiro256PlusPlus\").create(42L);   // seed 42\n        System.out.println(rng.nextInt(100));\n        System.out.println(rng.nextInt(100));\n\n        RandomGenerator same = RandomGeneratorFactory.of(\"Xoshiro256PlusPlus\").create(42L);\n        System.out.println(same.nextInt(100));     // same seed, same first number\n    }\n}\n\n// Output:\n// 0\n// 67\n// 0"
+  }
+ },
+ "/java/core-java/modern-java/utf8-by-default": {
+  "def": "Since Java 18 the default character set of the JVM is UTF-8 on every operating system. Before, it depended on the machine (for example Windows-1252), so the same code could read text differently on different computers.",
+  "example": {
+   "title": "The default charset is now always UTF-8",
+   "lang": "java",
+   "code": "import java.nio.charset.Charset;\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(Charset.defaultCharset());\n    }\n}\n\n// Output:\n// UTF-8"
+  }
+ },
+ "/java/core-java/modern-java/virtual-threads": {
+  "def": "Virtual threads (Java 21) are very cheap threads managed by the JVM. When one waits, for example on a network call, it steps aside so another can run. You can run tens of thousands at once with simple blocking code.",
+  "example": {
+   "title": "10,000 tasks that each wait, run at the same time",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass Demo {\n    public static void main(String[] args) {\n        AtomicInteger finished = new AtomicInteger();\n\n        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {   // one virtual thread per task\n            for (int i = 0; i < 10_000; i++) {\n                executor.submit(() -> {\n                    Thread.sleep(Duration.ofMillis(100));                      // waiting does not block a core\n                    finished.incrementAndGet();\n                    return null;\n                });\n            }\n        }                                                                      // close() waits for all tasks\n\n        System.out.println(finished.get() + \" tasks finished\");\n    }\n}\n\n// Output:\n// 10000 tasks finished"
+  }
+ },
+ "/java/core-java/modern-java/pattern-matching-switch": {
+  "def": "Pattern matching for `switch` (Java 21) lets a `switch` choose code by the type of a value, and even add a condition with `when`. It also handles `null` as a case.",
+  "example": {
+   "title": "A switch that picks code by type and condition",
+   "lang": "java",
+   "code": "class Demo {\n    static String describe(Object value) {\n        return switch (value) {\n            case null -> \"nothing\";\n            case Integer i when i > 100 -> \"a big number: \" + i;     // type plus a condition\n            case Integer i -> \"a number: \" + i;\n            case String s -> \"text of length \" + s.length();\n            default -> \"something else\";\n        };\n    }\n\n    public static void main(String[] args) {\n        System.out.println(describe(500));\n        System.out.println(describe(7));\n        System.out.println(describe(\"java\"));\n        System.out.println(describe(null));\n        System.out.println(describe(2.5));\n    }\n}\n\n// Output:\n// a big number: 500\n// a number: 7\n// text of length 4\n// nothing\n// something else"
+  }
+ },
+ "/java/core-java/modern-java/record-patterns": {
+  "def": "A record pattern (Java 21) takes a record apart inside `instanceof` or `switch`, giving you its fields as variables. Patterns can be nested, so you can unpack a record that holds other records in one step.",
+  "example": {
+   "title": "Unpacking a Line made of two Points",
+   "lang": "java",
+   "code": "record Point(int x, int y) { }\nrecord Line(Point from, Point to) { }\n\nclass Demo {\n    static String describe(Object shape) {\n        return switch (shape) {\n            case Point(int x, int y) -> \"point at \" + x + \",\" + y;\n            case Line(Point(var x1, var y1), Point(var x2, var y2))       // nested pattern\n                    -> \"line from \" + x1 + \",\" + y1 + \" to \" + x2 + \",\" + y2;\n            default -> \"unknown\";\n        };\n    }\n\n    public static void main(String[] args) {\n        System.out.println(describe(new Point(1, 2)));\n        System.out.println(describe(new Line(new Point(0, 0), new Point(5, 5))));\n    }\n}\n\n// Output:\n// point at 1,2\n// line from 0,0 to 5,5"
+  }
+ },
+ "/java/core-java/modern-java/sequenced-collections": {
+  "def": "Sequenced collections (Java 21) add a common way to work with the first and last element and to reverse any collection that has a defined order. New methods include `getFirst`, `getLast`, `addFirst`, `addLast` and `reversed`.",
+  "example": {
+   "title": "First, last and reversed on a list and a LinkedHashMap",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.LinkedHashMap;\nimport java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(List.of(\"b\", \"c\"));\n        list.addFirst(\"a\");                                    // Java 21\n        list.addLast(\"d\");\n        System.out.println(list.getFirst() + \" \" + list.getLast());\n        System.out.println(list.reversed());\n\n        LinkedHashMap<String, Integer> map = new LinkedHashMap<>();\n        map.put(\"one\", 1);\n        map.put(\"two\", 2);\n        map.put(\"three\", 3);\n        System.out.println(map.firstEntry() + \" \" + map.lastEntry());\n    }\n}\n\n// Output:\n// a d\n// [d, c, b, a]\n// one=1 three=3"
+  }
+ },
+ "/java/core-java/modern-java/unnamed-variables": {
+  "def": "An underscore `_` (Java 22) marks a variable you must declare but will never use, such as a loop variable, a caught exception or a part of a pattern. It tells the reader, and the compiler, that the value is ignored on purpose.",
+  "example": {
+   "title": "Underscore for values you do not need",
+   "lang": "java",
+   "code": "import java.util.List;\n\nrecord Point(int x, int y) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        int count = 0;\n        for (var _ : List.of(\"a\", \"b\", \"c\")) {          // the element itself is not needed\n            count++;\n        }\n        System.out.println(count);\n\n        try {\n            Integer.parseInt(\"abc\");\n        } catch (NumberFormatException _) {              // the exception object is not needed\n            System.out.println(\"not a number\");\n        }\n\n        Object obj = new Point(3, 9);\n        if (obj instanceof Point(int x, _)) {            // only x matters\n            System.out.println(\"x = \" + x);\n        }\n    }\n}\n\n// Output:\n// 3\n// not a number\n// x = 3"
+  }
+ },
+ "/java/core-java/modern-java/markdown-doc-comments": {
+  "def": "Since Java 23 you can write documentation comments in Markdown by starting each line with `///` instead of the old `/** ... */` with HTML. Lists, bold, links and code blocks use normal Markdown.",
+  "example": {
+   "title": "A documentation comment written in Markdown",
+   "lang": "java",
+   "code": "/// A shopping cart.\n///\n/// Features:\n/// - adds items\n/// - calculates the **total**\n///\n/// See [Item] for the item type.\nclass Cart {\n    private int total;\n\n    /// Adds an item and returns the new total.\n    ///\n    /// @param price the price of the item\n    /// @return the total after adding it\n    int add(int price) {\n        total += price;\n        return total;\n    }\n}\n\nrecord Item(String name) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        Cart cart = new Cart();\n        cart.add(100);\n        System.out.println(cart.add(50));\n    }\n}\n\n// Output:\n// 150"
+  }
+ },
+ "/java/core-java/modern-java/stream-gatherers": {
+  "def": "A gatherer (Java 24) is a custom step in a stream pipeline that can group, window or carry state between items, which the old `map` and `filter` could not do. `Gatherers` ships ready-made ones such as `windowFixed` and `windowSliding`.",
+  "example": {
+   "title": "Grouping items into windows",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.stream.Gatherers;\nimport java.util.stream.Stream;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<List<Integer>> batches = Stream.of(1, 2, 3, 4, 5, 6, 7)\n                .gather(Gatherers.windowFixed(3))                // groups of 3\n                .toList();\n        System.out.println(batches);\n\n        List<List<Integer>> pairs = Stream.of(1, 2, 3, 4)\n                .gather(Gatherers.windowSliding(2))              // overlapping pairs\n                .toList();\n        System.out.println(pairs);\n    }\n}\n\n// Output:\n// [[1, 2, 3], [4, 5, 6], [7]]\n// [[1, 2], [2, 3], [3, 4]]"
+  }
+ },
+ "/java/core-java/modern-java/scoped-values": {
+  "def": "A scoped value (Java 25) shares data with the code you call, for example the current user, without passing it as a parameter. The value is fixed for the duration of one `run` and is safe to share with virtual threads, which makes it a cleaner replacement for `ThreadLocal`.",
+  "example": {
+   "title": "The current user, available to every method inside run()",
+   "lang": "java",
+   "code": "class Demo {\n    static final ScopedValue<String> USER = ScopedValue.newInstance();\n\n    static void handleRequest() {\n        System.out.println(\"Handling a request for \" + USER.get());   // no parameter needed\n    }\n\n    public static void main(String[] args) {\n        ScopedValue.where(USER, \"asha\").run(Demo::handleRequest);\n        ScopedValue.where(USER, \"ravi\").run(Demo::handleRequest);\n        System.out.println(\"bound outside run? \" + USER.isBound());\n    }\n}\n\n// Output:\n// Handling a request for asha\n// Handling a request for ravi\n// bound outside run? false"
+  }
+ },
+ "/java/core-java/modern-java/flexible-constructor-bodies": {
+  "def": "Flexible constructor bodies (Java 25) let you run statements before calling `super(...)` or `this(...)`, as long as they do not use the object being built. You can validate or compute arguments first instead of using awkward static helper methods.",
+  "example": {
+   "title": "Validating an argument before calling super",
+   "lang": "java",
+   "code": "class Account {\n    final long balance;\n    Account(long balance) { this.balance = balance; }\n}\n\nclass Savings extends Account {\n    Savings(long deposit) {\n        if (deposit < 0) throw new IllegalArgumentException(\"deposit must not be negative\");   // before super\n        long bonus = deposit / 10;\n        super(deposit + bonus);\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(new Savings(1_000).balance);\n        try {\n            new Savings(-5);\n        } catch (IllegalArgumentException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}\n\n// Output:\n// 1100\n// deposit must not be negative"
+  }
+ },
+ "/java/core-java/modern-java/module-import-declarations": {
+  "def": "A module import (Java 25) imports every public class that a module exports with one line, `import module java.base;`. It saves long lists of imports in small programs and scripts.",
+  "example": {
+   "title": "One import line instead of five",
+   "lang": "java",
+   "code": "import module java.base;           // List, Map, Stream, LocalDate... all available\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> names = List.of(\"Asha\", \"Ravi\");\n        Map<String, Integer> lengths = new HashMap<>();\n        for (String name : names) lengths.put(name, name.length());\n\n        System.out.println(lengths);\n        System.out.println(names.stream().map(String::toUpperCase).collect(Collectors.joining(\", \")));\n        System.out.println(LocalDate.of(2026, 1, 1).getDayOfWeek());\n    }\n}\n\n// Output:\n// {Asha=4, Ravi=4}\n// ASHA, RAVI\n// THURSDAY"
+  }
+ },
+ "/java/core-java/modern-java/compact-source-files": {
+  "def": "Compact source files (Java 25) let a small program be just a `void main()` method, with no class declaration and no `public static`. It removes the ceremony from a first program or a script.",
+  "example": {
+   "title": "A whole program with no class around it",
+   "lang": "java",
+   "code": "// file: Demo.java  (no class, no \"public static\", no String[] args)\nvoid main() {\n    String name = \"Java 25\";\n    System.out.println(\"Hello from \" + name);\n}\n\n// Output:\n// Hello from Java 25"
+  }
  }
 }
