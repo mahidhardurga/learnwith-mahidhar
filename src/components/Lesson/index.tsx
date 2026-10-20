@@ -37,12 +37,11 @@ function Text({text}: {text: string}): React.JSX.Element {
   );
 }
 
-/** One of the ten numbered parts of a lesson. */
-export function LessonSlot({n, title, id, children}: {n: string; title: string; id: string; children?: React.ReactNode}): React.JSX.Element {
+/** A titled block of a lesson (definition, why, quiz, takeaways...). */
+export function LessonSlot({title, id, children}: {title: string; id: string; children?: React.ReactNode}): React.JSX.Element {
   return (
-    <section className={styles.slot} data-slot={n}>
+    <section className={styles.slot}>
       <Heading as="h2" id={id} className={styles.slotTitle}>
-        <span className={styles.slotNum} aria-hidden="true">{n.padStart(2, '0')}</span>
         {title}
       </Heading>
       <div className={styles.slotBody}>{children}</div>

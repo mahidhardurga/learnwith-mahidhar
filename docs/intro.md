@@ -8,7 +8,7 @@ sidebar_position: 0
 
 # Java, Spring Boot & Microservices Interview Prep
 
-This guide teaches you **how the technology really works**, then shows how interviewers test it. Every topic follows the same ten parts, starting with a short definition in plain words.
+This guide teaches you **how the technology really works**, then shows how interviewers test it. Every topic starts with a short definition in plain words.
 
 Every page has a short intro, concepts explained plainly, code examples, Mermaid diagrams, common interview questions with model answers, pitfalls and key takeaways. Code samples were compiled and run wherever they could be (the Java, SQL, Spring, Kafka and Redis examples were executed; infrastructure manifests are illustrations, and each page says so when something was not run).
 

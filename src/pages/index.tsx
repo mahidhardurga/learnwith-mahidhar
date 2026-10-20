@@ -5,36 +5,25 @@ import Link from '@docusaurus/Link';
 import {useAllDocsData} from '@docusaurus/plugin-content-docs/client';
 import styles from './index.module.css';
 
-interface Topic {
+interface Stack {
   title: string;
+  mark: string;
+  color: string;
   blurb: string;
   prefix: string;
   to: string;
 }
 
-const TOPICS: Topic[] = [
-  {title: 'Java and the JVM', blurb: 'Collections internals, concurrency, the memory model, GC and virtual threads.', prefix: 'java/', to: '/category/java'},
-  {title: 'Spring', blurb: 'IoC and AOP, Boot, JPA, transactions, caching, security, JWT and OAuth2.', prefix: 'spring/', to: '/category/spring-framework'},
-  {title: 'Microservices', blurb: 'Gateway, resilience, saga, CQRS, outbox and observability.', prefix: 'microservices/', to: '/microservices/overview'},
-  {title: 'Databases', blurb: 'Schema design, isolation and MVCC, SQL, sharding, NoSQL and migrations.', prefix: 'databases/', to: '/category/databases'},
-  {title: 'Messaging', blurb: 'Kafka and RabbitMQ: groups, delivery, ordering and dead letters.', prefix: 'messaging/', to: '/category/messaging'},
-  {title: 'AI and LLMs', blurb: 'Tokens, prompts, context, embeddings, RAG and AI agents in plain words.', prefix: 'ai/', to: '/category/ai-and-llms'},
-  {title: 'DevOps and cloud', blurb: 'Docker, Kubernetes, CI/CD, twelve-factor and deployment strategies.', prefix: 'devops/', to: '/category/devops--cloud'},
-  {title: 'System design', blurb: 'URL shortener, rate limiter, orders, notifications and trade-offs.', prefix: 'system-design/', to: '/category/system-design'},
-  {title: 'Interview toolkit', blurb: 'Questions by level, STAR answers, coding problems and cheat sheets.', prefix: 'toolkit/', to: '/category/interview-toolkit'},
-];
-
-const PARTS = [
-  ['01', 'Definition', 'One idea, three levels of depth'],
-  ['02', 'Why it exists', 'The problem it was built to solve'],
-  ['03', 'How it works', 'The mental model, with diagrams'],
-  ['04', 'Example code', 'Tested code you can run'],
-  ['05', 'System design', 'Scale, failure and operations'],
-  ['06', 'When to use it', 'And when to think twice'],
-  ['07', 'Common mistakes', 'What goes wrong in practice'],
-  ['08', 'Interview questions', 'With model answers'],
-  ['09', 'Check yourself', 'Labs and quizzes'],
-  ['10', 'Key takeaways', 'And the next topic'],
+const STACKS: Stack[] = [
+  {title: 'Java', mark: 'Jv', color: '#e8590c', blurb: 'Collections internals, concurrency, the memory model, GC and virtual threads.', prefix: 'java/', to: '/category/java'},
+  {title: 'Spring', mark: 'Sp', color: '#2f9e44', blurb: 'IoC and AOP, Boot, JPA, transactions, caching, security, JWT and OAuth2.', prefix: 'spring/', to: '/category/spring-framework'},
+  {title: 'Microservices', mark: 'Ms', color: '#7048e8', blurb: 'Gateway, resilience, saga, CQRS, outbox and observability.', prefix: 'microservices/', to: '/microservices/overview'},
+  {title: 'GenAI and LLMs', mark: 'AI', color: '#d6336c', blurb: 'Tokens, prompts, context, embeddings, RAG and AI agents in plain words.', prefix: 'ai/', to: '/category/ai-and-llms'},
+  {title: 'Databases', mark: 'Db', color: '#1c7ed6', blurb: 'Schema design, isolation and MVCC, SQL, sharding, NoSQL and migrations.', prefix: 'databases/', to: '/category/databases'},
+  {title: 'Messaging', mark: 'Mq', color: '#0c8599', blurb: 'Kafka and RabbitMQ: groups, delivery, ordering and dead letters.', prefix: 'messaging/', to: '/category/messaging'},
+  {title: 'DevOps and cloud', mark: 'Do', color: '#4263eb', blurb: 'Docker, Kubernetes, CI/CD, twelve-factor and deployment strategies.', prefix: 'devops/', to: '/category/devops--cloud'},
+  {title: 'System design', mark: 'Sd', color: '#f08c00', blurb: 'URL shortener, rate limiter, orders, notifications and trade-offs.', prefix: 'system-design/', to: '/category/system-design'},
+  {title: 'Interview toolkit', mark: 'Tk', color: '#868e96', blurb: 'Interview questions, STAR answers, coding problems and cheat sheets.', prefix: 'toolkit/', to: '/category/interview-toolkit'},
 ];
 
 const LABS: {title: string; blurb: string; to: string}[] = [
@@ -44,6 +33,10 @@ const LABS: {title: string; blurb: string; to: string}[] = [
   {title: 'Kafka partitions', blurb: 'Keys, partitions and consumer groups, live.', to: '/messaging/kafka-fundamentals'},
   {title: 'Token bucket', blurb: 'Bursts, refill and 429s on a simulated clock.', to: '/system-design/rate-limiter'},
   {title: 'Isolation levels', blurb: 'Which anomaly each level allows, side by side.', to: '/databases/acid-isolation-mvcc'},
+  {title: 'Token cost', blurb: 'See how text becomes tokens and what a request costs.', to: '/ai/foundations/tokens-and-context-window'},
+  {title: 'RAG', blurb: 'Retrieve the right chunks and watch the answer improve.', to: '/ai/retrieval/rag'},
+  {title: 'AI agent', blurb: 'Step an agent through tools and decisions.', to: '/ai/agents/ai-agents'},
+  {title: 'Guardrails', blurb: 'Try unsafe inputs against input and output checks.', to: '/ai/safety/guardrails-and-safety'},
 ];
 
 function usePageCounts() {
@@ -58,47 +51,28 @@ export default function Home(): React.JSX.Element {
 
   return (
     <Layout
-      title="Java, Spring Boot & Microservices Interview Prep"
-      description="Free, in-depth interview preparation for Java, Spring Boot, microservices, databases, Kafka and system design, with tested code, diagrams, interactive labs and model answers.">
+      title="Java, Spring Boot, Microservices & GenAI Interview Prep"
+      description="Free interview preparation for Java, Spring Boot, microservices, GenAI, databases, Kafka and system design, with plain explanations, tested code, interactive labs and model answers.">
       <header className={styles.hero}>
-        <p className={styles.eyebrow}>Java · Spring Boot · Microservices</p>
+        <p className={styles.eyebrow}>{total} topics · plain words · working code</p>
         <h1 className={styles.title}>
           Understand it.<br />
           <span className={styles.titleSoft}>Then defend it in the interview.</span>
         </h1>
-        <p className={styles.subtitle}>
-          {total} topics, each explained the same way: what it is, why it exists, how it works, working code and the questions interviewers ask.
-        </p>
-        <div className={styles.actions}>
-          <Link className={clsx(styles.btn, styles.btnPrimary)} to="/java/core-java/oop-and-design">Start learning</Link>
-          <a className={clsx(styles.btn, styles.btnGhost)} href="#topics">Browse topics</a>
-        </div>
+        <p className={styles.subtitle}>Pick a tech stack and start with the basics. Each topic explains what it is, why it exists and how to use it.</p>
       </header>
 
       <main className={styles.main}>
-        <section className={styles.section} aria-labelledby="method">
-          <h2 id="method" className={styles.h2}>Every topic, the same ten parts.</h2>
-          <p className={styles.lead}>Learn in a fixed order. When a part does not apply to a topic, it is skipped and the numbering stays put.</p>
-          <ol className={styles.parts}>
-            {PARTS.map(([n, t, d]) => (
-              <li key={n} className={styles.part}>
-                <span className={styles.partNum}>{n}</span>
-                <strong>{t}</strong>
-                <span>{d}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section id="topics" className={styles.section} aria-labelledby="topics-h">
-          <h2 id="topics-h" className={styles.h2}>Pick a topic.</h2>
+        <section id="stacks" className={styles.stacks} aria-labelledby="stacks-h">
+          <h2 id="stacks-h" className={styles.h2}>Choose a tech stack.</h2>
           <div className={styles.grid}>
-            {TOPICS.map((t) => (
-              <Link key={t.title} to={t.to} className={styles.card}>
-                <h3>{t.title}</h3>
-                <p>{t.blurb}</p>
+            {STACKS.map((s) => (
+              <Link key={s.title} to={s.to} className={styles.card} style={{['--c' as string]: s.color}}>
+                <span className={styles.mark} aria-hidden="true">{s.mark}</span>
+                <h3>{s.title}</h3>
+                <p>{s.blurb}</p>
                 <span className={styles.count}>
-                  {byPrefix(t.prefix)} topics
+                  {byPrefix(s.prefix)} topics <span aria-hidden="true">→</span>
                 </span>
               </Link>
             ))}

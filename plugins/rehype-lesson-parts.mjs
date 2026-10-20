@@ -1,9 +1,8 @@
-// Rehype plugin: arranges every guide page into the ten fixed parts of a lesson, in order.
-//   1 Definition  2 Why it exists  3 How it works  4 Example code  5 System design considerations
-//   6 When to use it, and when not  7 Common mistakes  8 Interview questions  9 Check yourself  10 Key takeaways
-// A part is skipped when a page has nothing for it, and the numbers stay fixed.
-// Parts 1, 2, 5 and 6 can come from src/data/lessons.json; the other parts come from the page's own sections,
-// mapped by src/data/section-slots.json (unmapped sections belong to part 3).
+// Rehype plugin: gives every guide page one simple flow.
+//   Definition, Why it exists, the page's own sections (in their original order), Design notes,
+//   When to use it, Common mistakes, Interview questions, Try it / quiz, Key takeaways, Next topic.
+// The definition, why, design notes and when-to-use blocks come from src/data/lessons.json; a block is
+// skipped when a page has no data for it.
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -12,7 +11,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(here, '..', rel), 'utf8'));
 const pages = read('src/data/pages.json');
 const lessons = read('src/data/lessons.json');
-const sectionSlots = read('src/data/section-slots.json');
 const knownPages = new Set(pages.map((p) => p.path));
 
 /** Pages that keep their own layout (the question banks). */
@@ -22,9 +20,7 @@ const QA_HEADING = /^common interview questions/i;
 const SLOT_TITLES = {
   1: 'Definition',
   2: 'Why it exists',
-  3: 'How it works',
-  4: 'Example code',
-  5: 'System design considerations',
+  5: 'Design notes',
   6: 'When to use it, and when not',
   7: 'Common mistakes',
   8: 'Interview questions',
@@ -34,15 +30,6 @@ const SLOT_TITLES = {
 
 /** Heading text as plain text: no backticks or bold markers. */
 const plain = (text) => text.replace(/[`*]/g, '').replace(/\s+/g, ' ').trim();
-
-/** Exact plain-text key, else a `prefix*` wildcard key. */
-function lookup(map, heading) {
-  if (map[heading] !== undefined) return map[heading];
-  for (const [key, value] of Object.entries(map)) {
-    if (key.endsWith('*') && heading.startsWith(key.slice(0, -1))) return value;
-  }
-  return undefined;
-}
 
 /** docs/java/core-java/hashmap-internals.md -> /java/core-java/hashmap-internals (folder/folder.md -> /folder). */
 function permalinkOf(filePath) {
@@ -72,12 +59,13 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/ /g, '-');
 }
 
-function slotOf(heading, permalink) {
+/** Which block a section belongs to. Everything that is not one of the named blocks is regular body content (0). */
+function slotOf(heading) {
   if (QA_HEADING.test(heading)) return 8;
   if (/^(pitfalls?|common mistakes)/i.test(heading)) return 7;
   if (/^(try it|check yourself)/i.test(heading)) return 9;
   if (/^key takeaways?/i.test(heading)) return 10;
-  return lookup(sectionSlots[permalink] ?? {}, heading) ?? 3;
+  return 0;
 }
 
 /** Headings whose own text is replaced by the numbered part title (the part keeps their id for the page outline). */
@@ -141,7 +129,7 @@ export default function rehypeLessonParts() {
       if (!current) return;
       const {heading, nodes} = current;
       current = null;
-      const slot = slotOf(heading, permalink);
+      const slot = slotOf(heading);
       const [h2, ...rest] = nodes;
       const id = h2.properties?.id ?? slugify(heading);
       if (QA_HEADING.test(heading)) {
@@ -149,7 +137,8 @@ export default function rehypeLessonParts() {
       } else if (DROP_HEADING.test(heading)) {
         secs.push({slot, id, dropped: true, nodes: rest});
       } else {
-        secs.push({slot, id, lab: /^try it/i.test(heading), nodes: [{...h2, tagName: 'h3'}, ...rest]});
+        const lab = /^try it/i.test(heading);
+        secs.push({slot, id, lab, nodes: [lab ? {...h2, tagName: 'h3'} : h2, ...rest]});
       }
     };
 
@@ -195,18 +184,24 @@ export default function rehypeLessonParts() {
     if (lesson.use?.length || lesson.avoid?.length) injected[6].push(jsx('LessonWhen', {path: permalink}, []));
     injected[10].push(jsx('NextTopic', {path: permalink}, []));
 
-    const groups = [];
-    for (let slot = 1; slot <= 10; slot++) {
-      const mine = secs.filter((s) => s.slot === slot);
-      const pre = injected[slot] ?? [];
-      if (mine.length === 0 && pre.length === 0) continue;
+    const slug = (title) => `lesson-${title.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '')}`;
+    /** One titled block, or null when the page has nothing for it. */
+    const make = (slot, extra = []) => {
+      const mine = secs.filter((x) => x.slot === slot);
+      if (mine.length === 0 && extra.length === 0) return null;
       let title = SLOT_TITLES[slot];
       if (slot === 9 && mine.some((m) => m.lab)) title = 'Try it and check yourself';
       if (slot === 10 && mine.length === 0) title = 'Next topic';
-      const id = mine.find((m) => m.dropped && m.id)?.id ?? `lesson-${title.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '')}`;
-      const body = [...(slot === 10 ? [] : pre), ...mine.flatMap((m) => m.nodes), ...(slot === 10 ? pre : [])];
-      groups.push(jsx('LessonSlot', {n: String(slot), title, id}, body));
-    }
+      const id = mine.find((m) => m.dropped && m.id)?.id ?? slug(title);
+      const content = mine.flatMap((m) => m.nodes);
+      return jsx('LessonSlot', {title, id}, slot === 10 ? [...content, ...extra] : [...extra, ...content]);
+    };
+
+    const lead = [make(1, injected[1]), make(2, injected[2])].filter(Boolean);
+    // The page's own sections keep their order and their own headings.
+    const body = secs.filter((x) => x.slot === 0).flatMap((m) => m.nodes);
+    const tail = [make(5, injected[5]), make(6, injected[6]), make(7), make(8), make(9), make(10, injected[10])].filter(Boolean);
+    const groups = [...lead, ...body, ...tail];
 
     tree.children = [...esm, ...head, ...outcomes, ...groups];
   };

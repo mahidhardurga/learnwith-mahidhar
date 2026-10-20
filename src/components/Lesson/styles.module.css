@@ -1,42 +1,13 @@
 .slot {
-  margin: 2.6rem 0 0;
-  padding-top: 1.6rem;
-  border-top: 1px solid var(--lw-border);
-}
-
-@supports (animation-timeline: view()) {
-  .slot {
-    animation: lw-rise linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 30%;
-  }
+  margin: 2.4rem 0 0;
 }
 
 .slotTitle {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
   margin: 0 0 1rem !important;
   font-size: clamp(1.5rem, 3vw, 1.9rem) !important;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.15;
-}
-
-.slotNum {
-  flex: none;
-  display: inline-grid;
-  place-items: center;
-  min-width: 2.4rem;
-  height: 1.7rem;
-  padding: 0 0.5rem;
-  border-radius: 999px;
-  background: var(--lw-accent-soft);
-  color: var(--ifm-color-primary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
 }
 
 .slotBody > :first-child { margin-top: 0; }

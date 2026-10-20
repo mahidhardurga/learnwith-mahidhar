@@ -64,7 +64,7 @@ Layout is swizzle-friendly: run `npm run swizzle @docusaurus/theme-classic DocIt
 
 ## UI customisations
 
-- `src/pages/index.tsx` + `index.module.css`: the landing page (hero, the ten parts, topic grid, labs). Page counts are computed from the docs, not hard-coded.
+- `src/pages/index.tsx` + `index.module.css`: the landing page (hero, tech-stack cards, labs). Page counts are computed from the docs, not hard-coded.
 - `src/data/flashcards.ts` + `src/components/Flashcards/`: the 60-second quiz. Add cards by appending to the array (link each to a docs page).
 - `src/components/progress.ts`, `MarkComplete.tsx`, `src/theme/DocItem/Footer`, `src/theme/DocSidebarItem/Link`: "Mark as done" button and sidebar ticks. Progress lives only in the visitor's `localStorage`; nothing is sent to any server.
 - `src/css/custom.css`: design tokens and theme (dark by default). Fonts are self-hosted through `@fontsource-variable/*`, so no request goes to Google Fonts.
@@ -72,20 +72,19 @@ Layout is swizzle-friendly: run `npm run swizzle @docusaurus/theme-classic DocIt
 
 ## Lesson structure
 
-Every topic page follows the same ten parts, in this fixed order:
+Every topic page has one simple flow, the same for every reader (there are no experience levels):
 
-1 Definition, 2 Why it exists, 3 How it works, 4 Example code, 5 System design considerations, 6 When to use it (and when not), 7 Common mistakes, 8 Interview questions, 9 Check yourself (labs and quiz), 10 Key takeaways and next topic.
+Definition, Why it exists, the page's own sections (in the order written in the markdown), Design notes, When to use it, Common mistakes, Interview questions, Try it and quiz, Key takeaways, Next topic.
 
-A part that does not apply to a topic is skipped, and the numbers stay fixed (a page can go 1, 2, 3, 5, 6...). There is one version of every page for every reader: no experience levels.
+A block is skipped when a page has nothing for it.
 
 How it works:
 
-- `plugins/rehype-lesson-parts.mjs` sorts each page's `##` sections into the ten parts at build time, so the order in the markdown does not matter. Original section headings become sub-headings inside their part. Pitfalls, interview questions, Check yourself and Key takeaways are recognised by name.
-- `src/data/section-slots.json` maps a page's other `##` headings to a part (`{"/page/path": {"Heading text": 5}}`). Unmapped headings go to part 3 (How it works).
-- `src/data/lessons.json` holds the written parts per page: `def` (the definition: short, plain words, 2-3 sentences), `why`, `use`, `avoid` and optional `design` bullets. Parts 1, 2, 5 and 6 are injected from it, and the "next topic" card in part 10 is automatic.
+- `plugins/rehype-lesson-parts.mjs` assembles each page at build time. Pitfalls, interview questions, Check yourself and Key takeaways are recognised by their headings; every other `##` section stays in place with its own heading.
+- `src/data/lessons.json` holds the written blocks per page: `def` (the definition: short, plain words, 2-3 sentences), `why`, `use`, `avoid` and optional `design` bullets. The definition, why, design and when-to-use blocks are injected from it, and the "next topic" card is automatic.
 - `src/data/pages.json` lists every guide page (path and short title). Add new pages there.
 - Interview questions (`**1. Question?**` followed by the answer) become click-to-open accordions automatically.
-- `npm run validate:content` checks the data files against the markdown. Restart the dev server after editing any data file or the plugin; if a change does not show up, delete `.docusaurus` and `node_modules/.cache`.
+- `npm run validate:content` checks the data files against the pages. Restart the dev server after editing any data file or the plugin; if a change does not show up, delete `.docusaurus` and `node_modules/.cache`.
 
 **Writing style for definitions:** two or three short sentences, everyday words, the real definition first. No jargon without a one-line explanation.
 
@@ -99,5 +98,5 @@ How it works:
 
 - Navbar: **Topics** (dropdown to each section's overview), and **Quiz**. Add new top-level sections to the Topics dropdown in `docusaurus.config.ts`.
 - Every page needs a short `sidebar_label` in its front matter (the sidebar is narrow; the full `title` is for SEO). One sidebar section is open at a time.
-- The homepage is a large-type hero, the ten parts, the topic grid and the labs. The quiz lives at `/quiz`.
+- The homepage is a compact hero, one card per tech stack (Java, Spring, Microservices, GenAI and more) and the labs. The quiz lives at `/quiz`.
 - The look is Apple-style: neutral surfaces, system font stack, translucent navbar, soft rounded cards. Colours and spacing are tokens at the top of `src/css/custom.css`.
