@@ -4,6 +4,7 @@ sidebar_label: "Observability"
 description: The three pillars of observability for microservices with Micrometer Tracing, OpenTelemetry, correlation IDs, structured logs and Prometheus, plus how to debug a slow request across services.
 keywords: [distributed tracing, micrometer tracing, opentelemetry, observability, prometheus, correlation id, structured logging, microservices monitoring]
 sidebar_position: 10
+hide_table_of_contents: true
 ---
 
 # Observability

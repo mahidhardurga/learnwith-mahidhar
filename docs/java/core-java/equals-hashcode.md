@@ -4,6 +4,7 @@ sidebar_label: "equals, hashCode, compareTo"
 description: The equals/hashCode contract, symmetry and transitivity problems with inheritance, mutable keys, JPA entity identity, consistency with compareTo, and how records and Objects utilities help.
 keywords: [equals hashcode contract, java equals symmetric transitive, getClass vs instanceof, hashCode HashMap, compareTo consistent with equals, JPA entity equals, records equals]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # equals, hashCode and compareTo

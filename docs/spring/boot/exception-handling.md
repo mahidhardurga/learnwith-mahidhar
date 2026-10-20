@@ -4,6 +4,7 @@ sidebar_label: "REST exception handling"
 description: Centralised error handling with @RestControllerAdvice, ProblemDetail (RFC 9457), custom exceptions and how Boot's default error handling works.
 keywords: [spring boot exception handling, "@RestControllerAdvice", "@ExceptionHandler", ProblemDetail, ResponseStatusException]
 sidebar_position: 7
+hide_table_of_contents: true
 ---
 
 # REST Exception Handling

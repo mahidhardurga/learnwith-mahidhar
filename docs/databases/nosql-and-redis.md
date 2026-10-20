@@ -4,6 +4,7 @@ sidebar_label: "NoSQL and Redis"
 description: Document, key-value, wide-column and graph stores compared, query-driven data modelling for MongoDB and DynamoDB, Redis data structures and use cases, eviction and persistence, and distributed locking caveats.
 keywords: [nosql vs sql, mongodb data modeling, dynamodb, cassandra, redis data structures, redis eviction, redis persistence, distributed lock redlock, polyglot persistence, spring data redis]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # NoSQL and Redis

@@ -4,6 +4,7 @@ sidebar_label: "Resilience4j"
 description: Make microservice calls fail safely with Resilience4j circuit breaker, retry with backoff, bulkhead, time limiter and fallback in Spring Boot, with correct annotation ordering.
 keywords: [resilience4j, circuit breaker, retry, bulkhead, time limiter, fallback, spring boot resilience, microservices]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Resilience4j: Failing Safely

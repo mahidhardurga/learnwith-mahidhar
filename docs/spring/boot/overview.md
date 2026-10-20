@@ -4,6 +4,7 @@ sidebar_label: "Spring Boot overview"
 description: What Spring Boot adds on top of the Spring Framework, how a Boot application starts, and what interviewers expect you to explain.
 keywords: [spring boot, spring boot interview questions, SpringApplication, "@SpringBootApplication"]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Spring Boot Overview

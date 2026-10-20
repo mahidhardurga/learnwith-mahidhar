@@ -4,6 +4,7 @@ sidebar_label: "What is an LLM"
 description: A plain-words explanation of large language models, how they predict the next token, how they are trained, what temperature does, and the limits you must design around such as hallucination and no memory.
 keywords: [what is an llm, large language model explained, how llms work, next token prediction, llm temperature, hallucination, llm limitations, transformer]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # What Is an LLM?

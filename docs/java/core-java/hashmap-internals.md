@@ -4,6 +4,7 @@ sidebar_label: "HashMap internals"
 description: How java.util.HashMap works in Java 8+ - hash spreading, index calculation, collision handling with linked lists and red-black trees, resize mechanics, capacity planning, and the failure modes interviewers probe.
 keywords: [hashmap internals, how hashmap works, treeification, load factor, hash collision, hashmap resize, LinkedHashMap LRU, java collections interview]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # HashMap Internals

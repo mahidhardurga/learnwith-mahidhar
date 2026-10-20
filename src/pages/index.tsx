@@ -1,5 +1,4 @@
 import React from 'react';
-import clsx from 'clsx';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import {useAllDocsData} from '@docusaurus/plugin-content-docs/client';
@@ -26,19 +25,6 @@ const STACKS: Stack[] = [
   {title: 'Interview toolkit', mark: 'Tk', color: '#868e96', blurb: 'Interview questions, STAR answers, coding problems and cheat sheets.', prefix: 'toolkit/', to: '/category/interview-toolkit'},
 ];
 
-const LABS: {title: string; blurb: string; to: string}[] = [
-  {title: 'HashMap', blurb: 'Hash keys, watch collisions, resizing and treeification.', to: '/java/core-java/hashmap-internals'},
-  {title: 'Circuit breaker', blurb: 'Trip it, wait it out, close it again.', to: '/microservices/resilience/resilience4j'},
-  {title: 'Saga', blurb: 'Fail a payment and watch the compensation run.', to: '/microservices/data-consistency/saga'},
-  {title: 'Kafka partitions', blurb: 'Keys, partitions and consumer groups, live.', to: '/messaging/kafka-fundamentals'},
-  {title: 'Token bucket', blurb: 'Bursts, refill and 429s on a simulated clock.', to: '/system-design/rate-limiter'},
-  {title: 'Isolation levels', blurb: 'Which anomaly each level allows, side by side.', to: '/databases/acid-isolation-mvcc'},
-  {title: 'Token cost', blurb: 'See how text becomes tokens and what a request costs.', to: '/ai/foundations/tokens-and-context-window'},
-  {title: 'RAG', blurb: 'Retrieve the right chunks and watch the answer improve.', to: '/ai/retrieval/rag'},
-  {title: 'AI agent', blurb: 'Step an agent through tools and decisions.', to: '/ai/agents/ai-agents'},
-  {title: 'Guardrails', blurb: 'Try unsafe inputs against input and output checks.', to: '/ai/safety/guardrails-and-safety'},
-];
-
 function usePageCounts() {
   const all = useAllDocsData();
   const docs = Object.values(all)[0]?.versions[0]?.docs ?? [];
@@ -52,14 +38,14 @@ export default function Home(): React.JSX.Element {
   return (
     <Layout
       title="Java, Spring Boot, Microservices & GenAI Interview Prep"
-      description="Free interview preparation for Java, Spring Boot, microservices, GenAI, databases, Kafka and system design, with plain explanations, tested code, interactive labs and model answers.">
+      description="Free interview preparation for Java, Spring Boot, microservices, GenAI, databases, Kafka and system design: a short definition and example code for every topic.">
       <header className={styles.hero}>
-        <p className={styles.eyebrow}>{total} topics · plain words · working code</p>
+        <p className={styles.eyebrow}>{total} topics · plain words · example code</p>
         <h1 className={styles.title}>
           Understand it.<br />
           <span className={styles.titleSoft}>Then defend it in the interview.</span>
         </h1>
-        <p className={styles.subtitle}>Pick a tech stack and start with the basics. Each topic explains what it is, why it exists and how to use it.</p>
+        <p className={styles.subtitle}>Pick a tech stack. Every topic is a short definition and example code.</p>
       </header>
 
       <main className={styles.main}>
@@ -76,22 +62,6 @@ export default function Home(): React.JSX.Element {
                 </span>
               </Link>
             ))}
-          </div>
-        </section>
-
-        <section className={clsx(styles.section, styles.labs)} aria-labelledby="labs-h">
-          <h2 id="labs-h" className={styles.h2}>Learn by doing.</h2>
-          <p className={styles.lead}>Interactive labs sit inside the topics. Poke the model until the concept clicks.</p>
-          <div className={styles.labGrid}>
-            {LABS.map((l) => (
-              <Link key={l.title} to={l.to} className={styles.lab}>
-                <strong>{l.title}</strong>
-                <span>{l.blurb}</span>
-              </Link>
-            ))}
-          </div>
-          <div className={styles.actions}>
-            <Link className={clsx(styles.btn, styles.btnPrimary)} to="/quiz">Take the quick quiz</Link>
           </div>
         </section>
       </main>

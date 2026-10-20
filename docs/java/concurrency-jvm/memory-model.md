@@ -4,6 +4,7 @@ sidebar_label: "Java Memory Model"
 description: The Java Memory Model explained for practitioners - why threads see stale values, happens-before rules, volatile and final semantics, safe publication, instruction reordering and false sharing.
 keywords: [java memory model, happens-before, visibility, instruction reordering, safe publication, volatile semantics, final field semantics, false sharing, JMM]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # The Java Memory Model (JMM)

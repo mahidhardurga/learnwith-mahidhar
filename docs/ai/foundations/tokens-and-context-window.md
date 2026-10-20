@@ -4,6 +4,7 @@ sidebar_label: "Tokens and context window"
 description: What tokens are, how to estimate them, how the context window limits input plus output, and why tokens drive both quality and cost in LLM applications.
 keywords: [llm tokens, what is a token, context window, token limit, tokenizer, max tokens, context length, token counting, llm rate limits]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Tokens and the Context Window

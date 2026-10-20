@@ -112,3 +112,11 @@
   font-size: 1.6rem;
   color: var(--ifm-color-primary);
 }
+
+/* Example code: the section the example came from */
+:global(.lw-caption) {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lw-text-soft);
+}

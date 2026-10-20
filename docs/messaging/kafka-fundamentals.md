@@ -4,6 +4,7 @@ sidebar_label: "Kafka fundamentals"
 description: Kafka architecture explained for senior engineers - the commit log, partitions and offsets, replication with ISR and min.insync.replicas, producer batching and acks, idempotence, retention and compaction, and why Kafka is fast.
 keywords: [apache kafka, kafka partitions, kafka replication ISR, kafka producer acks, idempotent producer, log compaction, kafka retention, kafka architecture, KRaft, spring kafka]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Kafka Fundamentals

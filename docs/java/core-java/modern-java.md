@@ -4,6 +4,7 @@ sidebar_label: "Java 8 to 25 features"
 description: A release-by-release tour of important Java features from Java 8 to Java 25 LTS - lambdas, modules, var, records, sealed classes, pattern matching, virtual threads, sequenced collections and what to adopt.
 keywords: [java 8 features, java 11, java 17, java 21, java 25, records, sealed classes, pattern matching, text blocks, switch expressions, LTS versions]
 sidebar_position: 10
+hide_table_of_contents: true
 ---
 
 # Java 8 to 25: What Matters

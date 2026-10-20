@@ -4,6 +4,7 @@ sidebar_label: "Fine-tuning and model choice"
 description: What fine-tuning is and when it is worth it compared with prompting and RAG, what distillation and LoRA mean, how reasoning models differ, and how to choose and route between models by quality, cost and speed.
 keywords: [fine-tuning llm, lora, distillation, choosing an llm, reasoning models, model routing, open weight models, prompt vs rag vs fine-tuning, small language models]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Fine-Tuning and Choosing the Right LLM

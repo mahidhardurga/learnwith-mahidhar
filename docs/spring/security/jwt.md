@@ -4,6 +4,7 @@ sidebar_label: "JWT"
 description: How JSON Web Tokens work, signing algorithms (HS256 vs RS256), what a resource server must validate, access and refresh token design, revocation, storage in browsers, and common attacks.
 keywords: [jwt, json web token, jwt validation, HS256 vs RS256, refresh token rotation, JWKS, jwt revocation, alg none attack, jwt storage, bearer token]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # JWT

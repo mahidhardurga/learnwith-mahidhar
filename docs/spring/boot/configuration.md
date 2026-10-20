@@ -4,6 +4,7 @@ sidebar_label: "Configuration and properties"
 description: Property sources and their precedence, profiles, type-safe @ConfigurationProperties binding and validation in Spring Boot.
 keywords: [spring boot properties, "@ConfigurationProperties", "@Value", profiles, application.yml, property precedence]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Externalized Configuration and Properties

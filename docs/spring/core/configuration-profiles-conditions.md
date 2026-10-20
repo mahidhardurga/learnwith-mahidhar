@@ -4,6 +4,7 @@ sidebar_label: "Configuration, profiles, conditions"
 description: Java configuration with @Configuration and @Bean, proxyBeanMethods, profiles, custom @Conditional logic, @Import, property sources and Environment, plus bean overriding and organisation guidelines.
 keywords: [spring @Configuration, proxyBeanMethods, "@Profile", "@Conditional", "@Import", Environment PropertySource, bean definition overriding, spring java config]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Configuration, Profiles and Conditional Beans

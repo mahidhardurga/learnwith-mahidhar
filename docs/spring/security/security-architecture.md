@@ -4,6 +4,7 @@ sidebar_label: "Security architecture"
 description: How Spring Security works internally - the servlet filter chain, SecurityFilterChain configuration, AuthenticationManager and providers, SecurityContext, 401 versus 403, CSRF, CORS and password storage.
 keywords: [spring security architecture, SecurityFilterChain, filter chain, AuthenticationManager, SecurityContextHolder, 401 vs 403, CSRF, CORS, password encoder bcrypt]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Spring Security Architecture

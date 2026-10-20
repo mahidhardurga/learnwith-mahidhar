@@ -4,6 +4,7 @@ sidebar_label: "Garbage collection"
 description: How the JVM heap and generational garbage collection work, how G1, ZGC, Parallel and Shenandoah differ, how to read GC logs, and how to choose and reason about collectors for latency and throughput.
 keywords: [java garbage collection, G1 GC, ZGC, generational GC, stop the world pause, GC tuning, young generation, old generation, memory leak java, humongous allocation]
 sidebar_position: 7
+hide_table_of_contents: true
 ---
 
 # Garbage Collection

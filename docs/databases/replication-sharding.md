@@ -4,6 +4,7 @@ sidebar_label: "Replication and sharding"
 description: Scale databases with read replicas, understand replication lag and failover, table partitioning, sharding strategies with consistent hashing, distributed ID generation, and CAP/PACELC trade-offs.
 keywords: [database replication, read replica lag, partitioning vs sharding, consistent hashing, shard key, CAP theorem, PACELC, failover, distributed id snowflake, database scaling]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Replication, Partitioning and Sharding

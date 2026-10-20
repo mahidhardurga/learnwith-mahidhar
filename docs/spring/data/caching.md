@@ -4,6 +4,7 @@ sidebar_label: "Caching"
 description: How Spring's cache abstraction works with @Cacheable, @CachePut and @CacheEvict, using Caffeine and Redis, Hibernate first and second level caches, and cache invalidation pitfalls.
 keywords: [spring cache, "@Cacheable", "@CacheEvict", caffeine, redis cache, hibernate second level cache, cache invalidation, cache stampede, TTL]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Caching

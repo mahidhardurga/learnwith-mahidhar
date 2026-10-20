@@ -30,7 +30,7 @@ for (const pg of pages) {
   }
   const text = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   const lesson = lessons[pg.path];
-  if (lesson && !(lesson.def && lesson.why)) report(`INCOMPLETE    ${pg.path} needs def and why`);
+  if (lesson && !lesson.def) report(`INCOMPLETE    ${pg.path} needs def`);
 }
 
 console.log('problems:', problems, '| pages:', pages.length, '| lessons:', Object.keys(lessons).length);

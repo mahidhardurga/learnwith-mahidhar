@@ -4,6 +4,7 @@ sidebar_label: "SQL patterns"
 description: Practical SQL every senior backend developer should write fluently - join semantics, anti-joins, window functions for top-N and running totals, CTEs, upserts, keyset pagination and set-based updates.
 keywords: [sql window functions, row_number top n per group, cte, upsert merge, anti join not exists, keyset pagination, sql joins interview, group by having, sql interview questions]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # SQL Patterns for Backend Engineers

@@ -4,6 +4,7 @@ sidebar_label: "Saga pattern"
 description: How to keep data consistent across services without two-phase commit using choreography and orchestration sagas, compensating actions and failure handling, with a Java example.
 keywords: [saga pattern, distributed transactions, choreography vs orchestration, compensating transaction, microservices consistency, 2PC]
 sidebar_position: 7
+hide_table_of_contents: true
 ---
 
 # Saga Pattern

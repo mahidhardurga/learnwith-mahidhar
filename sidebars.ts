@@ -1,8 +1,98 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
-// Each top-level topic folder has a _category_.json; pages order via sidebar_position.
+type Item = Record<string, unknown>;
+
+const DOCS = path.join(__dirname, 'docs');
+
+/** Prefix every name with a folder, to build doc ids such as "java/core-java/oop-and-design". */
+const ids = (folder: string, names: string[]): string[] => names.map((n) => `${folder}/${n}`);
+
+/**
+ * Sections that are grouped by hand. The files stay where they are, so URLs do not change.
+ * Sections not listed here (AI) use their folders as groups.
+ */
+const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
+  java: [
+    {label: 'Language basics', ids: ids('java/core-java', ['oop-and-design', 'generics', 'exceptions', 'immutability', 'streams-and-lambdas', 'modern-java'])},
+    {label: 'Collections', ids: ids('java/core-java', ['collections-framework', 'equals-hashcode', 'hashmap-internals', 'concurrenthashmap'])},
+    {label: 'Concurrency', ids: ids('java/concurrency-jvm', ['threads-basics', 'synchronization-and-locks', 'memory-model', 'executors', 'completablefuture', 'virtual-threads'])},
+    {label: 'JVM', ids: ids('java/concurrency-jvm', ['garbage-collection', 'jvm-tuning-diagnostics'])},
+  ],
+  spring: [
+    {
+      label: 'Core container',
+      ids: ids('spring/core', ['ioc-and-dependency-injection', 'bean-lifecycle-and-scopes', 'configuration-profiles-conditions', 'aop-and-proxies', 'application-events']),
+    },
+    {label: 'Spring Boot', ids: ids('spring/boot', ['overview', 'starters', 'auto-configuration', 'configuration', 'actuator'])},
+    {label: 'REST and testing', ids: ids('spring/boot', ['validation', 'exception-handling', 'testing-basics', 'testing-slices-testcontainers'])},
+    {label: 'Data and JPA', ids: ids('spring/data', ['jpa-basics', 'n-plus-one-lazy-loading', 'sql-tuning-indexing', 'caching'])},
+    {label: 'Transactions and locking', ids: ids('spring/data', ['transactions', 'locking'])},
+    {
+      label: 'Security',
+      ids: ids('spring/security', ['security-architecture', 'jwt', 'oauth2-oidc', 'method-security', 'common-vulnerabilities']),
+    },
+  ],
+  microservices: [
+    {
+      label: 'Services and the edge',
+      ids: [...ids('microservices/infrastructure', ['api-gateway', 'service-discovery', 'config-server']), 'microservices/communication/service-communication'],
+    },
+    {label: 'Resilience and observability', ids: ['microservices/resilience/resilience4j', 'microservices/observability/observability']},
+    {label: 'Data consistency', ids: ids('microservices/data-consistency', ['saga', 'outbox-idempotency', 'cqrs-event-sourcing'])},
+  ],
+  databases: [
+    {label: 'Relational databases', ids: ids('databases', ['relational-design', 'sql-patterns', 'schema-migrations', 'acid-isolation-mvcc'])},
+    {label: 'Scaling and NoSQL', ids: ids('databases', ['replication-sharding', 'nosql-and-redis'])},
+  ],
+  messaging: [
+    {label: 'Kafka', ids: ids('messaging', ['kafka-fundamentals', 'kafka-consumers-offsets', 'kafka-ordering-design'])},
+    {label: 'RabbitMQ', ids: ids('messaging', ['rabbitmq-basics'])},
+  ],
+  devops: [
+    {label: 'Cloud-native basics', ids: ids('devops', ['twelve-factor', 'docker-for-java', 'kubernetes-basics'])},
+    {label: 'Delivery', ids: ids('devops', ['ci-cd', 'deployment-strategies'])},
+  ],
+  'system-design': [
+    {label: 'Approach', ids: ids('system-design', ['approach-and-estimation', 'tradeoffs'])},
+    {label: 'Classic designs', ids: ids('system-design', ['url-shortener', 'rate-limiter', 'order-processing', 'notification-service'])},
+    {label: 'AI designs', ids: ids('system-design', ['design-a-rag-chatbot', 'design-an-ai-agent-platform'])},
+  ],
+  toolkit: [
+    {label: 'Interview questions', ids: ids('toolkit', ['questions-fresher', 'questions-mid-level', 'questions-senior'])},
+    {label: 'Practice and reference', ids: ids('toolkit', ['coding-problems', 'behavioral-star', 'cheat-sheets'])},
+  ],
+};
+
+interface CategoryFile {
+  label: string;
+  position?: number;
+  link?: Record<string, unknown>;
+}
+
+/** One top-level section per folder in docs/, ordered by the "position" in its _category_.json. */
+function sections(): Item[] {
+  const found = fs
+    .readdirSync(DOCS, {withFileTypes: true})
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(DOCS, d.name, '_category_.json')))
+    .map((d) => {
+      const meta = JSON.parse(fs.readFileSync(path.join(DOCS, d.name, '_category_.json'), 'utf8')) as CategoryFile;
+      return {dir: d.name, meta};
+    })
+    .sort((a, b) => (a.meta.position ?? 99) - (b.meta.position ?? 99));
+
+  return found.map(({dir, meta}) => {
+    const groups = GROUPS[dir];
+    const items: Item[] = groups
+      ? groups.map((g) => ({type: 'category', label: g.label, items: g.ids.map((id) => ({type: 'doc', id}))}))
+      : [{type: 'autogenerated', dirName: dir}];
+    return {type: 'category', label: meta.label, link: meta.link, items};
+  });
+}
+
 const sidebars: SidebarsConfig = {
-  mainSidebar: [{type: 'autogenerated', dirName: '.'}],
+  mainSidebar: [{type: 'doc', id: 'intro'}, ...sections()] as SidebarsConfig[string],
 };
 
 export default sidebars;

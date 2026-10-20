@@ -4,6 +4,7 @@ sidebar_label: "Relational design"
 description: Design relational schemas that stay correct and fast - normal forms, primary key strategies (sequence, UUID, UUIDv7), constraints, data types, denormalization trade-offs, soft deletes and multi-tenancy.
 keywords: [database normalization, primary key uuid vs sequence, foreign keys, constraints, denormalization, soft delete, multi tenancy database, schema design, third normal form]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Relational Database Design

@@ -4,6 +4,7 @@ sidebar_label: "Auto-configuration"
 description: How Spring Boot decides which beans to create using conditional annotations, how to debug it, and how to write your own auto-configuration.
 keywords: [spring boot auto-configuration, "@ConditionalOnMissingBean", AutoConfiguration.imports, conditions report]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Auto-Configuration

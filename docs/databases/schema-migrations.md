@@ -4,6 +4,7 @@ sidebar_label: "Schema migrations"
 description: Manage schema changes as versioned code with Flyway or Liquibase, apply the expand and contract pattern for zero-downtime deployments, backfill large tables safely and avoid locking pitfalls.
 keywords: [flyway, liquibase, database migrations, zero downtime migration, expand contract pattern, backfill, online schema change, add column not null, rolling deployment database]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Schema Migrations and Zero-Downtime Changes

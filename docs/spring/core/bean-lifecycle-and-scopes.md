@@ -4,6 +4,7 @@ sidebar_label: "Bean lifecycle and scopes"
 description: The exact order of Spring bean initialisation and destruction callbacks, bean scopes including prototype and request, the prototype-in-singleton problem, scoped proxies and SmartLifecycle.
 keywords: [spring bean lifecycle, "@PostConstruct", InitializingBean, BeanPostProcessor, "@PreDestroy", bean scopes, prototype scope, request scope, scoped proxy, SmartLifecycle]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Bean Lifecycle and Scopes

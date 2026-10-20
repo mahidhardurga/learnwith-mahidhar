@@ -4,6 +4,7 @@ sidebar_label: "Service communication"
 description: Compare synchronous and asynchronous communication between microservices, with RestClient, OpenFeign, gRPC and messaging, and when to choose each.
 keywords: [inter-service communication, openfeign, grpc, rest vs messaging, synchronous vs asynchronous, RestClient, microservices]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Inter-Service Communication

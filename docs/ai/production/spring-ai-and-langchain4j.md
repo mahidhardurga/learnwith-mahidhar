@@ -4,6 +4,7 @@ sidebar_label: "Spring AI and LangChain4j"
 description: How to call LLMs, parse structured output, add tools and do RAG from Java using Spring AI and LangChain4j, with code compiled against the real libraries, and how to choose between them.
 keywords: [spring ai, langchain4j, java llm, spring ai chatclient, spring ai tools, spring ai rag, langchain4j aiservices, java ai framework, spring boot ai, vector store spring ai]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Spring AI and LangChain4j

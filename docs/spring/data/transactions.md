@@ -4,6 +4,7 @@ sidebar_label: "Transactions"
 description: How @Transactional works through proxies, propagation and isolation levels explained with examples, rollback rules for checked exceptions, self-invocation and other classic pitfalls.
 keywords: [spring @Transactional, transaction propagation, transaction isolation levels, REQUIRES_NEW, rollbackFor, self invocation, dirty read, phantom read]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Transactions: Propagation, Isolation and Rollback

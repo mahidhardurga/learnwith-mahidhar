@@ -4,6 +4,7 @@ sidebar_label: "Design a rate limiter"
 description: Rate limiting algorithms compared - fixed window, sliding window, token bucket, leaky bucket - with tested Java implementations, a Redis Lua script for distributed token buckets, placement, response headers, failure modes and Spring integration.
 keywords: [rate limiter design, token bucket algorithm, sliding window rate limiting, distributed rate limiting redis lua, leaky bucket, 429 too many requests, api throttling, bucket4j, system design rate limiter]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Design a Rate Limiter

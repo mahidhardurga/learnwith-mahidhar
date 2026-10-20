@@ -4,6 +4,7 @@ sidebar_label: "Trade-off discussions"
 description: A framework for discussing architectural trade-offs plus decision guides for consistency vs availability, sync vs async, SQL vs NoSQL, monolith vs microservices, caching strategies, push vs pull, REST vs gRPC vs GraphQL, and build vs buy.
 keywords: [system design trade-offs, architecture decision, consistency vs availability, monolith vs microservices, caching strategies write-through, sync vs async, sql vs nosql, architecture decision record, REST vs gRPC, cost vs complexity]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Trade-off Discussions

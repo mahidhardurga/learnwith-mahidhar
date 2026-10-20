@@ -4,6 +4,7 @@ sidebar_label: "ACID, isolation and MVCC"
 description: ACID in practice, how MVCC implements isolation in PostgreSQL and MySQL InnoDB, anomalies including write skew, how to use serializable or locks correctly, and long-transaction and deadlock operational issues.
 keywords: [ACID, MVCC, isolation levels, write skew, snapshot isolation, serializable, SELECT FOR UPDATE, postgres vacuum, innodb gap locks, deadlock, read committed]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # ACID, Isolation and MVCC

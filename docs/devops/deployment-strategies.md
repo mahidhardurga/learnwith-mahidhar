@@ -4,6 +4,7 @@ sidebar_label: "Deployment strategies"
 description: Compare recreate, rolling, blue-green, canary and shadow deployments, understand database compatibility, feature flags, progressive delivery with automated analysis, rollback and the checklist for zero-downtime releases.
 keywords: [deployment strategies, blue green deployment, canary release, rolling update, feature flags, progressive delivery, argo rollouts, zero downtime deployment, rollback strategy, shadow traffic]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Deployment Strategies

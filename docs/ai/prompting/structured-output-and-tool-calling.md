@@ -4,6 +4,7 @@ sidebar_label: "Structured output and tool calling"
 description: How to get JSON your code can trust from an LLM, how tool (function) calling works step by step, and how to validate model-produced arguments, handle tool errors and retry safely.
 keywords: [llm structured output, json schema llm, tool calling, function calling, llm tools, validate llm output, retry llm, tool schema, agents tools]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Structured Output and Tool Calling

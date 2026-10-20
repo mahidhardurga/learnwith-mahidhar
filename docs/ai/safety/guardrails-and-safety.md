@@ -4,6 +4,7 @@ sidebar_label: "Guardrails and safety"
 description: What guardrails are, the four layers (input, output, action and operational limits), how to put a human approval step on risky actions, and how to fail safely when a check is unsure.
 keywords: [llm guardrails, ai safety, human in the loop, output validation, content moderation, ai agent safety, pii redaction, fail closed, action approval]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Guardrails and Safety

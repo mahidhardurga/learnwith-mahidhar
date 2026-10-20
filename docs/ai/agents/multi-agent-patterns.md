@@ -4,6 +4,7 @@ sidebar_label: "Multi-agent patterns"
 description: The common multi-agent patterns - orchestrator and workers, pipelines, parallel work, router and evaluator loops - when they help, what they cost, and why a single agent is often the better choice.
 keywords: [multi-agent systems, orchestrator worker pattern, agent patterns, parallel agents, evaluator optimizer, sub-agents, router pattern, ai agent architecture]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Multi-Agent Patterns

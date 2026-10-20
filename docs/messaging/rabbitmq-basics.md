@@ -4,6 +4,7 @@ sidebar_label: "RabbitMQ basics"
 description: The AMQP model in RabbitMQ with exchange types and routing, consumer acknowledgements and prefetch, durability and publisher confirms, dead-letter exchanges and retries, quorum queues, and RabbitMQ versus Kafka.
 keywords: [rabbitmq, amqp exchange types, topic exchange, dead letter exchange, publisher confirms, prefetch, quorum queues, spring amqp, rabbitmq vs kafka, message acknowledgement]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # RabbitMQ Basics

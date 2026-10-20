@@ -4,6 +4,7 @@ sidebar_label: "Kafka ordering and error handling"
 description: Design Kafka event flows that stay correct - key selection and partition skew, ordering guarantees and pitfalls, retry and dead-letter strategies with Spring Kafka, non-blocking retries, schema evolution and idempotent consumers.
 keywords: [kafka ordering, kafka partition key, partition skew, dead letter topic, DefaultErrorHandler, RetryableTopic, poison pill, schema registry avro compatibility, kafka event design, spring kafka retry]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Ordering, Partitioning and Error-Handling Design

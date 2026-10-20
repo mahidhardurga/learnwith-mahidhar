@@ -4,6 +4,7 @@ sidebar_label: "Streams and lambdas"
 description: How lambdas compile, how stream pipelines execute lazily, collectors like groupingBy and toMap, Optional guidelines, and when parallel streams hurt, with senior-level pitfalls.
 keywords: [java streams, lambda expressions, collectors groupingBy, flatMap, parallel streams, Optional, functional interfaces, invokedynamic, stream gatherers]
 sidebar_position: 9
+hide_table_of_contents: true
 ---
 
 # Streams and Lambdas

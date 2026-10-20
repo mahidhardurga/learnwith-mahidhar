@@ -4,6 +4,7 @@ sidebar_label: "Coding problems"
 description: Sixteen commonly asked coding problems solved in modern Java with complexity analysis and the pattern behind each - hashing, two pointers, sliding window, heaps, DP, graphs, linked lists, concurrency and streams. Every solution was compiled and run.
 keywords: [java coding interview, two sum, lru cache java, sliding window, merge intervals, top k frequent, number of islands, coin change, producer consumer java, java streams interview problems, leetcode java]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Coding Problems with Java Solutions

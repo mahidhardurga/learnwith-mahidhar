@@ -4,6 +4,7 @@ sidebar_label: "Config server"
 description: How Spring Cloud Config Server serves configuration from Git, refreshes it at runtime, encrypts secrets, and when Kubernetes ConfigMaps are a better choice.
 keywords: [spring cloud config, config server, "@RefreshScope", centralized configuration, microservices configuration, git backend]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Centralised Configuration

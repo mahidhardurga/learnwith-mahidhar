@@ -4,6 +4,7 @@ sidebar_label: "Context engineering"
 description: What context engineering is, what goes into a model's context, the four moves (write, select, compress, isolate), why too much context hurts, and how to build a context within a token budget.
 keywords: [context engineering, llm context, context window management, ai agents context, context compaction, memory for llm, retrieval context, prompt vs context engineering]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Context Engineering

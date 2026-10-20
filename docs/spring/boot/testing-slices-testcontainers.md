@@ -4,6 +4,7 @@ sidebar_label: "Slice tests and Testcontainers"
 description: Test only the layer you care about with @WebMvcTest and @DataJpaTest, and run integration tests against real PostgreSQL or Kafka using Testcontainers and @ServiceConnection.
 keywords: [WebMvcTest, DataJpaTest, SpringBootTest, Testcontainers, ServiceConnection, MockMvc, integration testing spring boot]
 sidebar_position: 9
+hide_table_of_contents: true
 ---
 
 # Slice Tests and Testcontainers

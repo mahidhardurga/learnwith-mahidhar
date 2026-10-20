@@ -4,6 +4,7 @@ sidebar_label: "Kafka consumers and offsets"
 description: How Kafka consumer groups split partitions, rebalancing and how to reduce its impact, offset commit strategies, at-most-once, at-least-once and exactly-once semantics, consumer lag and poll-loop tuning with Spring Kafka.
 keywords: [kafka consumer group, kafka rebalancing, kafka offsets commit, at least once, exactly once semantics, consumer lag, max.poll.interval.ms, spring kafka listener, cooperative sticky assignor]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Consumers, Offsets and Delivery Semantics

@@ -4,6 +4,7 @@ sidebar_label: "Behavioural answers (STAR)"
 description: How to structure behavioural answers with STAR, a story bank for common senior engineering questions - conflict, failure, ambiguity, mentoring, production incidents, trade-offs - with worked example answers and pitfalls to avoid.
 keywords: [behavioral interview questions software engineer, STAR method examples, senior engineer behavioral interview, tell me about a time, conflict with teammate, production incident story, leadership interview, engineering manager questions]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Behavioural Interviews and the STAR Method

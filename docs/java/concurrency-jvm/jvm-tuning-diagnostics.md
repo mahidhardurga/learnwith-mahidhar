@@ -4,6 +4,7 @@ sidebar_label: "JVM tuning and diagnostics"
 description: JVM memory layout, JIT compilation and warm-up, sizing flags for containers, and a practical toolkit - jcmd, jstack, JFR, heap dumps and profilers - for diagnosing CPU, memory and latency problems in production.
 keywords: [jvm tuning, jvm memory areas, jit compilation, jcmd, java flight recorder, heap dump analysis, async-profiler, jvm flags container, tiered compilation, OutOfMemoryError]
 sidebar_position: 8
+hide_table_of_contents: true
 ---
 
 # JVM Memory, JIT, Tuning and Diagnostics

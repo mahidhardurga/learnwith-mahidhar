@@ -4,6 +4,7 @@ sidebar_label: "API gateway"
 description: What an API gateway does, how Spring Cloud Gateway routes, filters and rate-limits requests, and when to use a gateway versus a BFF.
 keywords: [api gateway, spring cloud gateway, routes predicates filters, rate limiting, BFF, microservices]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # API Gateway

@@ -4,6 +4,7 @@ sidebar_label: "Prompt injection and security"
 description: What prompt injection is, why it cannot be fully solved by prompts, the risky combination of private data, untrusted content and outbound actions, and the design defences - least privilege, blocking sends after untrusted reads, and approval.
 keywords: [prompt injection, indirect prompt injection, llm security, data exfiltration, ai agent security, owasp llm top 10, least privilege, untrusted content, jailbreak]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Prompt Injection and LLM Security

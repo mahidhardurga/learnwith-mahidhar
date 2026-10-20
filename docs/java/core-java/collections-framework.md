@@ -4,6 +4,7 @@ sidebar_label: "Collections framework"
 description: Complexity, memory behaviour and use cases of ArrayList, LinkedList, ArrayDeque, PriorityQueue, TreeMap, LinkedHashMap and concurrent collections, plus fail-fast iterators, unmodifiable views and sequenced collections.
 keywords: [java collections, arraylist vs linkedlist, arraydeque, priorityqueue, treemap, copyonwritearraylist, fail fast iterator, List.of immutable, sequenced collections]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Java Collections Framework

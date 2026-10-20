@@ -4,6 +4,7 @@ sidebar_label: "OOP and design principles"
 description: Beyond the four pillars - composition over inheritance, SOLID with Java examples, interfaces versus abstract classes, sealed hierarchies and the design patterns senior interviews actually probe.
 keywords: [java oop, solid principles, composition over inheritance, liskov substitution, design patterns java, sealed classes, interface vs abstract class]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # OOP and Design Principles

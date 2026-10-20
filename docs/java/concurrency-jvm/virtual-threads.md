@@ -4,6 +4,7 @@ sidebar_label: "Virtual threads"
 description: Java 21 virtual threads explained - carrier threads, continuations, pinning, ThreadLocal and scoped values, Spring Boot integration, limiting concurrency, and when they do not help.
 keywords: [virtual threads, project loom, java 21, carrier thread, pinning, structured concurrency, scoped values, spring boot virtual threads, newVirtualThreadPerTaskExecutor]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Virtual Threads

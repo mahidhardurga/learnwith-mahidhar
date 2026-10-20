@@ -4,6 +4,7 @@ sidebar_label: "Design order processing"
 description: End-to-end design of e-commerce order processing with Java microservices - order state machine, inventory reservation, payment, saga orchestration, idempotent APIs, transactional outbox, failure handling, scaling for flash sales and observability.
 keywords: [design order processing system, e-commerce system design, saga pattern order, order state machine, inventory reservation, idempotency key payments, outbox pattern, flash sale design, microservices checkout]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Design an Order Processing System

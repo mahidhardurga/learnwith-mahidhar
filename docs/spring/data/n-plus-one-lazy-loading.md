@@ -4,6 +4,7 @@ sidebar_label: "N+1 and lazy loading"
 description: What the N+1 select problem is, how to detect it, and how to fix it with join fetch, entity graphs and batch fetching; plus LazyInitializationException and open-in-view.
 keywords: [n+1 problem, hibernate lazy loading, LazyInitializationException, join fetch, EntityGraph, batch fetch size, hibernate performance]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # N+1 Problem and Lazy Loading

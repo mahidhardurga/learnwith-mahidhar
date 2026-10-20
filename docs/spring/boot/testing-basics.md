@@ -4,6 +4,7 @@ sidebar_label: "Testing: JUnit and Mockito"
 description: Unit testing services with JUnit 5, Mockito and AssertJ, the test pyramid for Spring Boot, and common mocking mistakes.
 keywords: [spring boot testing, junit 5, mockito, assertj, unit test, "@Mock", "@InjectMocks", ArgumentCaptor]
 sidebar_position: 8
+hide_table_of_contents: true
 ---
 
 # Testing Basics: JUnit 5 and Mockito

@@ -4,6 +4,7 @@ sidebar_label: "Embeddings and vector databases"
 description: What embeddings are, how cosine similarity finds text with similar meaning, what a vector database stores, how approximate search works, and when to use pgvector or a dedicated engine.
 keywords: [embeddings, vector database, cosine similarity, semantic search, pgvector, hnsw, approximate nearest neighbour, hybrid search, vector search, embedding model]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Embeddings and Vector Databases

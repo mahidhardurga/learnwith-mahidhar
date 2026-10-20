@@ -4,6 +4,7 @@ sidebar_label: "Bean validation"
 description: Validate request bodies, parameters and nested objects with Jakarta Bean Validation, return clean field errors, and write custom constraints.
 keywords: [spring boot validation, "@Valid", "@Validated", jakarta validation, custom constraint, MethodArgumentNotValidException]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Bean Validation

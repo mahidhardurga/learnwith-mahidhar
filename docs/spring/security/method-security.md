@@ -4,6 +4,7 @@ sidebar_label: "Method security"
 description: Enforce authorization inside services with @EnableMethodSecurity, @PreAuthorize and @PostAuthorize SpEL expressions, custom permission beans, preventing IDOR, and the proxy limits that bypass checks.
 keywords: [spring method security, "@PreAuthorize", "@PostAuthorize", "@EnableMethodSecurity", SpEL authorization, IDOR, hasRole hasAuthority, "@PreFilter", authorization manager]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Method Security

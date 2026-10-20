@@ -4,6 +4,7 @@ sidebar_label: "Design a notification service"
 description: Design a scalable multi-channel notification service - event ingestion, templating, user preferences, per-channel queues, retries with jittered backoff, provider failover, idempotency, rate limits, delivery tracking and compliance.
 keywords: [design notification service, system design notifications, email sms push, retry with jitter exponential backoff, notification queue kafka, provider failover, idempotent notifications, user preferences opt out, delivery receipts]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Design a Notification Service

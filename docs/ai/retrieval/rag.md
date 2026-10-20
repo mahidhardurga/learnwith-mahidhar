@@ -4,6 +4,7 @@ sidebar_label: "RAG"
 description: How retrieval-augmented generation works - ingestion, chunking, retrieval, prompt building and evaluation - when to use RAG instead of fine-tuning, and the mistakes that make RAG answers wrong.
 keywords: [rag, retrieval augmented generation, rag pipeline, chunking, rag vs fine-tuning, reranking, rag evaluation, grounded answers, hybrid search, llm with documents]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # RAG: Retrieval-Augmented Generation

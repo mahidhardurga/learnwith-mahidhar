@@ -4,6 +4,7 @@ sidebar_label: "Evals and testing"
 description: How to test LLM features that give different answers each time - building an evaluation set, exact checks, model-as-judge, human review, regression gates in CI, and evaluating RAG and agents.
 keywords: [llm evals, evaluating llm applications, test llm, llm as a judge, evaluation dataset, regression testing prompts, rag evaluation, agent evaluation, ai testing]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Evals: Testing LLM Applications

@@ -4,6 +4,7 @@ sidebar_label: "AI agents"
 description: What an AI agent is, how the loop of model, tools and results works, when to use an agent instead of a fixed workflow, and the guardrails - step limits, budgets, permissions and approval - that make agents safe.
 keywords: [ai agents, what is an ai agent, agent loop, tool calling, agentic workflow, agents vs workflows, react pattern, agent guardrails, llm agent, autonomous agent]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # AI Agents

@@ -4,6 +4,7 @@ sidebar_label: "Outbox and idempotency"
 description: Solve the dual-write problem with the transactional outbox pattern and make consumers and APIs idempotent so at-least-once delivery is safe, with Spring Boot examples.
 keywords: [transactional outbox, idempotency, dual write problem, at-least-once delivery, idempotency key, debezium, microservices reliability]
 sidebar_position: 8
+hide_table_of_contents: true
 ---
 
 # Transactional Outbox and Idempotency

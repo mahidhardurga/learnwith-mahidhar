@@ -4,6 +4,7 @@ sidebar_label: "SQL tuning and indexing"
 description: How database indexes work, how to read EXPLAIN plans, composite index column order, keyset pagination, common anti-patterns and connection pool sizing for Spring Boot applications.
 keywords: [sql tuning, database indexing, explain analyze, composite index, keyset pagination, b-tree index, hikaricp pool size, slow query]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # SQL Tuning and Indexing

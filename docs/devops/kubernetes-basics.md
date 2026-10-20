@@ -4,6 +4,7 @@ sidebar_label: "Kubernetes basics"
 description: Core Kubernetes objects and a production-ready Spring Boot deployment - Services, Ingress, ConfigMaps and Secrets, readiness and liveness probes, requests and limits for the JVM, autoscaling, PodDisruptionBudgets and graceful termination.
 keywords: [kubernetes basics, kubernetes deployment spring boot, readiness liveness probe, resource requests limits jvm, horizontal pod autoscaler, pod disruption budget, kubernetes graceful shutdown, configmap secret, ingress, kubectl]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Kubernetes Basics for Java Developers

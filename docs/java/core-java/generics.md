@@ -4,6 +4,7 @@ sidebar_label: "Generics and PECS"
 description: How Java generics really work - type erasure, bridge methods, bounded types, wildcards and the PECS rule, generic arrays, heap pollution and what reifiable types mean in practice.
 keywords: [java generics, type erasure, PECS, wildcards, bounded type parameters, heap pollution, generic array, bridge method]
 sidebar_position: 7
+hide_table_of_contents: true
 ---
 
 # Generics

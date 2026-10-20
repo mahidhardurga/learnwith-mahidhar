@@ -4,6 +4,7 @@ sidebar_label: "Observability, latency and caching"
 description: What to log and trace for every LLM call, how to cut latency with streaming and smaller prompts, how exact, semantic and provider caching work, and how to handle rate limits, timeouts and retries.
 keywords: [llm observability, llm latency, time to first token, llm caching, semantic cache, prompt caching, rate limit 429, retry backoff, llm monitoring, token usage logging]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Observability, Latency and Caching

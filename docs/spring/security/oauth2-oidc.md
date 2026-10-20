@@ -4,6 +4,7 @@ sidebar_label: "OAuth2 and OIDC"
 description: OAuth2 roles and grant types, Authorization Code with PKCE, client credentials for service-to-service calls, OIDC ID tokens, Spring Security client and resource server setup, and token propagation in microservices.
 keywords: [oauth2, openid connect, authorization code pkce, client credentials, oidc id token, spring security oauth2 login, resource server, keycloak, token relay, scopes]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # OAuth 2.0 and OpenID Connect

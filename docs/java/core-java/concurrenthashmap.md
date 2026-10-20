@@ -4,6 +4,7 @@ sidebar_label: "ConcurrentHashMap"
 description: How ConcurrentHashMap achieves concurrency in Java 8+ with CAS and per-bin locking, why compound operations need compute/merge, weakly consistent iterators, size counting, and common misuse.
 keywords: [concurrenthashmap internals, concurrenthashmap vs hashmap, computeIfAbsent, merge, CAS, thread safe map, LongAdder, weakly consistent iterator]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # ConcurrentHashMap

@@ -4,6 +4,7 @@ sidebar_label: "IoC and dependency injection"
 description: How the Spring container creates and wires beans - BeanFactory vs ApplicationContext, constructor injection, resolving ambiguity, circular dependencies, ObjectProvider, FactoryBean and bean post-processors.
 keywords: [spring ioc, dependency injection, ApplicationContext, BeanFactory, constructor injection, circular dependency, "@Qualifier", "@Primary", ObjectProvider, BeanPostProcessor]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # IoC Container and Dependency Injection

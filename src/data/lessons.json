@@ -73,7 +73,12 @@
    "Hash flooding with attacker-controlled keys is mitigated by treeification, but validate untrusted keys anyway",
    "Large maps have a real memory cost per entry: consider the footprint before caching millions of entries"
   ],
-  "def": "A `HashMap` stores key-value pairs in an array of buckets. It turns each key into a bucket number, so it can jump straight to where the value should be instead of searching."
+  "def": "A `HashMap` stores key-value pairs in an array of buckets. It turns each key into a bucket number, so it can jump straight to where the value should be instead of searching.",
+  "example": {
+   "title": "How a HashMap picks a bucket (simplified from the JDK source)",
+   "lang": "java",
+   "code": "static int bucketIndex(Object key, int tableLength) {\n    int h = key.hashCode();\n    int hash = h ^ (h >>> 16);        // spread the high bits into the low bits\n    return (tableLength - 1) & hash;  // same as hash % tableLength, because the length is a power of two\n}\n\nMap<String, Integer> stock = new HashMap<>();\nstock.put(\"apple\", 10);   // hash the key -> pick the bucket -> store the entry\nstock.get(\"apple\");       // same hash -> same bucket -> compare with equals() -> 10"
+  }
  },
  "/java/core-java/concurrenthashmap": {
   "why": "A normal `HashMap` breaks when threads change it together. Putting one big lock around it works but makes every thread queue up. `ConcurrentHashMap` stays safe and fast.",
@@ -130,7 +135,8 @@
    "Prefer List<? extends Foo> parameters and return concrete List<Foo> to maximise flexibility",
    "Avoid leaking raw types across module boundaries"
   ],
-  "def": "Generics let a class or method work with a type that the caller chooses, such as `List<String>`. The compiler checks the types for you, so you do not need casts."
+  "def": "Generics let a class or method work with a type that the caller chooses, such as `List<String>`. The compiler checks the types for you, so you do not need casts.",
+  "exampleFrom": "PECS: Producer Extends, Consumer Super"
  },
  "/java/core-java/exceptions": {
   "why": "Returning error codes is easy to ignore and mixes errors with normal results. Exceptions separate the error path from the normal path and carry a stack trace that shows where it happened.",
@@ -187,7 +193,8 @@
    "Test with the target JDK in CI before production",
    "Review JVM flags and GC defaults when upgrading, since they change between versions"
   ],
-  "def": "Modern Java means the features added since Java 8: lambdas and streams, `var`, records, sealed types, pattern matching, text blocks and virtual threads. Teams usually run a long-term support release such as 17, 21 or 25."
+  "def": "Modern Java means the features added since Java 8: lambdas and streams, `var`, records, sealed types, pattern matching, text blocks and virtual threads. Teams usually run a long-term support release such as 17, 21 or 25.",
+  "exampleFrom": "Records (16)"
  },
  "/java/concurrency-jvm/threads-basics": {
   "why": "One thread has to wait during slow work like network calls and uses only one CPU core. Several threads let a program do other work while it waits and use all cores.",
@@ -206,7 +213,8 @@
    "Name threads so thread dumps are readable",
    "Make shutdown part of the design: interrupt, await termination, then force"
   ],
-  "def": "A thread is one path of execution inside a program. A program can run several threads at once, and they all share the same memory. Threads can be new, running, waiting, blocked or finished, and you stop one by asking it to stop (interrupting it)."
+  "def": "A thread is one path of execution inside a program. A program can run several threads at once, and they all share the same memory. Threads can be new, running, waiting, blocked or finished, and you stop one by asking it to stop (interrupting it).",
+  "exampleFrom": "Stopping a thread: interruption, not stop()"
  },
  "/java/concurrency-jvm/synchronization-and-locks": {
   "why": "When two threads change the same data, updates can be lost or one thread can see stale values. Each tool guarantees a specific kind of safety so you can reason about shared data.",
@@ -225,7 +233,8 @@
    "Document lock ordering to prevent deadlock",
    "Prefer immutability or thread confinement before reaching for locks"
   ],
-  "def": "These are tools that keep threads from stepping on each other. `synchronized` and locks let one thread at a time into a section of code. `volatile` makes a change visible to other threads. Atomics update a single value safely without a lock."
+  "def": "These are tools that keep threads from stepping on each other. `synchronized` and locks let one thread at a time into a section of code. `volatile` makes a change visible to other threads. Atomics update a single value safely without a lock.",
+  "exampleFrom": "synchronized"
  },
  "/java/concurrency-jvm/memory-model": {
   "why": "CPUs and compilers cache and reorder operations to run faster, so threads can see old or out-of-order values. The rules give the same guarantees on every machine.",
@@ -263,7 +272,8 @@
    "Expose pool metrics (active, queued, rejected) and alert on saturation",
    "Shut pools down gracefully on application stop"
   ],
-  "def": "An executor runs tasks for you on a pool of reusable threads. You submit work, and the pool decides which thread runs it, how many tasks may wait and what happens when it is full."
+  "def": "An executor runs tasks for you on a pool of reusable threads. You submit work, and the pool decides which thread runs it, how many tasks may wait and what happens when it is full.",
+  "exampleFrom": "ThreadPoolExecutor parameters"
  },
  "/java/concurrency-jvm/completablefuture": {
   "why": "Waiting on a plain `Future` blocks a thread and cannot be chained, and nested callbacks get unreadable. `CompletableFuture` lets you describe the whole async flow in one readable chain.",
@@ -282,7 +292,8 @@
    "Add timeouts to every future (orTimeout) so slow dependencies cannot hang requests",
    "Propagate trace and security context explicitly across async hops"
   ],
-  "def": "A `CompletableFuture` is a result that will be ready later. You attach steps to it (\"then transform\", \"then combine\", \"on error\") and they run when the result arrives, without blocking a thread to wait."
+  "def": "A `CompletableFuture` is a result that will be ready later. You attach steps to it (\"then transform\", \"then combine\", \"on error\") and they run when the result arrives, without blocking a thread to wait.",
+  "exampleFrom": "Transform and chain"
  },
  "/java/concurrency-jvm/virtual-threads": {
   "why": "A normal thread is heavy, so one thread per request stops scaling at a few thousand. Developers moved to hard-to-read async code to cope. Virtual threads bring back simple code at large scale.",
@@ -320,7 +331,12 @@
    "Alert on pause time, allocation rate and heap after GC, not just heap used",
    "Leave memory headroom in containers for non-heap usage"
   ],
-  "def": "Garbage collection is the JVM automatically freeing memory of objects your program can no longer reach. The heap is split into young and old areas, and different collectors (G1, ZGC) trade short pauses against throughput."
+  "def": "Garbage collection is the JVM automatically freeing memory of objects your program can no longer reach. The heap is split into young and old areas, and different collectors (G1, ZGC) trade short pauses against throughput.",
+  "example": {
+   "title": "Turn on GC logging and pick a collector",
+   "lang": "bash",
+   "code": "# G1 is the default. Switch the collector with one flag, and always log GC to a file.\njava -XX:+UseG1GC \\n     -Xlog:gc*:file=gc.log:time,uptime,level,tags \\n     -jar app.jar\n\n# Very short pauses on a large heap: ZGC (generational mode)\njava -XX:+UseZGC -XX:+ZGenerational -jar app.jar"
+  }
  },
  "/java/concurrency-jvm/jvm-tuning-diagnostics": {
   "why": "Default settings may not fit a container, and problems like stalls, leaks and CPU spikes need evidence. These tools let you find the cause without guessing.",
@@ -339,7 +355,12 @@
    "Keep a runbook for thread dump, heap dump and JFR capture",
    "Set MaxRAMPercentage and leave room for off-heap memory"
   ],
-  "def": "JVM tuning means choosing memory sizes and flags for your workload. Diagnostics means looking inside a running JVM with tools like `jcmd`, `jstack` and heap dumps to see threads, memory and slow spots."
+  "def": "JVM tuning means choosing memory sizes and flags for your workload. Diagnostics means looking inside a running JVM with tools like `jcmd`, `jstack` and heap dumps to see threads, memory and slow spots.",
+  "example": {
+   "title": "Size the JVM for a container and look inside it",
+   "lang": "bash",
+   "code": "# Size the heap as a share of the container memory limit, and keep room for non-heap memory\njava -XX:MaxRAMPercentage=70 \\n     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.hprof \\n     -jar app.jar\n\n# Inspect a running JVM (use its process id)\njcmd <pid> Thread.print        # all thread stacks, shows deadlocks\njcmd <pid> GC.heap_info        # heap sizes\njcmd <pid> GC.class_histogram  # which classes use the most memory"
+  }
  },
  "/spring/core/ioc-and-dependency-injection": {
   "why": "When a class creates its own dependencies, it is tied to them and hard to test or replace. With injection, wiring lives in one place and classes just declare what they need.",
@@ -643,7 +664,12 @@
    "Prefer DTO projections for list endpoints",
    "Disable open-in-view so lazy loading cannot hide in the view layer"
   ],
-  "def": "The N+1 problem is when loading a list takes one query for the list plus one extra query for each item's related data. Lazy loading fetches related data only when you touch it, which is what quietly causes those extra queries."
+  "def": "The N+1 problem is when loading a list takes one query for the list plus one extra query for each item's related data. Lazy loading fetches related data only when you touch it, which is what quietly causes those extra queries.",
+  "example": {
+   "title": "The problem, and the fix with join fetch",
+   "lang": "java",
+   "code": "// Problem: 1 query for the orders, then 1 more query per order to load its items\nList<PurchaseOrder> list = orders.findByStatus(\"NEW\");   // select * from purchase_orders where status = ?\nfor (PurchaseOrder o : list) {\n    total += o.items.size();                              // select * from order_items where order_id = ?  (N times)\n}\n\n// Fix: load the orders and their items in one query\n@Query(\"select distinct o from PurchaseOrder o join fetch o.items where o.status = :status\")\nList<PurchaseOrder> findWithItems(@Param(\"status\") String status);"
+  }
  },
  "/spring/data/transactions": {
   "why": "Without transactions, a failure halfway through leaves data half updated. Doing begin, commit and rollback by hand in every method is repetitive and easy to get wrong.",
@@ -700,7 +726,12 @@
    "Check index usage regularly and drop unused indexes",
    "Size the connection pool by database capacity, not by thread count"
   ],
-  "def": "An index is a sorted lookup structure that lets the database find rows without reading the whole table. `EXPLAIN` shows how a query will run, so you can see whether it uses an index."
+  "def": "An index is a sorted lookup structure that lets the database find rows without reading the whole table. `EXPLAIN` shows how a query will run, so you can see whether it uses an index.",
+  "example": {
+   "title": "A composite index, and checking that a query uses it",
+   "lang": "sql",
+   "code": "CREATE INDEX idx_orders_customer_status_created\n    ON purchase_orders (customer_id, status, created_at DESC);\n\nEXPLAIN ANALYZE\nSELECT id, status FROM purchase_orders\nWHERE customer_id = 42 AND status = 'NEW'\nORDER BY created_at DESC LIMIT 20;\n-- look for \"Index Scan\" in the plan; \"Seq Scan\" on a big table means the index is not used"
+  }
  },
  "/spring/data/caching": {
   "why": "Repeating the same slow query or remote call on every request wastes time and load. A cache answers repeats from memory.",
@@ -1042,7 +1073,8 @@
    "Enforce critical invariants with constraints or locks, not only with isolation",
    "Monitor long-running transactions, since they block cleanup and cause bloat"
   ],
-  "def": "ACID is what a good database promises for a transaction: Atomic (all or nothing), Consistent (rules hold), Isolated (transactions do not disturb each other) and Durable (committed data survives a crash). MVCC keeps several versions of a row so readers do not block writers."
+  "def": "ACID is what a good database promises for a transaction: Atomic (all or nothing), Consistent (rules hold), Isolated (transactions do not disturb each other) and Durable (committed data survives a crash). MVCC keeps several versions of a row so readers do not block writers.",
+  "exampleFrom": "Lost update"
  },
  "/databases/replication-sharding": {
   "why": "One database server has limited capacity and is a single point of failure. Replicas add reads and safety, and sharding adds write capacity, each with new trade-offs.",
@@ -1137,7 +1169,8 @@
    "Use cooperative rebalancing or static membership to reduce pauses",
    "Alert on lag growth per partition, not only on the total"
   ],
-  "def": "Consumers join a consumer group and Kafka gives each partition to one consumer in the group, so the work is shared. A consumer remembers its place with an offset. Committing the offset after processing means a crash can cause a repeat, so handlers should be safe to run twice."
+  "def": "Consumers join a consumer group and Kafka gives each partition to one consumer in the group, so the work is shared. A consumer remembers its place with an offset. Committing the offset after processing means a crash can cause a repeat, so handlers should be safe to run twice.",
+  "exampleFrom": "Commit strategies"
  },
  "/messaging/kafka-ordering-design": {
   "why": "Without a key, related events can land in different partitions and be handled out of order, and one bad record can block a partition forever. Keys and a dead-letter topic fix both.",
@@ -1194,7 +1227,12 @@
    "Make startup and shutdown fast and graceful so autoscaling works",
    "Use the same build artifact in every environment, differing only in configuration"
   ],
-  "def": "The twelve-factor app is a checklist for services that run well in the cloud: one codebase, declared dependencies, config in the environment, stateless processes, logs as streams, and fast start and stop."
+  "def": "The twelve-factor app is a checklist for services that run well in the cloud: one codebase, declared dependencies, config in the environment, stateless processes, logs as streams, and fast start and stop.",
+  "example": {
+   "title": "Config comes from the environment, not from the code",
+   "lang": "yaml",
+   "code": "# application.yml: the same build runs in every environment\nspring:\n  datasource:\n    url: ${DB_URL}              # set per environment\n    username: ${DB_USER}\n    password: ${DB_PASSWORD}    # injected by the platform, never committed\nserver:\n  port: ${PORT:8080}            # port binding with a default\nlogging:\n  level:\n    root: ${LOG_LEVEL:INFO}\n# Logs go to stdout; the platform collects them."
+  }
  },
  "/devops/docker-for-java": {
   "why": "\"Works on my machine\" comes from differences in operating system, libraries and Java version. An image carries all of that, so what you test is what you run.",

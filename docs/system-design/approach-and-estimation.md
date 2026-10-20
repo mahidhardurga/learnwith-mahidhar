@@ -4,6 +4,7 @@ sidebar_label: "System design approach"
 description: A repeatable framework for system design rounds - clarify requirements, estimate capacity, sketch APIs and data, design the high-level architecture, deep dive on bottlenecks - with latency numbers, estimation math and a building-block cheat sheet.
 keywords: [system design interview, back of envelope estimation, capacity planning, latency numbers, system design framework, scalability, high level design, non functional requirements, QPS estimation]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Approaching a System Design Problem

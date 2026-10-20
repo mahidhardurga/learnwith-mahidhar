@@ -4,6 +4,7 @@ sidebar_label: "Optimistic and pessimistic locking"
 description: Prevent lost updates with @Version optimistic locking and SELECT FOR UPDATE pessimistic locking in Spring Data JPA, with retry strategies, deadlocks and when to choose each.
 keywords: [optimistic locking, pessimistic locking, "@Version", lost update, ObjectOptimisticLockingFailureException, select for update, deadlock, spring data jpa]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Optimistic and Pessimistic Locking

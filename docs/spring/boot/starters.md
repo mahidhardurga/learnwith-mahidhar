@@ -4,6 +4,7 @@ sidebar_label: "Starters and dependency management"
 description: What starters are, how the Boot BOM controls versions, and how to override or exclude dependencies safely.
 keywords: [spring boot starters, spring-boot-starter-parent, dependency management, BOM, exclude dependency]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Starters and Dependency Management

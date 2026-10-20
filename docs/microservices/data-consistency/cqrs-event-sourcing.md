@@ -4,6 +4,7 @@ sidebar_label: "CQRS and event sourcing"
 description: Separate reads from writes with CQRS, store state as a sequence of events with event sourcing, and understand when these patterns are worth their complexity.
 keywords: [CQRS, event sourcing, read model, projections, snapshots, eventual consistency, microservices patterns]
 sidebar_position: 9
+hide_table_of_contents: true
 ---
 
 # CQRS and Event Sourcing

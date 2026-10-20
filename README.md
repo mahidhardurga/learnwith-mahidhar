@@ -70,25 +70,21 @@ Layout is swizzle-friendly: run `npm run swizzle @docusaurus/theme-classic DocIt
 - `src/css/custom.css`: design tokens and theme (dark by default). Fonts are self-hosted through `@fontsource-variable/*`, so no request goes to Google Fonts.
 - The docs intro is served at `/guide`; `/` is the landing page.
 
-## Lesson structure
+## What a topic page shows
 
-Every topic page has one simple flow, the same for every reader (there are no experience levels):
-
-Definition, Why it exists, the page's own sections (in the order written in the markdown), Design notes, When to use it, Common mistakes, Interview questions, Try it and quiz, Key takeaways, Next topic.
-
-A block is skipped when a page has nothing for it.
+Every topic page shows exactly three things: the title, a short **Definition**, and **Example code**. There are no experience levels.
 
 How it works:
 
-- `plugins/rehype-lesson-parts.mjs` assembles each page at build time. Pitfalls, interview questions, Check yourself and Key takeaways are recognised by their headings; every other `##` section stays in place with its own heading.
-- `src/data/lessons.json` holds the written blocks per page: `def` (the definition: short, plain words, 2-3 sentences), `why`, `use`, `avoid` and optional `design` bullets. The definition, why, design and when-to-use blocks are injected from it, and the "next topic" card is automatic.
+- `plugins/rehype-lesson-parts.mjs` builds each page at build time. It keeps the title, adds the definition from `src/data/lessons.json` (`def`), and picks one example: `example` from `lessons.json` if given (title, lang, code), else the code block from the section named by `exampleFrom`, else the best-looking code block in the page. Pages with no code (a few conceptual ones) show only the definition.
+- Everything else written in the markdown files (explanations, interview questions, quizzes, labs, takeaways) stays in the files but is **not shown**. To bring a page back to its full version, remove its entry (or just its `def`) from `lessons.json`. The pages listed there also have `hide_table_of_contents: true` in their front matter; remove it when you show the full page.
+- Pages without a `def` (the cheat sheets and the three question banks) are shown exactly as written.
 - `src/data/pages.json` lists every guide page (path and short title). Add new pages there.
-- Interview questions (`**1. Question?**` followed by the answer) become click-to-open accordions automatically.
-- `npm run validate:content` checks the data files against the pages. Restart the dev server after editing any data file or the plugin; if a change does not show up, delete `.docusaurus` and `node_modules/.cache`.
+- `npm run validate:content` checks `lessons.json` against the pages. Restart the dev server after editing `lessons.json` or the plugin; if a change does not show up, delete `.docusaurus` and `node_modules/.cache`.
 
 **Writing style for definitions:** two or three short sentences, everyday words, the real definition first. No jargon without a one-line explanation.
 
-**Interactive components** (`src/components/Interactive/`, registered in `src/theme/MDXComponents.tsx`):
+**Interactive components** (kept in the code but not shown on topic pages at the moment; `src/components/Interactive/`, registered in `src/theme/MDXComponents.tsx`):
 
 - `<Outcomes items={[...]} />` goes before the first H2. `<Checkpoint questions={[{q, options, answer, why}]} />` goes under a `## Check yourself` heading.
 - Labs: `HashMapLab`, `SagaLab`, `KafkaLab`, `CircuitBreakerLab`, `TokenBucketLab`, `IsolationLab`, `TokenCostLab`, `RagLab`, `AgentLab`, `GuardrailLab`. Put each under a `## Try it: ...` heading; it lands in part 9.
@@ -97,6 +93,7 @@ How it works:
 ### Navigation and layout (keep it simple)
 
 - Navbar: **Topics** (dropdown to each section's overview), and **Quiz**. Add new top-level sections to the Topics dropdown in `docusaurus.config.ts`.
+- The sidebar is built in `sidebars.ts`: one section per folder in `docs/` (order and label from its `_category_.json`). Inside a section the topics are grouped by hand in the `GROUPS` table (for example Java: Language basics, Collections, Concurrency, JVM) while the files stay where they are, so URLs do not change. A section that is not listed in `GROUPS` (AI) uses its folders as groups. To add a topic, add its doc id to a group.
 - Every page needs a short `sidebar_label` in its front matter (the sidebar is narrow; the full `title` is for SEO). One sidebar section is open at a time.
 - The homepage is a compact hero, one card per tech stack (Java, Spring, Microservices, GenAI and more) and the labs. The quiz lives at `/quiz`.
 - The look is Apple-style: neutral surfaces, system font stack, translucent navbar, soft rounded cards. Colours and spacing are tokens at the top of `src/css/custom.css`.

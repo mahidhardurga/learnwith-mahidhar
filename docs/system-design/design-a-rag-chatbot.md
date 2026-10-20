@@ -4,6 +4,7 @@ sidebar_label: "Design a RAG chatbot"
 description: System design for a company knowledge chatbot using retrieval-augmented generation - ingestion pipeline, hybrid retrieval with access control, prompt building, cost and capacity estimates, evaluation and failure handling.
 keywords: [design rag chatbot, rag system design, llm chatbot architecture, enterprise search chatbot, vector search access control, rag ingestion pipeline, ai system design interview, retrieval augmented generation architecture]
 sidebar_position: 7
+hide_table_of_contents: true
 ---
 
 # Design a RAG Chatbot

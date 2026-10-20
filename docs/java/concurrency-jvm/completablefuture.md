@@ -4,6 +4,7 @@ sidebar_label: "CompletableFuture"
 description: Compose asynchronous work with CompletableFuture - thenApply vs thenCompose, combining futures, allOf and anyOf, exception handling, timeouts, executor choice, and the mistakes that cause thread starvation.
 keywords: [CompletableFuture, thenCompose vs thenApply, allOf, exceptionally handle, async executor, orTimeout, java asynchronous programming, future composition]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # CompletableFuture

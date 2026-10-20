@@ -4,6 +4,7 @@ sidebar_label: "Application events"
 description: Publish and handle events with ApplicationEventPublisher and @EventListener, ordering, conditions, async listeners, @TransactionalEventListener phases, built-in lifecycle events, and when to use messaging instead.
 keywords: [spring application events, "@EventListener", ApplicationEventPublisher, "@TransactionalEventListener", AFTER_COMMIT, async events, ApplicationReadyEvent, domain events]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Application Events

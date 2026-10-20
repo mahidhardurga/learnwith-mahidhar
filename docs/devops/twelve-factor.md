@@ -4,6 +4,7 @@ sidebar_label: "Twelve-factor apps"
 description: Each of the twelve factors mapped to concrete Spring Boot, Docker and Kubernetes practices - config, backing services, stateless processes, logs, disposability, dev/prod parity - plus modern additions like observability and API-first design.
 keywords: [twelve factor app, 12 factor, cloud native java, stateless services, config in environment, backing services, disposability, logs as event streams, spring boot cloud native, dev prod parity]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # The Twelve-Factor App

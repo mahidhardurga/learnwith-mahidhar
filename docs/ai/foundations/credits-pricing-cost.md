@@ -4,6 +4,7 @@ sidebar_label: "Credits, pricing and cost"
 description: How LLM APIs charge per token, what credits are, what drives your bill, and practical ways to control cost such as smaller models, caching, shorter prompts and budgets.
 keywords: [llm pricing, llm cost, api credits, token pricing, prompt caching, reduce llm cost, ai budget, input and output tokens, cost control]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # LLM Pricing, Credits and Cost Control

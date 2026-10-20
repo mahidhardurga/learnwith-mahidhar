@@ -4,6 +4,7 @@ sidebar_label: "Design a URL shortener"
 description: Complete design of a URL shortening service - requirements, capacity estimates, short code generation with Base62 and ID ranges, data model, caching, redirect semantics (301 vs 302), analytics pipeline and failure handling, with tested Java code.
 keywords: [design url shortener, system design tinyurl, base62 encoding, short code generation, url shortener architecture, redirect 301 vs 302, distributed id generation, caching redirects]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Design a URL Shortener

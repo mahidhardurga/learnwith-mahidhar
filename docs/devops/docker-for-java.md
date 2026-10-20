@@ -4,6 +4,7 @@ sidebar_label: "Docker for Java"
 description: Build small, secure, fast-to-rebuild Docker images for Spring Boot with multi-stage builds and layered jars, buildpacks or Jib, run as non-root, size the JVM for containers, handle signals for graceful shutdown and scan images.
 keywords: [docker spring boot, multi-stage dockerfile, layered jar, jib, buildpacks, jvm container memory, non-root container, docker graceful shutdown, distroless, docker best practices java]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Docker for Java Applications

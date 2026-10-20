@@ -4,6 +4,7 @@ sidebar_label: "CI/CD"
 description: Design CI/CD pipelines for Spring Boot services - stages, build once and promote, test layers, security scanning, artifact versioning, GitOps with Argo CD, secrets, pipeline-as-code with GitHub Actions and DORA metrics.
 keywords: [ci cd pipeline java, github actions maven, gitops argo cd, trunk based development, build once deploy many, dora metrics, pipeline security, artifact registry, continuous delivery vs deployment, semantic versioning]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # CI/CD for Java Microservices

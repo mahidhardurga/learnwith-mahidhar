@@ -4,6 +4,7 @@ sidebar_label: "Actuator"
 description: Production-ready endpoints in Spring Boot - health probes, metrics with Micrometer, securing and customising Actuator, and the questions interviewers ask.
 keywords: [spring boot actuator, health indicator, micrometer, readiness liveness probe, actuator endpoints]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Spring Boot Actuator

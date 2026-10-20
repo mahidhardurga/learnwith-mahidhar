@@ -4,6 +4,7 @@ sidebar_label: "Exception handling"
 description: Checked versus unchecked exceptions, try-with-resources and suppressed exceptions, finally traps, exception translation and cost, designing exception hierarchies, and handling InterruptedException correctly.
 keywords: [java exceptions, checked vs unchecked, try with resources, suppressed exceptions, finally return, InterruptedException, custom exception design, exception translation]
 sidebar_position: 8
+hide_table_of_contents: true
 ---
 
 # Exception Handling

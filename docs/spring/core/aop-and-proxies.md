@@ -4,6 +4,7 @@ sidebar_label: "AOP and proxies"
 description: How Spring AOP works with JDK and CGLIB proxies, writing @Around aspects and pointcut expressions, ordering, self-invocation and final-method limitations, and how @Transactional, @Cacheable and @Async are built on it.
 keywords: [spring aop, "@Aspect", "@Around", pointcut expression, JDK dynamic proxy vs CGLIB, self invocation, AspectJ weaving, aspect ordering, cross-cutting concerns]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # AOP and Proxies

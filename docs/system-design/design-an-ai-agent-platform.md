@@ -4,6 +4,7 @@ sidebar_label: "Design an AI agent platform"
 description: System design for a platform that runs AI agents for many teams - durable run state, a model gateway, a sandboxed tool gateway, human approvals, budgets, observability and handling of loops, crashes and outages.
 keywords: [design ai agent platform, agent platform architecture, llm gateway, tool gateway sandbox, durable execution agents, agent system design, multi-tenant ai platform, ai agent infrastructure]
 sidebar_position: 8
+hide_table_of_contents: true
 ---
 
 # Design an AI Agent Platform

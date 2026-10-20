@@ -4,6 +4,7 @@ sidebar_label: "MCP"
 description: What the Model Context Protocol is, how hosts, clients and servers work, what tools, resources and prompts are, how JSON-RPC messages look, and the security points to check before connecting an MCP server.
 keywords: [mcp, model context protocol, mcp server, mcp client, mcp tools resources prompts, json-rpc, ai tool integration, agent tools, mcp security]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # Model Context Protocol (MCP)

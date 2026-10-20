@@ -4,6 +4,7 @@ sidebar_label: "Executors and thread pools"
 description: How ThreadPoolExecutor schedules tasks across core threads, queue and max threads, rejection policies, sizing for CPU and I/O workloads, ForkJoinPool, graceful shutdown and Spring TaskExecutor pitfalls.
 keywords: [ThreadPoolExecutor, executor service, thread pool sizing, rejection policy, ForkJoinPool, work stealing, ScheduledExecutorService, graceful shutdown, Executors.newFixedThreadPool]
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 # Executors and Thread Pools

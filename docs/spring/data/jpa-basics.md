@@ -4,6 +4,7 @@ sidebar_label: "JPA and Hibernate basics"
 description: How JPA, Hibernate and Spring Data JPA fit together - entities, the persistence context, repositories, derived queries, pagination and projections - with interview questions.
 keywords: [spring data jpa, hibernate, jpa entity, persistence context, JpaRepository, derived queries, projections, pagination]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Spring Data JPA and Hibernate Basics

@@ -4,6 +4,7 @@ sidebar_label: "Immutability"
 description: How to build truly immutable classes, defensive copying, shallow versus deep immutability, unmodifiable views, String immutability and interning, and why immutability underpins thread safety.
 keywords: [java immutability, immutable class, defensive copy, records immutable, safe publication, String pool, final fields, unmodifiable collections]
 sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Immutability

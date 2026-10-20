@@ -4,6 +4,7 @@ sidebar_label: "Prompt engineering"
 description: Practical prompt engineering for developers - the parts of a good prompt, few-shot examples, structured output, prompt chaining, testing prompts like code, and keeping untrusted text from taking over.
 keywords: [prompt engineering, how to write prompts, few-shot prompting, system prompt, structured output, prompt chaining, prompt injection, llm prompts, zero-shot]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Prompt Engineering

@@ -4,6 +4,7 @@ sidebar_label: "Microservices overview"
 description: When microservices make sense, how to split a system using bounded contexts, data ownership rules, and the trade-offs interviewers want you to discuss.
 keywords: [microservices interview questions, decomposition, bounded context, domain driven design, monolith vs microservices]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Microservices: Architecture and Decomposition

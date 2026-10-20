@@ -4,6 +4,7 @@ sidebar_label: "synchronized, volatile, locks"
 description: Monitors and synchronized, what volatile does and does not do, CAS and atomic classes, LongAdder, ReentrantLock, ReadWriteLock, StampedLock, and coordination utilities like Semaphore, CountDownLatch and CyclicBarrier.
 keywords: [synchronized vs ReentrantLock, volatile keyword, AtomicInteger CAS, LongAdder, ReadWriteLock, StampedLock, CountDownLatch, Semaphore, ABA problem, java locks]
 sidebar_position: 2
+hide_table_of_contents: true
 ---
 
 # synchronized, volatile, Atomics and Locks

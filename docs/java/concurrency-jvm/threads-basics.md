@@ -4,6 +4,7 @@ sidebar_label: "Threads fundamentals"
 description: Thread states and lifecycle, creating and stopping threads correctly, interruption, daemon threads, ThreadLocal leaks, thread dumps, deadlock, livelock and starvation for senior Java interviews.
 keywords: [java threads, thread lifecycle, thread states, interrupt, ThreadLocal, deadlock, livelock, starvation, thread dump, daemon thread]
 sidebar_position: 1
+hide_table_of_contents: true
 ---
 
 # Threads: The Fundamentals

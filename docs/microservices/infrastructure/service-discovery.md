@@ -4,6 +4,7 @@ sidebar_label: "Service discovery"
 description: How services find each other with Eureka, Consul or Kubernetes DNS, client-side versus server-side discovery, health checks and load balancing.
 keywords: [service discovery, eureka, spring cloud loadbalancer, kubernetes service, client-side load balancing, consul]
 sidebar_position: 3
+hide_table_of_contents: true
 ---
 
 # Service Discovery

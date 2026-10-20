@@ -4,6 +4,7 @@ sidebar_label: "Common vulnerabilities"
 description: The OWASP Top 10 mapped to Java and Spring - SQL injection, broken access control, XSS, CSRF, SSRF, insecure deserialization, mass assignment, misconfiguration, vulnerable dependencies and secrets, with concrete defences.
 keywords: [owasp top 10 java, sql injection prepared statement, xss, ssrf, insecure deserialization, mass assignment, broken access control, spring security best practices, dependency scanning, secrets management]
 sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Common Vulnerabilities and Defences
