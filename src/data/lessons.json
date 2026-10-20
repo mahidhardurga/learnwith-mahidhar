@@ -335,7 +335,7 @@
   "example": {
    "title": "Turn on GC logging and pick a collector",
    "lang": "bash",
-   "code": "# G1 is the default. Switch the collector with one flag, and always log GC to a file.\njava -XX:+UseG1GC \\n     -Xlog:gc*:file=gc.log:time,uptime,level,tags \\n     -jar app.jar\n\n# Very short pauses on a large heap: ZGC (generational mode)\njava -XX:+UseZGC -XX:+ZGenerational -jar app.jar"
+   "code": "# G1 is the default. Switch the collector with one flag, and always log GC to a file.\njava -XX:+UseG1GC \\n     -Xlog:gc*:file=gc.log:time,uptime,level,tags \\n     -jar app.jar\n\n# Very short pauses on a large heap: ZGC (generational by default in recent Java)\njava -XX:+UseZGC -jar app.jar"
   }
  },
  "/java/concurrency-jvm/jvm-tuning-diagnostics": {
@@ -2345,6 +2345,678 @@
    "title": "A whole program with no class around it",
    "lang": "java",
    "code": "// file: Demo.java  (no class, no \"public static\", no String[] args)\nvoid main() {\n    String name = \"Java 25\";\n    System.out.println(\"Hello from \" + name);\n}\n\n// Output:\n// Hello from Java 25"
+  }
+ },
+ "/java/core-java/collections-framework/arraylist-vs-linkedlist": {
+  "def": "A `List` keeps items in order and allows duplicates. `ArrayList` stores items in an array, so reading by position is fast. `LinkedList` chains nodes together, so adding at the ends is fast but reading by position is slow. Choose `ArrayList` almost every time.",
+  "example": {
+   "title": "The same list operations on both",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> array = new ArrayList<>();        // backed by an array: get(i) is fast\n        List<String> linked = new LinkedList<>();      // backed by linked nodes: get(i) walks the chain\n\n        for (String name : List.of(\"Asha\", \"Ravi\", \"Meera\")) {\n            array.add(name);\n            linked.add(name);\n        }\n        array.add(1, \"Jo\");                            // insert in the middle: shifts the items after it\n        linked.add(1, \"Jo\");\n\n        System.out.println(array.get(2) + \" \" + linked.get(2));\n        System.out.println(array);\n        System.out.println(linked);\n    }\n}\n\n// Output:\n// Ravi Ravi\n// [Asha, Jo, Ravi, Meera]\n// [Asha, Jo, Ravi, Meera]"
+  }
+ },
+ "/java/core-java/collections-framework/set-types": {
+  "def": "A `Set` holds no duplicates. `HashSet` has no defined order and is the fastest. `LinkedHashSet` keeps insertion order. `TreeSet` keeps items sorted. Pick by the order you need.",
+  "example": {
+   "title": "Three sets, three orders",
+   "lang": "java",
+   "code": "import java.util.HashSet;\nimport java.util.LinkedHashSet;\nimport java.util.Set;\nimport java.util.TreeSet;\n\nclass Demo {\n    public static void main(String[] args) {\n        String[] fruits = {\"pear\", \"apple\", \"fig\", \"apple\", \"banana\"};\n\n        Set<String> hash = new HashSet<>();               // no order guarantee\n        Set<String> linked = new LinkedHashSet<>();       // insertion order\n        Set<String> sorted = new TreeSet<>();             // sorted order\n\n        for (String fruit : fruits) {\n            hash.add(fruit);\n            linked.add(fruit);\n            sorted.add(fruit);\n        }\n\n        System.out.println(\"linked: \" + linked);          // the duplicate \"apple\" was ignored\n        System.out.println(\"sorted: \" + sorted);\n        System.out.println(\"size of hash: \" + hash.size());\n    }\n}\n\n// Output:\n// linked: [pear, apple, fig, banana]\n// sorted: [apple, banana, fig, pear]\n// size of hash: 4"
+  }
+ },
+ "/java/core-java/collections-framework/map-types": {
+  "def": "A `Map` stores key-value pairs with unique keys. `HashMap` is fast with no order, `LinkedHashMap` remembers insertion order, and `TreeMap` keeps keys sorted. The choice is again about the order you need.",
+  "example": {
+   "title": "Iterating the same data in three orders",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.LinkedHashMap;\nimport java.util.Map;\nimport java.util.TreeMap;\n\nclass Demo {\n    static void fill(Map<String, Integer> map) {\n        map.put(\"pear\", 3);\n        map.put(\"apple\", 5);\n        map.put(\"fig\", 2);\n    }\n\n    public static void main(String[] args) {\n        Map<String, Integer> hash = new HashMap<>();\n        Map<String, Integer> linked = new LinkedHashMap<>();\n        Map<String, Integer> sorted = new TreeMap<>();\n        fill(hash);\n        fill(linked);\n        fill(sorted);\n\n        System.out.println(\"linked: \" + linked);       // insertion order\n        System.out.println(\"sorted: \" + sorted);       // sorted by key\n        System.out.println(\"apple -> \" + hash.get(\"apple\"));\n    }\n}\n\n// Output:\n// linked: {pear=3, apple=5, fig=2}\n// sorted: {apple=5, fig=2, pear=3}\n// apple -> 5"
+  }
+ },
+ "/java/core-java/collections-framework/queue-and-deque": {
+  "def": "A `Queue` hands items out in the order they arrive (first in, first out). A `PriorityQueue` hands out the smallest item first. A `Deque` works at both ends, so `ArrayDeque` can act as a queue or as a stack.",
+  "example": {
+   "title": "FIFO queue, priority queue and stack",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\nimport java.util.PriorityQueue;\nimport java.util.Queue;\n\nclass Demo {\n    public static void main(String[] args) {\n        Queue<String> line = new ArrayDeque<>();           // first in, first out\n        line.offer(\"Asha\");\n        line.offer(\"Ravi\");\n        System.out.println(line.poll() + \" is served first\");\n\n        PriorityQueue<Integer> tasks = new PriorityQueue<>();   // smallest number first\n        tasks.add(5);\n        tasks.add(1);\n        tasks.add(3);\n        System.out.println(tasks.poll() + \" then \" + tasks.poll());\n\n        Deque<String> stack = new ArrayDeque<>();          // last in, first out\n        stack.push(\"page 1\");\n        stack.push(\"page 2\");\n        System.out.println(stack.pop());\n    }\n}\n\n// Output:\n// Asha is served first\n// 1 then 3\n// page 2"
+  }
+ },
+ "/java/core-java/collections-framework/comparable-and-comparator": {
+  "def": "`Comparable` gives a class its natural order through `compareTo`. A `Comparator` defines a different order from the outside, so you can sort the same objects in several ways. `Comparator.comparing` builds one from a field.",
+  "example": {
+   "title": "Natural order, then custom orders",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nclass Person implements Comparable<Person> {\n    final String name;\n    final int age;\n\n    Person(String name, int age) { this.name = name; this.age = age; }\n\n    @Override public int compareTo(Person other) { return name.compareTo(other.name); }   // natural order: by name\n    @Override public String toString() { return name + \"(\" + age + \")\"; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Person> people = new ArrayList<>(List.of(new Person(\"Ravi\", 30), new Person(\"Asha\", 30), new Person(\"Meera\", 25)));\n\n        people.sort(null);                                                   // uses compareTo\n        System.out.println(people);\n\n        people.sort(Comparator.comparingInt((Person p) -> p.age).thenComparing(p -> p.name));   // age, then name\n        System.out.println(people);\n\n        people.sort(Comparator.comparingInt((Person p) -> p.age).reversed());                    // oldest first\n        System.out.println(people);\n    }\n}\n\n// Output:\n// [Asha(30), Meera(25), Ravi(30)]\n// [Meera(25), Asha(30), Ravi(30)]\n// [Asha(30), Ravi(30), Meera(25)]"
+  }
+ },
+ "/java/core-java/collections-framework/iterator-and-fail-fast": {
+  "def": "An `Iterator` walks a collection one item at a time and is the safe way to remove items while looping. Most collections are fail-fast: if you change them during a `for-each` loop, they throw `ConcurrentModificationException`.",
+  "example": {
+   "title": "The wrong way to remove while looping, and two right ways",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Iterator;\nimport java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> numbers = new ArrayList<>(List.of(1, 2, 3, 4, 5, 6));\n\n        try {\n            for (Integer n : numbers) {\n                if (n % 2 == 0) numbers.remove(n);        // wrong: changes the list while looping\n            }\n        } catch (java.util.ConcurrentModificationException e) {\n            System.out.println(\"fail-fast: ConcurrentModificationException\");\n        }\n\n        Iterator<Integer> iterator = numbers.iterator();\n        while (iterator.hasNext()) {\n            if (iterator.next() % 2 == 0) iterator.remove();   // right: the iterator removes safely\n        }\n        System.out.println(numbers);\n\n        numbers.removeIf(n -> n > 3);                          // also right, and shortest\n        System.out.println(numbers);\n    }\n}\n\n// Output:\n// fail-fast: ConcurrentModificationException\n// [1, 3, 5]\n// [1, 3]"
+  }
+ },
+ "/java/core-java/collections-framework/collections-utility-methods": {
+  "def": "The `Collections` class has ready-made helpers for lists and other collections: sorting, shuffling with a seed, counting, finding the largest, reversing, and creating read-only views.",
+  "example": {
+   "title": "Handy one-liners",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\nimport java.util.Random;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> numbers = new ArrayList<>(List.of(4, 8, 15, 16, 23, 42, 8));\n\n        System.out.println(Collections.max(numbers) + \" \" + Collections.min(numbers));\n        System.out.println(Collections.frequency(numbers, 8));            // how many 8s\n\n        Collections.sort(numbers);\n        System.out.println(numbers + \" -> index of 23: \" + Collections.binarySearch(numbers, 23));\n\n        Collections.reverse(numbers);\n        System.out.println(numbers);\n\n        Collections.shuffle(numbers, new Random(1));                       // a seed makes it repeatable\n        System.out.println(numbers);\n\n        List<Integer> readOnly = Collections.unmodifiableList(numbers);\n        System.out.println(readOnly.size());\n        System.out.println(Collections.nCopies(3, \"ha\"));\n    }\n}\n\n// Output:\n// 42 4\n// 2\n// [4, 8, 8, 15, 16, 23, 42] -> index of 23: 5\n// [42, 23, 16, 15, 8, 8, 4]\n// [15, 42, 8, 23, 16, 4, 8]\n// 7\n// [ha, ha, ha]"
+  }
+ },
+ "/java/core-java/equals-hashcode/equals-contract": {
+  "def": "`equals` says when two objects count as the same value. A correct `equals` is reflexive (x equals x), symmetric (if x equals y then y equals x), transitive, consistent and never true for `null`. Always take an `Object` parameter so you really override it.",
+  "example": {
+   "title": "A correct equals method",
+   "lang": "java",
+   "code": "class Email {\n    private final String address;\n\n    Email(String address) { this.address = address.toLowerCase(); }\n\n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;                      // reflexive\n        if (!(other instanceof Email that)) return false;    // handles null and other types\n        return address.equals(that.address);\n    }\n\n    @Override\n    public int hashCode() { return address.hashCode(); }     // always override both together\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Email a = new Email(\"Asha@Example.com\");\n        Email b = new Email(\"asha@example.com\");\n        System.out.println(a.equals(b));\n        System.out.println(b.equals(a));          // symmetric\n        System.out.println(a.equals(null));       // never true for null\n        System.out.println(a == b);               // == compares identity, not value\n    }\n}\n\n// Output:\n// true\n// true\n// false\n// false"
+  }
+ },
+ "/java/core-java/equals-hashcode/hashcode-contract": {
+  "def": "`hashCode` turns an object into a number that hash collections use to find it quickly. The rule: if two objects are equal, they must return the same hash code. Different objects may share a hash code, but a good spread keeps collections fast.",
+  "example": {
+   "title": "Equal objects, same hash code",
+   "lang": "java",
+   "code": "import java.util.Objects;\n\nclass Point {\n    private final int x, y;\n\n    Point(int x, int y) { this.x = x; this.y = y; }\n\n    @Override public boolean equals(Object o) {\n        return o instanceof Point p && x == p.x && y == p.y;\n    }\n\n    @Override public int hashCode() { return Objects.hash(x, y); }   // built from the same fields as equals\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Point a = new Point(3, 4);\n        Point b = new Point(3, 4);\n        Point c = new Point(4, 3);\n\n        System.out.println(a.equals(b) + \" \" + (a.hashCode() == b.hashCode()));   // equal => same hash\n        System.out.println(a.equals(c) + \" \" + (a.hashCode() == c.hashCode()));\n    }\n}\n\n// Output:\n// true true\n// false false"
+  }
+ },
+ "/java/core-java/equals-hashcode/missing-hashcode-problem": {
+  "def": "If you override `equals` but not `hashCode`, two equal objects usually get different hash codes. A `HashSet` or `HashMap` then looks in the wrong bucket, so it usually cannot find an object that is equal to one it already holds, and duplicates can appear.",
+  "example": {
+   "title": "Equal objects with different hash codes, and the fix",
+   "lang": "java",
+   "code": "import java.util.HashSet;\nimport java.util.Set;\n\nclass BadId {\n    final int value;\n    BadId(int value) { this.value = value; }\n    @Override public boolean equals(Object o) { return o instanceof BadId b && b.value == value; }\n    // no hashCode(): it inherits Object.hashCode(), which is different for every object\n}\n\nclass GoodId {\n    final int value;\n    GoodId(int value) { this.value = value; }\n    @Override public boolean equals(Object o) { return o instanceof GoodId g && g.value == value; }\n    @Override public int hashCode() { return Integer.hashCode(value); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        BadId a = new BadId(7), b = new BadId(7);\n        System.out.println(\"equal? \" + a.equals(b));\n        System.out.println(\"same hash? \" + (a.hashCode() == b.hashCode()));      // false: hash collections get confused\n\n        Set<GoodId> good = new HashSet<>();\n        good.add(new GoodId(7));\n        System.out.println(\"found? \" + good.contains(new GoodId(7)));            // true: equal objects share a hash\n    }\n}\n\n// Output:\n// equal? true\n// same hash? false\n// found? true"
+  }
+ },
+ "/java/core-java/equals-hashcode/mutable-keys": {
+  "def": "If a field used by `hashCode` changes after the object is stored in a `HashMap` or `HashSet`, the object sits in the wrong bucket and can no longer be found. Use immutable objects (or records) as keys.",
+  "example": {
+   "title": "A key that changes after it was stored",
+   "lang": "java",
+   "code": "import java.util.HashSet;\nimport java.util.Objects;\nimport java.util.Set;\n\nclass Tag {\n    String name;\n    Tag(String name) { this.name = name; }\n    @Override public boolean equals(Object o) { return o instanceof Tag t && t.name.equals(name); }\n    @Override public int hashCode() { return Objects.hash(name); }\n}\n\nrecord SafeTag(String name) { }       // a record is immutable: safe as a key\n\nclass Demo {\n    public static void main(String[] args) {\n        Set<Tag> tags = new HashSet<>();\n        Tag java = new Tag(\"java\");\n        tags.add(java);\n\n        java.name = \"kotlin\";                                           // the key changes after storing\n        System.out.println(tags.contains(java));                        // false: now looks in another bucket\n        System.out.println(tags.size());                                // still stored, but unreachable\n\n        Set<SafeTag> safe = new HashSet<>();\n        safe.add(new SafeTag(\"java\"));\n        System.out.println(safe.contains(new SafeTag(\"java\")));\n    }\n}\n\n// Output:\n// false\n// 1\n// true"
+  }
+ },
+ "/java/core-java/equals-hashcode/objects-hash-and-records": {
+  "def": "`Objects.equals` and `Objects.hash` make `equals` and `hashCode` short and null-safe. A `record` goes further: Java writes correct `equals`, `hashCode` and `toString` for you from the fields.",
+  "example": {
+   "title": "Hand-written, with Objects helpers, and with a record",
+   "lang": "java",
+   "code": "import java.util.Objects;\n\nclass Customer {\n    private final String name;\n    private final String city;\n\n    Customer(String name, String city) { this.name = name; this.city = city; }\n\n    @Override public boolean equals(Object o) {\n        return o instanceof Customer c && Objects.equals(name, c.name) && Objects.equals(city, c.city);   // null-safe\n    }\n\n    @Override public int hashCode() { return Objects.hash(name, city); }\n}\n\nrecord CustomerRecord(String name, String city) { }      // all three methods generated\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(new Customer(\"Asha\", null).equals(new Customer(\"Asha\", null)));\n        System.out.println(new CustomerRecord(\"Asha\", \"Pune\").equals(new CustomerRecord(\"Asha\", \"Pune\")));\n        System.out.println(new CustomerRecord(\"Asha\", \"Pune\"));\n    }\n}\n\n// Output:\n// true\n// true\n// CustomerRecord[name=Asha, city=Pune]"
+  }
+ },
+ "/java/core-java/hashmap-internals/bucket-index": {
+  "def": "A `HashMap` keeps its entries in an array of buckets. To pick a bucket it takes the key's `hashCode`, mixes the high bits into the low bits, and keeps only the low bits with a bit mask. That is how it jumps straight to the right place without searching.",
+  "example": {
+   "title": "How a key becomes a bucket number (simplified from the JDK source)",
+   "lang": "java",
+   "code": "class Demo {\n    static int bucketIndex(Object key, int tableLength) {\n        int h = key.hashCode();\n        int hash = h ^ (h >>> 16);              // spread the high bits into the low bits\n        return (tableLength - 1) & hash;        // same as hash % tableLength, because the length is a power of two\n    }\n\n    public static void main(String[] args) {\n        int tableLength = 16;                    // the default number of buckets\n        for (String key : new String[] {\"apple\", \"banana\", \"cherry\", \"date\"}) {\n            System.out.println(key + \" -> bucket \" + bucketIndex(key, tableLength));\n        }\n    }\n}\n\n// Output:\n// apple -> bucket 1\n// banana -> bucket 0\n// cherry -> bucket 1\n// date -> bucket 0"
+  }
+ },
+ "/java/core-java/hashmap-internals/collisions": {
+  "def": "A collision happens when two different keys land in the same bucket. The `HashMap` keeps them together in a chain and uses `equals` to tell them apart, so the map still works, but a lookup has to compare against more entries.",
+  "example": {
+   "title": "Keys with the same hash share one bucket and cost extra equals calls",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass BadKey {\n    static int equalsCalls = 0;\n    final String name;\n    BadKey(String name) { this.name = name; }\n\n    @Override public int hashCode() { return 1; }                 // every key goes to the same bucket\n    @Override public boolean equals(Object o) {\n        equalsCalls++;\n        return o instanceof BadKey k && k.name.equals(name);\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Map<BadKey, Integer> map = new HashMap<>();\n        BadKey last = null;\n        for (int i = 1; i <= 5; i++) {\n            last = new BadKey(\"key\" + i);\n            map.put(last, i);\n        }\n\n        BadKey.equalsCalls = 0;\n        System.out.println(map.get(new BadKey(\"key5\")));               // still correct...\n        System.out.println(\"equals calls: \" + BadKey.equalsCalls);     // ...but it walked the whole chain\n    }\n}\n\n// Output:\n// 5\n// equals calls: 5"
+  }
+ },
+ "/java/core-java/hashmap-internals/presizing-and-load-factor": {
+  "def": "A `HashMap` starts with 16 buckets and grows (doubles) when it is more than 75% full, which is its load factor. Growing means rebuilding the table, so if you know how many entries are coming, create the map with the right size from the start.",
+  "example": {
+   "title": "Sizing a map for 1,000 entries without resizing",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    public static void main(String[] args) {\n        int expected = 1_000;\n\n        // new HashMap<>(1000) is NOT enough: it rounds up to 1024 buckets and resizes at 768 entries\n        int needed = (int) Math.ceil(expected / 0.75);                    // entries / load factor\n        System.out.println(\"buckets needed: \" + needed + \" (rounded up to a power of two: 2048)\");\n\n        Map<Integer, String> sized = HashMap.newHashMap(expected);        // Java 19+: does that maths for you\n        for (int i = 0; i < expected; i++) sized.put(i, \"value \" + i);    // no resize while filling\n        System.out.println(sized.size());\n    }\n}\n\n// Output:\n// buckets needed: 1334 (rounded up to a power of two: 2048)\n// 1000"
+  }
+ },
+ "/java/core-java/hashmap-internals/null-keys-and-values": {
+  "def": "`HashMap` allows one `null` key and any number of `null` values. `TreeMap` and `ConcurrentHashMap` do not allow a `null` key, and `ConcurrentHashMap` does not allow `null` values either, because a `null` result from `get` would then be ambiguous.",
+  "example": {
+   "title": "Which maps accept null",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\nimport java.util.TreeMap;\nimport java.util.concurrent.ConcurrentHashMap;\n\nclass Demo {\n    static void tryPut(String name, Map<String, String> map) {\n        try {\n            map.put(null, \"value\");\n            System.out.println(name + \": null key accepted\");\n        } catch (NullPointerException e) {\n            System.out.println(name + \": null key rejected\");\n        }\n    }\n\n    public static void main(String[] args) {\n        tryPut(\"HashMap\", new HashMap<>());\n        tryPut(\"TreeMap\", new TreeMap<>());\n        tryPut(\"ConcurrentHashMap\", new ConcurrentHashMap<>());\n\n        Map<String, String> map = new HashMap<>();\n        map.put(\"a\", null);                                       // a null value is fine here\n        System.out.println(map.get(\"a\") + \" / \" + map.containsKey(\"a\"));\n    }\n}\n\n// Output:\n// HashMap: null key accepted\n// TreeMap: null key rejected\n// ConcurrentHashMap: null key rejected\n// null / true"
+  }
+ },
+ "/java/core-java/hashmap-internals/iteration-and-fail-fast": {
+  "def": "A `HashMap` does not promise any iteration order, so never depend on it. It is also fail-fast: changing the map while looping over it throws `ConcurrentModificationException`. Remove entries with an iterator or `removeIf`.",
+  "example": {
+   "title": "Removing entries safely while iterating",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    public static void main(String[] args) {\n        Map<String, Integer> stock = new HashMap<>(Map.of(\"apple\", 5, \"pear\", 0, \"fig\", 0, \"plum\", 3));\n\n        try {\n            for (String key : stock.keySet()) {\n                if (stock.get(key) == 0) stock.remove(key);          // wrong: changes the map while looping\n            }\n        } catch (java.util.ConcurrentModificationException e) {\n            System.out.println(\"fail-fast: ConcurrentModificationException\");\n        }\n\n        stock.entrySet().removeIf(entry -> entry.getValue() == 0);    // right: remove through the entry set\n        System.out.println(new java.util.TreeMap<>(stock));           // sorted copy, so the output is stable\n    }\n}\n\n// Output:\n// fail-fast: ConcurrentModificationException\n// {apple=5, plum=3}"
+  }
+ },
+ "/java/core-java/concurrenthashmap/merge-and-compute": {
+  "def": "`merge` and `compute` update the value for one key as a single atomic step, so several threads can safely count or update without losing changes. A separate `get` followed by `put` is two steps and can lose updates.",
+  "example": {
+   "title": "Four threads counting into one map",
+   "lang": "java",
+   "code": "import java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n        ExecutorService pool = Executors.newFixedThreadPool(4);\n\n        for (int t = 0; t < 4; t++) {\n            pool.submit(() -> {\n                for (int i = 0; i < 10_000; i++) {\n                    counts.merge(\"visits\", 1, Integer::sum);          // atomic read-modify-write\n                }\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n\n        System.out.println(counts.get(\"visits\"));                      // always 40000\n\n        counts.compute(\"visits\", (key, old) -> old == null ? 1 : old * 2);   // atomic custom update\n        System.out.println(counts.get(\"visits\"));\n    }\n}\n\n// Output:\n// 40000\n// 80000"
+  }
+ },
+ "/java/core-java/concurrenthashmap/computeifabsent-cache": {
+  "def": "`putIfAbsent` stores a value only if the key is missing. `computeIfAbsent` also builds the value only when it is missing, and does it once even if many threads ask at the same time. That makes it a simple, safe cache.",
+  "example": {
+   "title": "A cache that loads each key only once",
+   "lang": "java",
+   "code": "import java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass Demo {\n    static final ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();\n    static final AtomicInteger loads = new AtomicInteger();\n\n    static String load(String key) {\n        loads.incrementAndGet();                         // pretend this is a slow database call\n        return \"value-of-\" + key;\n    }\n\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(8);\n        for (int i = 0; i < 8; i++) {\n            pool.submit(() -> cache.computeIfAbsent(\"user:42\", Demo::load));   // 8 threads, same key\n        }\n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n\n        System.out.println(cache.get(\"user:42\"));\n        System.out.println(\"loaded \" + loads.get() + \" time(s)\");               // once, not eight times\n\n        System.out.println(cache.putIfAbsent(\"user:42\", \"other\"));              // returns the existing value\n    }\n}\n\n// Output:\n// value-of-user:42\n// loaded 1 time(s)\n// value-of-user:42"
+  }
+ },
+ "/java/core-java/concurrenthashmap/bulk-operations": {
+  "def": "`ConcurrentHashMap` has bulk methods that can run in parallel: `forEach`, `search` and `reduce`. You give a parallelism threshold: the map only splits the work across threads when it is bigger than that number.",
+  "example": {
+   "title": "Totalling and searching a map in parallel",
+   "lang": "java",
+   "code": "import java.util.concurrent.ConcurrentHashMap;\n\nclass Demo {\n    public static void main(String[] args) {\n        ConcurrentHashMap<String, Integer> sales = new ConcurrentHashMap<>();\n        sales.put(\"north\", 120);\n        sales.put(\"south\", 80);\n        sales.put(\"east\", 200);\n        sales.put(\"west\", 50);\n\n        long threshold = 1;                                           // 1 = use as much parallelism as possible\n\n        int total = sales.reduceValues(threshold, Integer::sum);      // combine all values\n        System.out.println(\"total: \" + total);\n\n        String bigRegion = sales.search(threshold, (region, amount) -> amount > 150 ? region : null);\n        System.out.println(\"over 150: \" + bigRegion);\n\n        long count = sales.reduceValuesToLong(threshold, v -> 1L, 0L, Long::sum);\n        System.out.println(\"regions: \" + count);\n    }\n}\n\n// Output:\n// total: 450\n// over 150: east\n// regions: 4"
+  }
+ },
+ "/java/core-java/concurrenthashmap/no-nulls": {
+  "def": "`ConcurrentHashMap` rejects `null` keys and `null` values. In a concurrent map, a `null` returned from `get` must mean \"no such key\". If `null` values were allowed you could not tell the two cases apart without another call that another thread may change.",
+  "example": {
+   "title": "null is rejected on purpose",
+   "lang": "java",
+   "code": "import java.util.concurrent.ConcurrentHashMap;\n\nclass Demo {\n    public static void main(String[] args) {\n        ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();\n\n        try {\n            map.put(\"key\", null);\n        } catch (NullPointerException e) {\n            System.out.println(\"null value rejected\");\n        }\n        try {\n            map.put(null, \"value\");\n        } catch (NullPointerException e) {\n            System.out.println(\"null key rejected\");\n        }\n\n        // use a clear \"empty\" marker instead of null\n        map.put(\"key\", \"\");\n        System.out.println(map.get(\"missing\") == null);      // null here always means \"not in the map\"\n    }\n}\n\n// Output:\n// null value rejected\n// null key rejected\n// true"
+  }
+ },
+ "/java/core-java/concurrenthashmap/synchronized-map-vs-concurrenthashmap": {
+  "def": "`Collections.synchronizedMap` wraps any map with one lock, so only one thread works at a time and you must still lock by hand when you loop or combine steps. `ConcurrentHashMap` locks only a small part and has atomic methods, so it scales much better.",
+  "example": {
+   "title": "The extra locking a synchronized map needs",
+   "lang": "java",
+   "code": "import java.util.Collections;\nimport java.util.HashMap;\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\n\nclass Demo {\n    public static void main(String[] args) {\n        Map<String, Integer> synced = Collections.synchronizedMap(new HashMap<>());\n        synced.put(\"a\", 1);\n        synced.put(\"b\", 2);\n\n        // each call is safe, but looping needs you to hold the map's lock yourself\n        synchronized (synced) {\n            for (Map.Entry<String, Integer> entry : synced.entrySet()) {\n                System.out.println(entry.getKey() + \"=\" + entry.getValue());\n            }\n        }\n\n        // check-then-act also needs the lock with a synchronized map...\n        synchronized (synced) {\n            if (!synced.containsKey(\"c\")) synced.put(\"c\", 3);\n        }\n\n        // ...but is one atomic call with ConcurrentHashMap\n        Map<String, Integer> concurrent = new ConcurrentHashMap<>(synced);\n        concurrent.putIfAbsent(\"d\", 4);\n        System.out.println(new java.util.TreeMap<>(concurrent));\n    }\n}\n\n// Output:\n// a=1\n// b=2\n// {a=1, b=2, c=3, d=4}"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/creating-threads": {
+  "def": "A thread is one path of execution. You create one by giving a `Thread` some code to run (a `Runnable`, usually a lambda) and calling `start()`. Call `join()` to wait until it has finished.",
+  "example": {
+   "title": "Three threads each compute a result, and main waits for them",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) throws InterruptedException {\n        int[] results = new int[3];\n        Thread[] threads = new Thread[3];\n\n        for (int i = 0; i < threads.length; i++) {\n            int id = i;\n            threads[i] = new Thread(() -> results[id] = (id + 1) * 100, \"worker-\" + i);   // the code to run\n            threads[i].start();                                                             // run it in parallel\n        }\n\n        for (Thread thread : threads) thread.join();                                       // wait for all of them\n\n        System.out.println(java.util.Arrays.toString(results));\n    }\n}\n\n// Output:\n// [100, 200, 300]"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/thread-states": {
+  "def": "A thread is in one of a few states: `NEW` (created, not started), `RUNNABLE` (running or ready), `BLOCKED` (waiting for a lock), `WAITING` or `TIMED_WAITING` (waiting for another thread or a timer), and `TERMINATED` (finished).",
+  "example": {
+   "title": "Watching one thread move through its states",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) throws InterruptedException {\n        Thread worker = new Thread(() -> {\n            try {\n                Thread.sleep(300);                         // the thread waits with a timer\n            } catch (InterruptedException ignored) { }\n        });\n\n        System.out.println(worker.getState());             // NEW\n        worker.start();\n        Thread.sleep(100);\n        System.out.println(worker.getState());             // TIMED_WAITING: it is inside sleep\n        worker.join();\n        System.out.println(worker.getState());             // TERMINATED\n    }\n}\n\n// Output:\n// NEW\n// TIMED_WAITING\n// TERMINATED"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/interrupt-and-join": {
+  "def": "You cannot safely force a thread to stop. Instead you ask it to stop by calling `interrupt()`. The thread checks `isInterrupted()` (or catches `InterruptedException` from `sleep` or `wait`) and ends itself cleanly.",
+  "example": {
+   "title": "Asking a worker to stop",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) throws InterruptedException {\n        Thread worker = new Thread(() -> {\n            while (!Thread.currentThread().isInterrupted()) {       // keep working until asked to stop\n                // ... do a small piece of work ...\n            }\n            System.out.println(\"worker saw the stop request and is finishing\");\n        });\n\n        worker.start();\n        Thread.sleep(100);\n        worker.interrupt();                                         // the polite request\n        worker.join();\n        System.out.println(\"worker finished: \" + !worker.isAlive());\n    }\n}\n\n// Output:\n// worker saw the stop request and is finishing\n// worker finished: true"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/daemon-threads": {
+  "def": "A daemon thread is a background helper. The JVM does not wait for daemon threads: when only daemon threads are left, the program ends. Normal (non-daemon) threads keep the program alive until they finish.",
+  "example": {
+   "title": "A daemon thread does not keep the program alive",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        Thread background = new Thread(() -> {\n            while (true) {                                  // would run forever...\n                try { Thread.sleep(100); } catch (InterruptedException e) { return; }\n            }\n        });\n        background.setDaemon(true);                         // ...but a daemon cannot block shutdown\n        background.start();\n\n        System.out.println(\"is daemon: \" + background.isDaemon());\n        System.out.println(\"main is done, the JVM exits even though the daemon is still running\");\n    }\n}\n\n// Output:\n// is daemon: true\n// main is done, the JVM exits even though the daemon is still running"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/threadlocal": {
+  "def": "A `ThreadLocal` gives every thread its own copy of a value. It is handy for per-thread context such as the current user or a non-thread-safe helper, but values must be removed when you are done, especially in thread pools.",
+  "example": {
+   "title": "Each thread sees only its own value",
+   "lang": "java",
+   "code": "class Demo {\n    static final ThreadLocal<String> currentUser = new ThreadLocal<>();\n\n    public static void main(String[] args) throws InterruptedException {\n        currentUser.set(\"main-user\");\n\n        Thread other = new Thread(() -> {\n            System.out.println(\"other thread sees: \" + currentUser.get());     // null: it has no value yet\n            currentUser.set(\"other-user\");\n            System.out.println(\"other thread now sees: \" + currentUser.get());\n            currentUser.remove();                                              // clean up when done\n        });\n        other.start();\n        other.join();\n\n        System.out.println(\"main still sees: \" + currentUser.get());           // unchanged\n    }\n}\n\n// Output:\n// other thread sees: null\n// other thread now sees: other-user\n// main still sees: main-user"
+  }
+ },
+ "/java/concurrency-jvm/threads-basics/deadlock": {
+  "def": "A deadlock happens when two threads each hold a lock the other one needs, so both wait forever. You avoid it by always taking locks in the same order, or by using `tryLock` with a timeout so a thread can give up.",
+  "example": {
+   "title": "Two threads that would deadlock, saved by a timeout",
+   "lang": "java",
+   "code": "import java.util.concurrent.CountDownLatch;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.locks.ReentrantLock;\n\nclass Demo {\n    static final ReentrantLock lockA = new ReentrantLock();\n    static final ReentrantLock lockB = new ReentrantLock();\n    static final CountDownLatch bothHoldOne = new CountDownLatch(2);\n    static final AtomicInteger gaveUp = new AtomicInteger();\n\n    static void work(ReentrantLock first, ReentrantLock second) {\n        first.lock();\n        try {\n            bothHoldOne.countDown();\n            bothHoldOne.await();                                    // make sure both threads hold one lock\n            if (second.tryLock(200, TimeUnit.MILLISECONDS)) {       // with plain lock() this would hang forever\n                second.unlock();\n            } else {\n                gaveUp.incrementAndGet();                           // gave up instead of waiting forever\n            }\n        } catch (InterruptedException e) {\n            Thread.currentThread().interrupt();\n        } finally {\n            first.unlock();\n        }\n    }\n\n    public static void main(String[] args) throws InterruptedException {\n        Thread t1 = new Thread(() -> work(lockA, lockB));           // A then B\n        Thread t2 = new Thread(() -> work(lockB, lockA));           // B then A: the opposite order\n        t1.start();\n        t2.start();\n        t1.join();\n        t2.join();\n        System.out.println(\"threads that gave up: \" + gaveUp.get());\n        // fix: always take the locks in the same order (A then B) in every thread\n    }\n}\n\n// Output:\n// threads that gave up: 1"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/synchronized": {
+  "def": "`synchronized` lets only one thread at a time run a block of code, using the lock of an object. It protects shared data that several threads change, so updates are not lost.",
+  "example": {
+   "title": "A counter that stays correct with two threads",
+   "lang": "java",
+   "code": "class Counter {\n    private int value;\n\n    synchronized void increment() { value++; }       // only one thread at a time\n    synchronized int get() { return value; }\n}\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        Counter counter = new Counter();\n        Runnable work = () -> { for (int i = 0; i < 100_000; i++) counter.increment(); };\n\n        Thread a = new Thread(work), b = new Thread(work);\n        a.start(); b.start();\n        a.join(); b.join();\n\n        System.out.println(counter.get());           // always 200000; without synchronized it would often be less\n    }\n}\n\n// Output:\n// 200000"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/volatile": {
+  "def": "A `volatile` field is always read from and written to main memory, so a change made by one thread becomes visible to the others straight away. It guarantees visibility, but not that compound steps such as `count++` are atomic.",
+  "example": {
+   "title": "A stop flag that another thread is guaranteed to see",
+   "lang": "java",
+   "code": "class Demo {\n    static volatile boolean running = true;                 // without volatile the loop might never see the change\n\n    public static void main(String[] args) throws InterruptedException {\n        Thread worker = new Thread(() -> {\n            long loops = 0;\n            while (running) loops++;                         // keeps looping until the flag changes\n            System.out.println(\"worker stopped\");\n        });\n        worker.start();\n\n        Thread.sleep(100);\n        running = false;                                     // visible to the worker immediately\n        worker.join();\n    }\n}\n\n// Output:\n// worker stopped"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/atomic-variables": {
+  "def": "Atomic classes such as `AtomicInteger` update one value safely without a lock, using a hardware instruction called compare-and-swap. `LongAdder` is even faster when many threads only add to a counter.",
+  "example": {
+   "title": "Counting from many threads without locks",
+   "lang": "java",
+   "code": "import java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.LongAdder;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        AtomicInteger counter = new AtomicInteger();\n        LongAdder adder = new LongAdder();\n\n        Runnable work = () -> {\n            for (int i = 0; i < 100_000; i++) {\n                counter.incrementAndGet();                   // atomic\n                adder.increment();                           // atomic, scales better under heavy contention\n            }\n        };\n        Thread a = new Thread(work), b = new Thread(work);\n        a.start(); b.start();\n        a.join(); b.join();\n\n        System.out.println(counter.get() + \" \" + adder.sum());\n\n        AtomicInteger stock = new AtomicInteger(5);\n        System.out.println(stock.compareAndSet(5, 4));       // only changes it if it is still 5\n        System.out.println(stock.compareAndSet(5, 3));       // fails: the value is now 4\n    }\n}\n\n// Output:\n// 200000 200000\n// true\n// false"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/reentrantlock": {
+  "def": "`ReentrantLock` is an explicit lock you take with `lock()` and release in a `finally` block. Compared with `synchronized` it can also try for a lock without waiting (`tryLock`), give up after a timeout, and be interrupted while waiting.",
+  "example": {
+   "title": "lock in try/finally, and tryLock",
+   "lang": "java",
+   "code": "import java.util.concurrent.locks.ReentrantLock;\n\nclass Demo {\n    private static final ReentrantLock lock = new ReentrantLock();\n    private static int balance = 100;\n\n    static void withdraw(int amount) {\n        lock.lock();\n        try {                                                 // always unlock in finally\n            if (amount <= balance) balance -= amount;\n        } finally {\n            lock.unlock();\n        }\n    }\n\n    public static void main(String[] args) throws InterruptedException {\n        withdraw(30);\n        System.out.println(\"balance: \" + balance);\n\n        lock.lock();                                          // hold the lock in this thread\n        Thread other = new Thread(() -> {\n            boolean got = lock.tryLock();                     // does not wait\n            System.out.println(\"other thread got the lock: \" + got);\n        });\n        other.start();\n        other.join();\n        lock.unlock();\n    }\n}\n\n// Output:\n// balance: 70\n// other thread got the lock: false"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/readwritelock": {
+  "def": "A `ReadWriteLock` allows many threads to read at the same time, but only one thread to write, and no readers while it writes. It speeds up data that is read often and changed rarely.",
+  "example": {
+   "title": "A small cache with shared reads and exclusive writes",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\nimport java.util.concurrent.locks.ReentrantReadWriteLock;\n\nclass Cache {\n    private final Map<String, String> data = new HashMap<>();\n    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();\n\n    String get(String key) {\n        lock.readLock().lock();                  // many readers can hold this at once\n        try { return data.get(key); }\n        finally { lock.readLock().unlock(); }\n    }\n\n    void put(String key, String value) {\n        lock.writeLock().lock();                 // a writer waits for readers and blocks them\n        try { data.put(key, value); }\n        finally { lock.writeLock().unlock(); }\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Cache cache = new Cache();\n        cache.put(\"city\", \"Pune\");\n        System.out.println(cache.get(\"city\"));\n    }\n}\n\n// Output:\n// Pune"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/latch-and-semaphore": {
+  "def": "A `CountDownLatch` makes a thread wait until other threads have finished a set number of steps. A `Semaphore` limits how many threads may use something at the same time, such as 3 database connections.",
+  "example": {
+   "title": "Wait for three workers, and allow only two at a time",
+   "lang": "java",
+   "code": "import java.util.concurrent.CountDownLatch;\nimport java.util.concurrent.Semaphore;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        CountDownLatch done = new CountDownLatch(3);\n        Semaphore permits = new Semaphore(2);                 // at most 2 at a time\n        AtomicInteger running = new AtomicInteger();\n        AtomicInteger maxRunning = new AtomicInteger();\n\n        for (int i = 0; i < 3; i++) {\n            new Thread(() -> {\n                try {\n                    permits.acquire();\n                    int now = running.incrementAndGet();\n                    maxRunning.accumulateAndGet(now, Math::max);\n                    Thread.sleep(100);\n                    running.decrementAndGet();\n                    permits.release();\n                } catch (InterruptedException ignored) { }\n                done.countDown();                             // one step finished\n            }).start();\n        }\n\n        done.await();                                         // waits until the count reaches zero\n        System.out.println(\"all workers finished, at most \" + maxRunning.get() + \" ran together\");\n    }\n}\n\n// Output:\n// all workers finished, at most 2 ran together"
+  }
+ },
+ "/java/concurrency-jvm/synchronization-and-locks/blockingqueue": {
+  "def": "A `BlockingQueue` passes work between threads safely. `put` waits when the queue is full and `take` waits when it is empty, so a producer and a consumer can run at their own speed without any manual locking.",
+  "example": {
+   "title": "One producer, one consumer",
+   "lang": "java",
+   "code": "import java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.BlockingQueue;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(2);        // holds at most 2 items\n        int[] sum = {0};\n\n        Thread producer = new Thread(() -> {\n            try {\n                for (int i = 1; i <= 5; i++) queue.put(i);                  // waits if the queue is full\n                queue.put(-1);                                              // a \"stop\" marker\n            } catch (InterruptedException ignored) { }\n        });\n\n        Thread consumer = new Thread(() -> {\n            try {\n                for (int item = queue.take(); item != -1; item = queue.take()) sum[0] += item;   // waits if empty\n            } catch (InterruptedException ignored) { }\n        });\n\n        producer.start();\n        consumer.start();\n        producer.join();\n        consumer.join();\n        System.out.println(\"sum of consumed items: \" + sum[0]);\n    }\n}\n\n// Output:\n// sum of consumed items: 15"
+  }
+ },
+ "/java/concurrency-jvm/memory-model/happens-before": {
+  "def": "\"Happens-before\" is the rule that says when one thread is guaranteed to see what another thread wrote. Starting a thread, joining it, releasing a lock and writing a `volatile` field all create such a guarantee. Without one, a thread may see old values.",
+  "example": {
+   "title": "start() and join() make writes visible",
+   "lang": "java",
+   "code": "class Demo {\n    static int result;                       // a plain field: no volatile, no lock\n\n    public static void main(String[] args) throws InterruptedException {\n        result = 10;                          // written before start(): the new thread is guaranteed to see it\n\n        Thread worker = new Thread(() -> {\n            System.out.println(\"worker sees \" + result);\n            result = result * 2;              // written by the worker\n        });\n        worker.start();\n        worker.join();                         // join() makes the worker's writes visible to main\n\n        System.out.println(\"main sees \" + result);\n    }\n}\n\n// Output:\n// worker sees 10\n// main sees 20"
+  }
+ },
+ "/java/concurrency-jvm/memory-model/volatile-visibility": {
+  "def": "Without `volatile`, a thread may keep a stale copy of a field in a CPU cache or a register and never notice that another thread changed it. A write to a `volatile` field happens-before every later read of it, so the reader sees the update and everything written before it.",
+  "example": {
+   "title": "A flag publishes the data written before it",
+   "lang": "java",
+   "code": "class Demo {\n    static int data;\n    static volatile boolean ready;            // the volatile flag publishes everything written before it\n\n    public static void main(String[] args) throws InterruptedException {\n        Thread reader = new Thread(() -> {\n            while (!ready) { }                 // wait for the flag\n            System.out.println(\"reader sees data = \" + data);   // guaranteed to be 42\n        });\n        reader.start();\n\n        Thread.sleep(50);\n        data = 42;                             // 1. write the data\n        ready = true;                          // 2. then set the volatile flag\n        reader.join();\n    }\n}\n\n// Output:\n// reader sees data = 42"
+  }
+ },
+ "/java/concurrency-jvm/memory-model/safe-publication": {
+  "def": "Safe publication means handing an object to other threads so they see it fully built. Objects whose fields are `final` are safe to share even through a plain field, because Java guarantees other threads see the final fields set by the constructor.",
+  "example": {
+   "title": "An immutable object shared between threads",
+   "lang": "java",
+   "code": "class Settings {\n    final String host;                         // final fields are visible once the constructor finishes\n    final int port;\n\n    Settings(String host, int port) {\n        this.host = host;\n        this.port = port;\n    }\n}\n\nclass Demo {\n    static Settings current;                    // shared between threads without a lock\n\n    public static void main(String[] args) throws InterruptedException {\n        Thread publisher = new Thread(() -> current = new Settings(\"localhost\", 8080));\n        publisher.start();\n        publisher.join();\n\n        // a reader can never see a half-built Settings with a null host or port 0\n        System.out.println(current.host + \":\" + current.port);\n    }\n}\n\n// Output:\n// localhost:8080"
+  }
+ },
+ "/java/concurrency-jvm/memory-model/double-checked-locking": {
+  "def": "Double-checked locking creates a shared object lazily and checks twice, once without a lock for speed and once with it for safety. It only works if the field is `volatile`; otherwise another thread can see a half-built object.",
+  "example": {
+   "title": "A lazy singleton that is correct",
+   "lang": "java",
+   "code": "class Config {\n    private static volatile Config instance;            // volatile is essential here\n    private final String name;\n\n    private Config() { this.name = \"app-config\"; }\n\n    static Config get() {\n        Config local = instance;\n        if (local == null) {                            // first check, no lock\n            synchronized (Config.class) {\n                local = instance;\n                if (local == null) {                    // second check, with the lock\n                    instance = local = new Config();\n                }\n            }\n        }\n        return local;\n    }\n\n    String name() { return name; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        System.out.println(Config.get() == Config.get());   // always the same single instance\n        System.out.println(Config.get().name());\n        // simpler alternative: a holder class or an enum singleton, which are safe without any locking code\n    }\n}\n\n// Output:\n// true\n// app-config"
+  }
+ },
+ "/java/concurrency-jvm/executors/fixed-thread-pool": {
+  "def": "An executor runs tasks for you on a pool of reusable threads. A fixed thread pool has a set number of threads: extra tasks wait in a queue until a thread is free. You submit work and the pool handles the threads.",
+  "example": {
+   "title": "Ten tasks on three threads",
+   "lang": "java",
+   "code": "import java.util.Set;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        Set<String> threadsUsed = ConcurrentHashMap.newKeySet();\n\n        for (int i = 0; i < 10; i++) {\n            pool.submit(() -> threadsUsed.add(Thread.currentThread().getName()));\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n\n        System.out.println(\"10 tasks ran on at most 3 threads: \" + (threadsUsed.size() <= 3));\n    }\n}\n\n// Output:\n// 10 tasks ran on at most 3 threads: true"
+  }
+ },
+ "/java/concurrency-jvm/executors/threadpoolexecutor": {
+  "def": "`ThreadPoolExecutor` lets you set the core size, the maximum size, the queue and what to do when it is full. Tasks first fill the core threads, then wait in the queue, and only when the queue is full are extra threads started. If everything is full, the rejection policy decides.",
+  "example": {
+   "title": "A small pool that rejects work when it is full",
+   "lang": "java",
+   "code": "import java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        ThreadPoolExecutor pool = new ThreadPoolExecutor(\n                1, 2,                                            // core 1 thread, up to 2 threads\n                60, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(1),                     // the queue holds 1 waiting task\n                new ThreadPoolExecutor.AbortPolicy());           // throw when everything is full\n\n        Runnable slow = () -> { try { Thread.sleep(300); } catch (InterruptedException ignored) { } };\n\n        pool.execute(slow);                                      // runs on the core thread\n        pool.execute(slow);                                      // waits in the queue\n        pool.execute(slow);                                      // queue is full: starts the second thread\n        try {\n            pool.execute(slow);                                  // no thread and no queue space left\n        } catch (RejectedExecutionException e) {\n            System.out.println(\"rejected: the pool is full\");\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n    }\n}\n\n// Output:\n// rejected: the pool is full"
+  }
+ },
+ "/java/concurrency-jvm/executors/scheduled-executor": {
+  "def": "A `ScheduledExecutorService` runs a task after a delay or repeatedly at a fixed rate. It replaces older `Timer` code and keeps running other tasks even if one of them fails.",
+  "example": {
+   "title": "A task that runs three times, once a moment",
+   "lang": "java",
+   "code": "import java.util.concurrent.CountDownLatch;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.ScheduledExecutorService;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);\n        AtomicInteger runs = new AtomicInteger();\n        CountDownLatch threeRuns = new CountDownLatch(3);\n\n        scheduler.scheduleAtFixedRate(() -> {\n            System.out.println(\"tick \" + runs.incrementAndGet());\n            threeRuns.countDown();\n        }, 0, 100, TimeUnit.MILLISECONDS);                       // start now, then every 100 ms\n\n        threeRuns.await();\n        scheduler.shutdownNow();\n    }\n}\n\n// Output:\n// tick 1\n// tick 2\n// tick 3"
+  }
+ },
+ "/java/concurrency-jvm/executors/future-and-callable": {
+  "def": "A `Callable` is a task that returns a value (a `Runnable` does not). When you submit it to an executor you get a `Future`: a receipt you can use later to get the result with `get()`, which waits if it is not ready, or to see that the task failed.",
+  "example": {
+   "title": "Submit tasks, then collect their results",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.concurrent.Callable;\nimport java.util.concurrent.ExecutionException;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.Future;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(2);\n\n        Callable<Integer> square = () -> 7 * 7;\n        Future<Integer> answer = pool.submit(square);\n        System.out.println(answer.get());                         // waits for the result\n\n        Future<Integer> failing = pool.submit(() -> { throw new IllegalStateException(\"boom\"); });\n        try {\n            failing.get();\n        } catch (ExecutionException e) {\n            System.out.println(\"task failed with: \" + e.getCause().getMessage());\n        }\n\n        List<Future<Integer>> all = pool.invokeAll(List.of(() -> 1, () -> 2, () -> 3));   // run several, wait for all\n        int total = 0;\n        for (Future<Integer> f : all) total += f.get();\n        System.out.println(total);\n        pool.shutdown();\n    }\n}\n\n// Output:\n// 49\n// task failed with: boom\n// 6"
+  }
+ },
+ "/java/concurrency-jvm/executors/graceful-shutdown": {
+  "def": "Always shut an executor down, or its threads keep the program alive. `shutdown()` stops accepting new tasks and lets queued ones finish. `awaitTermination` waits. If tasks take too long, `shutdownNow()` interrupts them.",
+  "example": {
+   "title": "The standard shutdown sequence",
+   "lang": "java",
+   "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\n\nclass Demo {\n    static void shutdown(ExecutorService pool) throws InterruptedException {\n        pool.shutdown();                                          // 1. stop accepting new tasks\n        if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {        // 2. give running tasks time to finish\n            pool.shutdownNow();                                   // 3. interrupt whatever is still running\n            pool.awaitTermination(1, TimeUnit.SECONDS);\n        }\n    }\n\n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(2);\n        pool.submit(() -> System.out.println(\"quick task done\"));\n        pool.submit(() -> {\n            try { Thread.sleep(10_000); }                          // a task that is too slow\n            catch (InterruptedException e) { System.out.println(\"slow task was interrupted\"); }\n        });\n\n        Thread.sleep(100);\n        shutdown(pool);\n        System.out.println(\"terminated: \" + pool.isTerminated());\n    }\n}\n\n// Output:\n// quick task done\n// slow task was interrupted\n// terminated: true"
+  }
+ },
+ "/java/concurrency-jvm/executors/forkjoin-pool": {
+  "def": "The Fork/Join pool splits a big task into smaller ones (fork), runs them in parallel, and combines the results (join). Idle threads steal work from busy ones. Parallel streams use it behind the scenes.",
+  "example": {
+   "title": "Summing a large array by splitting it",
+   "lang": "java",
+   "code": "import java.util.concurrent.ForkJoinPool;\nimport java.util.concurrent.RecursiveTask;\n\nclass SumTask extends RecursiveTask<Long> {\n    private final int[] numbers;\n    private final int from, to;\n\n    SumTask(int[] numbers, int from, int to) { this.numbers = numbers; this.from = from; this.to = to; }\n\n    @Override\n    protected Long compute() {\n        if (to - from <= 10_000) {                               // small enough: just add them\n            long sum = 0;\n            for (int i = from; i < to; i++) sum += numbers[i];\n            return sum;\n        }\n        int middle = (from + to) / 2;\n        SumTask left = new SumTask(numbers, from, middle);\n        SumTask right = new SumTask(numbers, middle, to);\n        left.fork();                                             // run the left half in parallel\n        return right.compute() + left.join();                    // do the right half here, then combine\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        int[] numbers = new int[1_000_000];\n        java.util.Arrays.fill(numbers, 1);\n\n        long total = ForkJoinPool.commonPool().invoke(new SumTask(numbers, 0, numbers.length));\n        System.out.println(total);\n    }\n}\n\n// Output:\n// 1000000"
+  }
+ },
+ "/java/concurrency-jvm/completablefuture/supplyasync-and-thenapply": {
+  "def": "A `CompletableFuture` is a result that will be ready later. `supplyAsync` starts a task in the background. `thenApply` says what to do with the result when it arrives, so you build a chain of steps without blocking a thread to wait.",
+  "example": {
+   "title": "Start a task, then transform its result",
+   "lang": "java",
+   "code": "import java.util.concurrent.CompletableFuture;\n\nclass Demo {\n    static int fetchPrice() {\n        try { Thread.sleep(100); } catch (InterruptedException ignored) { }   // pretend this is a slow call\n        return 200;\n    }\n\n    public static void main(String[] args) {\n        CompletableFuture<String> message = CompletableFuture\n                .supplyAsync(Demo::fetchPrice)                  // runs in the background\n                .thenApply(price -> price * 118 / 100)          // runs when the price is ready (add tax)\n                .thenApply(total -> \"Total: \" + total);\n\n        System.out.println(message.join());                      // wait for the final result\n    }\n}\n\n// Output:\n// Total: 236"
+  }
+ },
+ "/java/concurrency-jvm/completablefuture/thencompose-vs-thencombine": {
+  "def": "`thenCompose` chains a step that itself returns a `CompletableFuture`, so the second call depends on the first result. `thenCombine` joins two independent futures that run at the same time, once both are done.",
+  "example": {
+   "title": "A dependent call, and two independent calls combined",
+   "lang": "java",
+   "code": "import java.util.concurrent.CompletableFuture;\n\nclass Demo {\n    static CompletableFuture<Integer> userId(String name) { return CompletableFuture.supplyAsync(() -> name.length()); }\n    static CompletableFuture<String> orders(int id) { return CompletableFuture.supplyAsync(() -> id + \" orders\"); }\n    static CompletableFuture<Integer> price() { return CompletableFuture.supplyAsync(() -> 120); }\n    static CompletableFuture<Integer> shipping() { return CompletableFuture.supplyAsync(() -> 30); }\n\n    public static void main(String[] args) {\n        // thenCompose: the second call needs the first result\n        String result = userId(\"Asha\").thenCompose(Demo::orders).join();\n        System.out.println(result);\n\n        // thenCombine: two independent calls running at the same time\n        int total = price().thenCombine(shipping(), Integer::sum).join();\n        System.out.println(total);\n    }\n}\n\n// Output:\n// 4 orders\n// 150"
+  }
+ },
+ "/java/concurrency-jvm/completablefuture/allof-anyof": {
+  "def": "`allOf` waits until every future in a group is done, which is how you run many calls in parallel and then collect them. `anyOf` finishes as soon as the first one finishes.",
+  "example": {
+   "title": "Run several calls in parallel and gather the results",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.concurrent.CompletableFuture;\n\nclass Demo {\n    static CompletableFuture<String> call(String service, int millis) {\n        return CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(millis); } catch (InterruptedException ignored) { }\n            return service;\n        });\n    }\n\n    public static void main(String[] args) {\n        List<CompletableFuture<String>> calls = List.of(call(\"users\", 150), call(\"orders\", 100), call(\"prices\", 50));\n\n        CompletableFuture.allOf(calls.toArray(new CompletableFuture[0])).join();   // wait for all three\n        System.out.println(calls.stream().map(CompletableFuture::join).toList());\n\n        Object fastest = CompletableFuture.anyOf(call(\"slow\", 300), call(\"fast\", 20)).join();   // first one wins\n        System.out.println(fastest);\n    }\n}\n\n// Output:\n// [users, orders, prices]\n// fast"
+  }
+ },
+ "/java/concurrency-jvm/completablefuture/exception-handling": {
+  "def": "If a step in a chain fails, the exception travels down the chain and later steps are skipped. `exceptionally` supplies a fallback value. `handle` runs whether the step succeeded or failed. `join` throws the failure wrapped in a `CompletionException`.",
+  "example": {
+   "title": "A fallback value and a handle step",
+   "lang": "java",
+   "code": "import java.util.concurrent.CompletableFuture;\n\nclass Demo {\n    public static void main(String[] args) {\n        CompletableFuture<Integer> failing = CompletableFuture.supplyAsync(() -> {\n            if (true) throw new IllegalStateException(\"service is down\");\n            return 1;\n        });\n\n        int fallback = failing.exceptionally(error -> -1).join();          // only runs on failure\n        System.out.println(\"fallback: \" + fallback);\n\n        String text = failing.handle((value, error) ->                      // runs in both cases\n                error == null ? \"ok: \" + value : \"failed: \" + error.getCause().getMessage()).join();\n        System.out.println(text);\n\n        try {\n            failing.join();\n        } catch (java.util.concurrent.CompletionException e) {\n            System.out.println(\"join threw: \" + e.getCause());\n        }\n    }\n}\n\n// Output:\n// fallback: -1\n// failed: service is down\n// join threw: java.lang.IllegalStateException: service is down"
+  }
+ },
+ "/java/concurrency-jvm/completablefuture/timeouts-and-executors": {
+  "def": "Always limit how long you wait: `orTimeout` fails the future after a time, and `completeOnTimeout` gives a default value instead. For blocking work, pass your own executor to the `Async` methods instead of using the shared common pool.",
+  "example": {
+   "title": "A slow call that is cut off, running on a dedicated pool",
+   "lang": "java",
+   "code": "import java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\n\nclass Demo {\n    public static void main(String[] args) {\n        ExecutorService ioPool = Executors.newFixedThreadPool(4);          // a pool just for blocking calls\n\n        CompletableFuture<String> slow = CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(2_000); } catch (InterruptedException ignored) { }\n            return \"late answer\";\n        }, ioPool);\n\n        String result = slow\n                .completeOnTimeout(\"default answer\", 200, TimeUnit.MILLISECONDS)   // give up after 200 ms\n                .join();\n        System.out.println(result);\n\n        CompletableFuture<String> strict = CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(2_000); } catch (InterruptedException ignored) { }\n            return \"late\";\n        }, ioPool).orTimeout(200, TimeUnit.MILLISECONDS);                       // fail after 200 ms\n        try {\n            strict.join();\n        } catch (java.util.concurrent.CompletionException e) {\n            System.out.println(\"timed out: \" + e.getCause().getClass().getSimpleName());\n        }\n        ioPool.shutdownNow();\n    }\n}\n\n// Output:\n// default answer\n// timed out: TimeoutException"
+  }
+ },
+ "/java/concurrency-jvm/virtual-threads/creating-virtual-threads": {
+  "def": "Since Java 21 you can start a virtual thread with `Thread.startVirtualThread` or `Thread.ofVirtual()`. It is used like a normal thread, but it is very cheap, so you create one per task instead of sharing a small pool.",
+  "example": {
+   "title": "Three ways to start a virtual thread",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) throws InterruptedException {\n        Thread first = Thread.startVirtualThread(() -> System.out.println(\"first runs on a virtual thread\"));\n        first.join();\n\n        Thread second = Thread.ofVirtual().name(\"worker-1\").start(\n                () -> System.out.println(Thread.currentThread().getName() + \", virtual: \" + Thread.currentThread().isVirtual()));\n        second.join();\n\n        Thread platform = Thread.ofPlatform().start(\n                () -> System.out.println(\"a normal thread, virtual: \" + Thread.currentThread().isVirtual()));\n        platform.join();\n    }\n}\n\n// Output:\n// first runs on a virtual thread\n// worker-1, virtual: true\n// a normal thread, virtual: false"
+  }
+ },
+ "/java/concurrency-jvm/virtual-threads/executor-per-task": {
+  "def": "The usual way to use virtual threads is an executor that starts a new virtual thread for every task. Because they are cheap you do not pool them. Using the executor in try-with-resources waits for all tasks before continuing.",
+  "example": {
+   "title": "Fetching 5 values at the same time with plain blocking code",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.Future;\n\nclass Demo {\n    static String fetch(int id) throws InterruptedException {\n        Thread.sleep(200);                                  // blocking is cheap on a virtual thread\n        return \"item-\" + id;\n    }\n\n    public static void main(String[] args) throws Exception {\n        List<Future<String>> futures = new ArrayList<>();\n\n        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {\n            for (int id = 1; id <= 5; id++) {\n                int copy = id;\n                futures.add(executor.submit(() -> fetch(copy)));\n            }\n        }                                                    // waits here until all 5 are done\n\n        for (Future<String> future : futures) System.out.println(future.get());\n    }\n}\n\n// Output:\n// item-1\n// item-2\n// item-3\n// item-4\n// item-5"
+  }
+ },
+ "/java/concurrency-jvm/virtual-threads/limiting-concurrency": {
+  "def": "Virtual threads are cheap, but the things they call (a database, a payment API) are not. Instead of limiting the threads, limit the use of the scarce resource, for example with a `Semaphore`.",
+  "example": {
+   "title": "Many virtual threads, at most 3 using the database at once",
+   "lang": "java",
+   "code": "import java.util.concurrent.Executors;\nimport java.util.concurrent.Semaphore;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass Demo {\n    public static void main(String[] args) {\n        Semaphore databaseSlots = new Semaphore(3);          // the database allows 3 connections\n        AtomicInteger inUse = new AtomicInteger();\n        AtomicInteger peak = new AtomicInteger();\n\n        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {\n            for (int i = 0; i < 100; i++) {\n                executor.submit(() -> {\n                    databaseSlots.acquire();                  // waits cheaply if all 3 slots are taken\n                    try {\n                        peak.accumulateAndGet(inUse.incrementAndGet(), Math::max);\n                        Thread.sleep(20);                     // the \"query\"\n                        inUse.decrementAndGet();\n                    } finally {\n                        databaseSlots.release();\n                    }\n                    return null;\n                });\n            }\n        }\n        System.out.println(\"100 tasks ran, peak database use: \" + peak.get());\n    }\n}\n\n// Output:\n// 100 tasks ran, peak database use: 3"
+  }
+ },
+ "/java/concurrency-jvm/garbage-collection/heap-and-generations": {
+  "def": "Objects live on the heap. Most objects die young, so the collector splits the heap into a young area, where new objects start and are cleaned often and cheaply, and an old area for objects that survive. Cleaning the young area is called a minor collection.",
+  "example": {
+   "title": "Creating garbage and watching the collector run",
+   "lang": "java",
+   "code": "import java.lang.management.GarbageCollectorMXBean;\nimport java.lang.management.ManagementFactory;\n\nclass Demo {\n    public static void main(String[] args) {\n        long before = totalCollections();\n\n        for (int i = 0; i < 3_000_000; i++) {\n            byte[] temporary = new byte[1024];            // short-lived object: garbage right after this loop turn\n        }\n\n        long after = totalCollections();\n        System.out.println(\"the collector ran while we created garbage: \" + (after > before));\n    }\n\n    static long totalCollections() {\n        long total = 0;\n        for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {\n            total += gc.getCollectionCount();\n        }\n        return total;\n    }\n}\n\n// Output:\n// the collector ran while we created garbage: true"
+  }
+ },
+ "/java/concurrency-jvm/garbage-collection/reachability-and-references": {
+  "def": "The collector frees only objects that nothing can reach any more. A normal (strong) reference keeps an object alive. A `WeakReference` does not: once nothing else refers to the object, the collector may free it, which is useful for caches.",
+  "example": {
+   "title": "A weakly referenced object disappears after a collection",
+   "lang": "java",
+   "code": "import java.lang.ref.WeakReference;\n\nclass Demo {\n    public static void main(String[] args) throws InterruptedException {\n        Object strong = new Object();\n        WeakReference<Object> weakOfStrong = new WeakReference<>(strong);\n\n        WeakReference<Object> weak = new WeakReference<>(new Object());   // nothing else refers to it\n\n        System.gc();                                                        // a request to collect now\n        Thread.sleep(100);\n\n        System.out.println(\"still reachable object: \" + (weakOfStrong.get() != null));\n        System.out.println(\"unreachable object:     \" + (weak.get() != null));\n        System.out.println(strong != null);                                 // keeps 'strong' alive until here\n    }\n}\n\n// Output:\n// still reachable object: true\n// unreachable object:     false\n// true"
+  }
+ },
+ "/java/concurrency-jvm/garbage-collection/memory-leaks": {
+  "def": "Java frees unreachable objects, so a \"leak\" means objects you no longer need that are still reachable, for example items added to a static list that is never cleared. Keep caches bounded and remove listeners and entries when you are done.",
+  "example": {
+   "title": "An ever-growing static list, and a bounded cache instead",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.LinkedHashMap;\nimport java.util.List;\nimport java.util.Map;\n\nclass Demo {\n    static final List<byte[]> leaky = new ArrayList<>();     // static: reachable for the whole run, never cleared\n\n    static class BoundedCache<K, V> extends LinkedHashMap<K, V> {\n        private final int max;\n        BoundedCache(int max) { super(16, 0.75f, true); this.max = max; }\n        @Override protected boolean removeEldestEntry(Map.Entry<K, V> eldest) { return size() > max; }\n    }\n\n    public static void main(String[] args) {\n        for (int i = 0; i < 1_000; i++) leaky.add(new byte[1024]);   // every item stays reachable: this grows forever\n        System.out.println(\"leaky list size: \" + leaky.size());\n\n        BoundedCache<Integer, byte[]> cache = new BoundedCache<>(100);\n        for (int i = 0; i < 1_000; i++) cache.put(i, new byte[1024]);\n        System.out.println(\"bounded cache size: \" + cache.size());   // old entries were removed\n    }\n}\n\n// Output:\n// leaky list size: 1000\n// bounded cache size: 100"
+  }
+ },
+ "/java/concurrency-jvm/garbage-collection/choosing-a-collector": {
+  "def": "Java has several garbage collectors. G1 is the default and balances speed and pauses. ZGC aims for very short pauses on large heaps. Parallel favours total throughput, and Serial is for tiny programs. You choose one with a single `-XX:+Use...GC` flag.",
+  "example": {
+   "title": "The flags for each collector",
+   "lang": "bash",
+   "code": "# G1: the default on most machines. Balanced; tune with a pause goal\njava -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -jar app.jar\n\n# ZGC: very short pauses, even on very large heaps (generational by default in recent Java)\njava -XX:+UseZGC -jar app.jar\n\n# Parallel: highest total throughput, longer pauses (good for batch jobs)\njava -XX:+UseParallelGC -jar app.jar\n\n# Serial: one thread, for tiny containers and small tools\njava -XX:+UseSerialGC -jar app.jar"
+  }
+ },
+ "/java/concurrency-jvm/garbage-collection/gc-logging": {
+  "def": "GC logging records every collection: when it happened, how long it paused and how much memory was freed. Turn it on in production so that you can answer \"was it the garbage collector?\" with evidence.",
+  "example": {
+   "title": "Writing a GC log and reading it",
+   "lang": "bash",
+   "code": "# turn on GC logging, with time stamps, into a file\njava -Xlog:gc*:file=gc.log:time,uptime,level,tags -jar app.jar\n\n# what to look at in gc.log:\n#   - pause times (how long the application stopped)\n#   - how often collections happen\n#   - heap size after each collection: if it keeps growing, suspect a memory leak"
+  }
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics/stack-and-stackoverflow": {
+  "def": "Every thread has its own stack that holds method calls and local variables. If calls nest too deeply, usually from a recursion that never stops, the stack runs out and Java throws `StackOverflowError`. The stack size is set with `-Xss`.",
+  "example": {
+   "title": "A runaway recursion is caught",
+   "lang": "java",
+   "code": "class Demo {\n    static int depth = 0;\n\n    static void recurse() {\n        depth++;\n        recurse();                         // no stop condition: each call adds a frame to the stack\n    }\n\n    public static void main(String[] args) {\n        try {\n            recurse();\n        } catch (StackOverflowError e) {\n            System.out.println(\"stack ran out of space, reached a depth above 1000: \" + (depth > 1000));\n        }\n        // a bigger stack for deep but valid recursion: java -Xss2m ...\n    }\n}\n\n// Output:\n// stack ran out of space, reached a depth above 1000: true"
+  }
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics/heap-sizing-flags": {
+  "def": "The heap is the memory for objects. `-Xms` sets its starting size and `-Xmx` its maximum. In containers, `-XX:MaxRAMPercentage` sets the maximum as a share of the container memory. Leave room for memory outside the heap, such as thread stacks and metaspace.",
+  "example": {
+   "title": "Sizing the heap and getting a dump if it fills up",
+   "lang": "bash",
+   "code": "# fixed numbers\njava -Xms512m -Xmx2g -jar app.jar\n\n# in a container: a share of the memory limit (leave the rest for stacks, metaspace and native memory)\njava -XX:MaxRAMPercentage=70 -jar app.jar\n\n# on OutOfMemoryError: write a heap dump to analyse, then stop so the platform restarts the app\njava -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.hprof -XX:+ExitOnOutOfMemoryError -jar app.jar"
+  }
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics/jcmd-diagnostics": {
+  "def": "`jcmd` talks to a running Java process by its process id. It can print thread stacks (to find deadlocks and stuck threads), show heap and class statistics, trigger a heap dump and start Flight Recorder, all without restarting the application.",
+  "example": {
+   "title": "Looking inside a running JVM",
+   "lang": "bash",
+   "code": "jcmd                                   # list running Java processes and their ids\n\njcmd <pid> Thread.print                # all thread stacks; deadlocks are reported at the end\njcmd <pid> GC.heap_info                # heap sizes and usage\njcmd <pid> GC.class_histogram          # which classes use the most memory\njcmd <pid> GC.heap_dump /tmp/heap.hprof   # a heap dump to open in a tool such as Eclipse MAT\njcmd <pid> JFR.start duration=60s filename=/tmp/rec.jfr   # Flight Recorder: low-overhead profiling"
+  }
+ },
+ "/java/concurrency-jvm/jvm-tuning-diagnostics/jit-compilation-flags": {
+  "def": "The JVM first runs your code by interpreting it, notices which methods are used a lot, and compiles those to fast machine code while the program runs. That is the JIT compiler. It is why Java programs start slower and then speed up (warm-up).",
+  "example": {
+   "title": "Seeing the JIT at work",
+   "lang": "bash",
+   "code": "# print every method as the JIT compiles it\njava -XX:+PrintCompilation -jar app.jar\n\n# only the quick compiler (C1): faster start, lower peak speed. Useful for short-lived tools\njava -XX:TieredStopAtLevel=1 -jar app.jar\n\n# tip: benchmark after a warm-up period, or use a tool like JMH, or your numbers will be misleading"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/ioc-container": {
+  "def": "Inversion of control means the Spring container creates your objects (called beans), wires them together and manages them, instead of your code calling `new`. You describe the beans, and the `ApplicationContext` builds them and hands them to you.",
+  "example": {
+   "title": "Describe a bean, let the container build it",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\nclass Greeter {\n    String greet(String name) { return \"Hello, \" + name; }\n}\n\n@Configuration\nclass AppConfig {\n    @Bean\n    Greeter greeter() { return new Greeter(); }                 // you describe the bean...\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {   // ...the container builds it\n            Greeter greeter = context.getBean(Greeter.class);\n            System.out.println(greeter.greet(\"Asha\"));\n            System.out.println(context.getBean(Greeter.class) == greeter);              // singleton: the same instance\n        }\n    }\n}\n\n// Output:\n// Hello, Asha\n// true"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/constructor-injection": {
+  "def": "Constructor injection means a class lists what it needs as constructor parameters and Spring supplies them. It is the preferred style: the dependencies are visible, they can be `final`, and the class is easy to create in a plain unit test.",
+  "example": {
+   "title": "A service that receives its dependency through the constructor",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Component\nclass PriceRepository {\n    int priceOf(String item) { return item.length() * 10; }\n}\n\n@Service\nclass OrderService {\n    private final PriceRepository prices;                       // final: it can never be missing or changed\n\n    OrderService(PriceRepository prices) {                      // Spring passes the bean in\n        this.prices = prices;\n    }\n\n    int total(String... items) {\n        int sum = 0;\n        for (String item : items) sum += prices.priceOf(item);\n        return sum;\n    }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            System.out.println(context.getBean(OrderService.class).total(\"pen\", \"book\"));\n        }\n        // in a unit test you can skip Spring: new OrderService(new PriceRepository())\n    }\n}\n\n// Output:\n// 70"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/qualifier-and-primary": {
+  "def": "When two beans implement the same interface, Spring does not know which to inject and fails. `@Primary` marks the default one. `@Qualifier(\"name\")` picks a specific one at the injection point.",
+  "example": {
+   "title": "Two notifiers: one default, one chosen by name",
+   "lang": "java",
+   "code": "import org.springframework.beans.factory.annotation.Qualifier;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.Primary;\nimport org.springframework.stereotype.Component;\n\ninterface Notifier { String send(String text); }\n\n@Component\n@Primary                                                         // the default choice\nclass EmailNotifier implements Notifier {\n    public String send(String text) { return \"email: \" + text; }\n}\n\n@Component(\"sms\")\nclass SmsNotifier implements Notifier {\n    public String send(String text) { return \"sms: \" + text; }\n}\n\n@Component\nclass Alerts {\n    private final Notifier normal;\n    private final Notifier urgent;\n\n    Alerts(Notifier normal, @Qualifier(\"sms\") Notifier urgent) {   // default, and a named one\n        this.normal = normal;\n        this.urgent = urgent;\n    }\n\n    void run() {\n        System.out.println(normal.send(\"report ready\"));\n        System.out.println(urgent.send(\"server down\"));\n    }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            context.getBean(Alerts.class).run();\n        }\n    }\n}\n\n// Output:\n// email: report ready\n// sms: server down"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/inject-all-implementations": {
+  "def": "Spring can inject every bean of a type at once, as a `List` or a `Map` keyed by bean name. That lets you add a new implementation without changing the code that uses them, for example a new payment method.",
+  "example": {
+   "title": "A list and a map of all discount rules",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.stereotype.Component;\n\ninterface DiscountRule { int apply(int price); }\n\n@Component(\"student\")\nclass StudentRule implements DiscountRule { public int apply(int price) { return price - 10; } }\n\n@Component(\"festival\")\nclass FestivalRule implements DiscountRule { public int apply(int price) { return price - 5; } }\n\n@Component\nclass PriceCalculator {\n    private final List<DiscountRule> rules;\n    private final Map<String, DiscountRule> byName;\n\n    PriceCalculator(List<DiscountRule> rules, Map<String, DiscountRule> byName) {   // every implementation\n        this.rules = rules;\n        this.byName = byName;\n    }\n\n    int afterAll(int price) {\n        for (DiscountRule rule : rules) price = rule.apply(price);\n        return price;\n    }\n\n    int afterOne(String name, int price) { return byName.get(name).apply(price); }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            PriceCalculator calculator = context.getBean(PriceCalculator.class);\n            System.out.println(calculator.afterAll(100));              // both rules applied\n            System.out.println(calculator.afterOne(\"student\", 100));   // one rule picked by bean name\n        }\n    }\n}\n\n// Output:\n// 85\n// 90"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/circular-dependencies": {
+  "def": "A circular dependency means A needs B and B needs A. With constructor injection Spring cannot build either one first, so it fails at startup. The real fix is to redesign (move the shared logic into a third class); `@Lazy` is a last resort.",
+  "example": {
+   "title": "The failure, and the redesign",
+   "lang": "java",
+   "code": "import org.springframework.beans.BeansException;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\nclass OrderService {\n    OrderService(InvoiceService invoices) { }       // needs InvoiceService...\n}\n\nclass InvoiceService {\n    InvoiceService(OrderService orders) { }         // ...which needs OrderService: a circle\n}\n\nclass PricingRules { }                              // the fix: both depend on a third class instead\n\nclass OrderService2 { OrderService2(PricingRules rules) { } }\nclass InvoiceService2 { InvoiceService2(PricingRules rules) { } }\n\n@Configuration\nclass Circular {\n    @Bean OrderService orders(InvoiceService invoices) { return new OrderService(invoices); }\n    @Bean InvoiceService invoices(OrderService orders) { return new InvoiceService(orders); }\n}\n\n@Configuration\nclass Fixed {\n    @Bean PricingRules rules() { return new PricingRules(); }\n    @Bean OrderService2 orders(PricingRules rules) { return new OrderService2(rules); }\n    @Bean InvoiceService2 invoices(PricingRules rules) { return new InvoiceService2(rules); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Circular.class)) {\n            System.out.println(\"started\");\n        } catch (BeansException e) {\n            System.out.println(\"circular: \" + e.getClass().getSimpleName());\n        }\n        try (var context = new AnnotationConfigApplicationContext(Fixed.class)) {\n            System.out.println(\"fixed: started\");\n        }\n    }\n}\n\n// Output:\n// circular: UnsatisfiedDependencyException\n// fixed: started"
+  }
+ },
+ "/spring/core/ioc-and-dependency-injection/component-scanning": {
+  "def": "Component scanning makes Spring search a package for classes marked `@Component` and register them as beans. `@Service`, `@Repository` and `@Controller` are the same thing with a clearer meaning, and `@Repository` also translates database exceptions.",
+  "example": {
+   "title": "Finding beans by scanning",
+   "lang": "java",
+   "code": "import java.util.Arrays;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Repository;\nimport org.springframework.stereotype.Service;\n\n@Component class Clock2 { }\n@Service class BillingService { }\n@Repository class CustomerRepository { }\nclass NotABean { }                                              // no stereotype: Spring ignores it\n\n@ComponentScan                                                  // scans this class's package\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            String[] names = context.getBeanDefinitionNames();\n            Arrays.stream(names).filter(n -> !n.contains(\".\") && !n.equals(\"demo\")).sorted().forEach(System.out::println);\n        }\n    }\n}\n\n// Output:\n// billingService\n// clock2\n// customerRepository"
+  }
+ },
+ "/spring/core/bean-lifecycle-and-scopes/lifecycle-callbacks": {
+  "def": "Spring creates a bean, injects its dependencies, then calls your `@PostConstruct` method. When the application stops it calls your `@PreDestroy` method. Use them to open and close resources instead of doing that work in the constructor.",
+  "example": {
+   "title": "The order: constructor, init, use, destroy",
+   "lang": "java",
+   "code": "import jakarta.annotation.PostConstruct;\nimport jakarta.annotation.PreDestroy;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass ConnectionPool {\n    ConnectionPool() { System.out.println(\"1. constructor\"); }\n\n    @PostConstruct\n    void open() { System.out.println(\"2. @PostConstruct: open connections\"); }\n\n    void use() { System.out.println(\"3. in use\"); }\n\n    @PreDestroy\n    void close() { System.out.println(\"4. @PreDestroy: close connections\"); }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            context.getBean(ConnectionPool.class).use();\n        }                                                      // closing the context destroys the beans\n    }\n}\n\n// Output:\n// 1. constructor\n// 2. @PostConstruct: open connections\n// 3. in use\n// 4. @PreDestroy: close connections"
+  }
+ },
+ "/spring/core/bean-lifecycle-and-scopes/singleton-vs-prototype": {
+  "def": "A `singleton` bean (the default) is created once and shared by everyone, so it must not hold per-request state. A `prototype` bean is created fresh every time it is requested.",
+  "example": {
+   "title": "The same instance, or a new one each time",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.context.annotation.Scope;\n\nclass Counter { }\n\n@Configuration\nclass AppConfig {\n    @Bean\n    Counter shared() { return new Counter(); }                 // singleton by default\n\n    @Bean\n    @Scope(\"prototype\")\n    Counter fresh() { return new Counter(); }                  // a new object on every request\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {\n            System.out.println(\"singleton same? \" + (context.getBean(\"shared\") == context.getBean(\"shared\")));\n            System.out.println(\"prototype same? \" + (context.getBean(\"fresh\") == context.getBean(\"fresh\")));\n        }\n    }\n}\n\n// Output:\n// singleton same? true\n// prototype same? false"
+  }
+ },
+ "/spring/core/bean-lifecycle-and-scopes/lazy-beans": {
+  "def": "By default Spring creates every singleton at startup, so mistakes show up immediately. A `@Lazy` bean is created only when it is first needed. It speeds up startup but moves any failure to run time.",
+  "example": {
+   "title": "When each bean is created",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.context.annotation.Lazy;\n\nclass Report {\n    Report(String name) { System.out.println(\"creating \" + name); }\n}\n\n@Configuration\nclass AppConfig {\n    @Bean\n    Report eager() { return new Report(\"eager report\"); }       // created at startup\n\n    @Bean\n    @Lazy\n    Report lazy() { return new Report(\"lazy report\"); }         // created on first use\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {\n            System.out.println(\"context started\");\n            context.getBean(\"lazy\");                           // first use: now it is created\n        }\n    }\n}\n\n// Output:\n// creating eager report\n// context started\n// creating lazy report"
+  }
+ },
+ "/spring/core/bean-lifecycle-and-scopes/bean-post-processor": {
+  "def": "A `BeanPostProcessor` is a hook that Spring calls for every bean right after it is created. It can inspect or even replace the bean. This is how Spring itself adds features such as `@Transactional` and `@Async` (by wrapping beans in proxies).",
+  "example": {
+   "title": "A hook that sees every bean as it is created",
+   "lang": "java",
+   "code": "import org.springframework.beans.factory.config.BeanPostProcessor;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\nclass Greeter { }\nclass Mailer { }\n\nclass LoggingPostProcessor implements BeanPostProcessor {\n    @Override\n    public Object postProcessAfterInitialization(Object bean, String beanName) {\n        if (bean instanceof Greeter || bean instanceof Mailer) {\n            System.out.println(\"created bean: \" + beanName);        // inspect (or wrap) every bean\n        }\n        return bean;                                               // return the bean, or a proxy around it\n    }\n}\n\n@Configuration\nclass AppConfig {\n    @Bean static LoggingPostProcessor logger() { return new LoggingPostProcessor(); }   // static: it is needed early\n    @Bean Greeter greeter() { return new Greeter(); }\n    @Bean Mailer mailer() { return new Mailer(); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {\n            System.out.println(\"ready\");\n        }\n    }\n}\n\n// Output:\n// created bean: greeter\n// created bean: mailer\n// ready"
+  }
+ },
+ "/spring/core/configuration-profiles-conditions/configuration-and-bean": {
+  "def": "A `@Configuration` class contains `@Bean` methods, and each method describes one bean. It is the way to register objects you do not own (such as a library class) and to wire beans together in plain Java code.",
+  "example": {
+   "title": "Beans that depend on each other, wired in Java",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\nrecord DatabaseConfig(String url) { }\n\nclass OrderRepository {\n    final DatabaseConfig config;\n    OrderRepository(DatabaseConfig config) { this.config = config; }\n}\n\n@Configuration\nclass AppConfig {\n    @Bean\n    DatabaseConfig databaseConfig() { return new DatabaseConfig(\"jdbc:h2:mem:shop\"); }\n\n    @Bean\n    OrderRepository orderRepository(DatabaseConfig config) {       // Spring passes the other bean in\n        return new OrderRepository(config);\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {\n            System.out.println(context.getBean(OrderRepository.class).config.url());\n        }\n    }\n}\n\n// Output:\n// jdbc:h2:mem:shop"
+  }
+ },
+ "/spring/core/configuration-profiles-conditions/profiles": {
+  "def": "A profile is a named set of beans or settings for one environment, such as `dev` or `prod`. A bean marked `@Profile(\"dev\")` exists only when the `dev` profile is active, so one build can behave differently in each environment.",
+  "example": {
+   "title": "A different bean for dev and prod",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.context.annotation.Profile;\n\ninterface MailSender { String send(String to); }\n\n@Configuration\nclass MailConfig {\n    @Bean @Profile(\"dev\")\n    MailSender fakeSender() { return to -> \"DEV: pretend email to \" + to; }          // never sends real mail\n\n    @Bean @Profile(\"prod\")\n    MailSender realSender() { return to -> \"PROD: real email to \" + to; }\n}\n\nclass Demo {\n    static void run(String profile) {\n        var context = new AnnotationConfigApplicationContext();\n        context.getEnvironment().setActiveProfiles(profile);          // in real apps: spring.profiles.active=dev\n        context.register(MailConfig.class);\n        context.refresh();\n        System.out.println(context.getBean(MailSender.class).send(\"asha@example.com\"));\n        context.close();\n    }\n\n    public static void main(String[] args) {\n        run(\"dev\");\n        run(\"prod\");\n    }\n}\n\n// Output:\n// DEV: pretend email to asha@example.com\n// PROD: real email to asha@example.com"
+  }
+ },
+ "/spring/core/configuration-profiles-conditions/conditional-beans": {
+  "def": "A conditional bean is created only when a condition is true, for example a property has a value, a class is on the classpath, or no other bean of that type exists. Spring Boot uses these conditions to decide what to auto-configure.",
+  "example": {
+   "title": "A feature that is switched on by a property",
+   "lang": "java",
+   "code": "import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;\nimport org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.core.env.MapPropertySource;\nimport java.util.Map;\n\nclass FastSearch { }\nclass Cache { }\n\n@Configuration\nclass FeatureConfig {\n    @Bean\n    @ConditionalOnProperty(name = \"feature.fast-search\", havingValue = \"true\")      // only when the property is \"true\"\n    FastSearch fastSearch() { return new FastSearch(); }\n\n    @Bean\n    @ConditionalOnMissingBean                                                      // only if nobody defined a Cache\n    Cache defaultCache() { return new Cache(); }\n}\n\nclass Demo {\n    static void run(String value) {\n        var context = new AnnotationConfigApplicationContext();\n        context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(\"test\", Map.of(\"feature.fast-search\", value)));\n        context.register(FeatureConfig.class);\n        context.refresh();\n        System.out.println(\"feature.fast-search=\" + value + \" -> FastSearch bean exists: \" + (context.getBeansOfType(FastSearch.class).size() == 1));\n        context.close();\n    }\n\n    public static void main(String[] args) {\n        run(\"true\");\n        run(\"false\");\n    }\n}\n\n// Output:\n// feature.fast-search=true -> FastSearch bean exists: true\n// feature.fast-search=false -> FastSearch bean exists: false"
+  }
+ },
+ "/spring/core/configuration-profiles-conditions/environment-and-property-sources": {
+  "def": "The `Environment` is where Spring looks up settings. It reads several property sources in order (command line, environment variables, files, defaults), and the first source that has the key wins. `@Value` injects a setting, with an optional default.",
+  "example": {
+   "title": "Reading settings, with a default and an override",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.core.env.MapPropertySource;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass MailSettings {\n    @Value(\"${mail.host:localhost}\")                          // default used when the setting is missing\n    String host;\n\n    @Value(\"${mail.port:25}\")\n    int port;\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        var context = new AnnotationConfigApplicationContext();\n        context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(\"overrides\", Map.of(\"mail.port\", \"587\")));\n        context.register(Demo.class);\n        context.refresh();\n\n        MailSettings settings = context.getBean(MailSettings.class);\n        System.out.println(settings.host + \":\" + settings.port);          // host from the default, port overridden\n        System.out.println(context.getEnvironment().getProperty(\"mail.port\"));\n        context.close();\n    }\n}\n\n// Output:\n// localhost:587\n// 587"
+  }
+ },
+ "/spring/core/aop-and-proxies/around-advice": {
+  "def": "An `@Around` advice runs code before and after a method call and decides whether the method runs at all. It is how you add timing, logging or retries to many methods without editing them.",
+  "example": {
+   "title": "Timing every call of a service",
+   "lang": "java",
+   "code": "import org.aspectj.lang.ProceedingJoinPoint;\nimport org.aspectj.lang.annotation.Around;\nimport org.aspectj.lang.annotation.Aspect;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.EnableAspectJAutoProxy;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass PriceService {\n    int priceOf(String item) { return item.length() * 10; }\n}\n\n@Aspect\n@Component\nclass LoggingAspect {\n    @Around(\"execution(* PriceService.*(..))\")                   // every method of PriceService\n    Object log(ProceedingJoinPoint call) throws Throwable {\n        System.out.println(\"before \" + call.getSignature().getName());\n        Object result = call.proceed();                           // run the real method\n        System.out.println(\"after, result = \" + result);\n        return result;\n    }\n}\n\n@ComponentScan\n@EnableAspectJAutoProxy\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            context.getBean(PriceService.class).priceOf(\"book\");\n        }\n    }\n}\n\n// Output:\n// before priceOf\n// after, result = 40"
+  }
+ },
+ "/spring/core/aop-and-proxies/pointcut-expressions": {
+  "def": "A pointcut expression says which methods an advice applies to. You can match by method signature (`execution`), by package or class (`within`), or by a custom annotation (`@annotation`). Annotations are the clearest way to mark exactly what you want.",
+  "example": {
+   "title": "Matching methods by a custom annotation",
+   "lang": "java",
+   "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport org.aspectj.lang.JoinPoint;\nimport org.aspectj.lang.annotation.Aspect;\nimport org.aspectj.lang.annotation.Before;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.EnableAspectJAutoProxy;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface Audited { }                                            // our own marker annotation\n\n@Service\nclass AccountService {\n    @Audited\n    void closeAccount(String id) { System.out.println(\"closing \" + id); }\n\n    void viewAccount(String id) { System.out.println(\"viewing \" + id); }\n}\n\n@Aspect\n@Component\nclass AuditAspect {\n    @Before(\"@annotation(Audited)\")                              // only methods carrying @Audited\n    void audit(JoinPoint call) { System.out.println(\"AUDIT: \" + call.getSignature().getName()); }\n}\n\n@ComponentScan\n@EnableAspectJAutoProxy\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            AccountService accounts = context.getBean(AccountService.class);\n            accounts.viewAccount(\"A1\");                           // not audited\n            accounts.closeAccount(\"A1\");                          // audited\n        }\n    }\n}\n\n// Output:\n// viewing A1\n// AUDIT: closeAccount\n// closing A1"
+  }
+ },
+ "/spring/core/aop-and-proxies/jdk-vs-cglib-proxies": {
+  "def": "Spring adds behaviour by wrapping a bean in a proxy. If the bean implements an interface Spring can use a JDK proxy, which implements the same interface. Otherwise (or when forced) it subclasses the class with CGLIB. Spring Boot uses CGLIB by default.",
+  "example": {
+   "title": "Which kind of proxy you get",
+   "lang": "java",
+   "code": "import org.springframework.aop.framework.ProxyFactory;\nimport org.springframework.aop.support.AopUtils;\n\ninterface Greeter { String greet(); }\n\nclass PoliteGreeter implements Greeter {\n    public String greet() { return \"Good morning\"; }\n}\n\nclass PlainService {\n    public String run() { return \"done\"; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        ProxyFactory withInterface = new ProxyFactory(new PoliteGreeter());       // has an interface\n        Object jdkProxy = withInterface.getProxy();\n        System.out.println(\"JDK proxy:   \" + AopUtils.isJdkDynamicProxy(jdkProxy));\n\n        ProxyFactory withoutInterface = new ProxyFactory(new PlainService());     // a class with no interface\n        Object cglibProxy = withoutInterface.getProxy();\n        System.out.println(\"CGLIB proxy: \" + AopUtils.isCglibProxy(cglibProxy));\n        System.out.println(((Greeter) jdkProxy).greet());\n    }\n}\n\n// Output:\n// JDK proxy:   true\n// CGLIB proxy: true\n// Good morning"
+  }
+ },
+ "/spring/core/aop-and-proxies/self-invocation": {
+  "def": "Advice only runs for calls that go through the proxy. If a method calls another method of the same object with `this`, the call skips the proxy and the advice (for example `@Transactional`) does not run. Move the method to another bean to fix it.",
+  "example": {
+   "title": "The advice runs for the outside call only",
+   "lang": "java",
+   "code": "import org.aspectj.lang.annotation.Aspect;\nimport org.aspectj.lang.annotation.Before;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.EnableAspectJAutoProxy;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass ReportService {\n    void publish() {\n        System.out.println(\"publish() calls generate() through this\");\n        generate();                                             // a plain call on this: the proxy is bypassed\n    }\n\n    void generate() { System.out.println(\"generate() body\"); }\n}\n\n@Aspect\n@Component\nclass TraceAspect {\n    @Before(\"execution(* ReportService.generate(..))\")\n    void trace() { System.out.println(\"  >> advice on generate()\"); }\n}\n\n@ComponentScan\n@EnableAspectJAutoProxy\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            ReportService service = context.getBean(ReportService.class);\n            service.generate();                                  // from outside: advice runs\n            service.publish();                                   // from inside: advice does NOT run\n        }\n    }\n}\n\n// Output:\n//   >> advice on generate()\n// generate() body\n// publish() calls generate() through this\n// generate() body"
+  }
+ },
+ "/spring/core/application-events/publish-and-listen": {
+  "def": "An application event lets one part of the program announce that something happened, and other parts react without the sender knowing them. You publish an event object with `ApplicationEventPublisher` and handle it with `@EventListener`. By default the listener runs right away, in the same thread.",
+  "example": {
+   "title": "An order is placed, two listeners react",
+   "lang": "java",
+   "code": "import org.springframework.context.ApplicationEventPublisher;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\nrecord OrderPlaced(int orderId) { }\n\n@Service\nclass OrderService {\n    private final ApplicationEventPublisher publisher;\n    OrderService(ApplicationEventPublisher publisher) { this.publisher = publisher; }\n\n    void place(int id) {\n        System.out.println(\"order \" + id + \" saved\");\n        publisher.publishEvent(new OrderPlaced(id));             // announce it; do not call the others directly\n    }\n}\n\n@Component\nclass EmailListener {\n    @EventListener\n    void on(OrderPlaced event) { System.out.println(\"email: confirmation for \" + event.orderId()); }\n}\n\n@Component\nclass StockListener {\n    @EventListener\n    void on(OrderPlaced event) { System.out.println(\"stock: reserve items for \" + event.orderId()); }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            context.getBean(OrderService.class).place(7);\n            System.out.println(\"place() returned (the listeners already ran)\");\n        }\n    }\n}\n\n// Output:\n// order 7 saved\n// email: confirmation for 7\n// stock: reserve items for 7\n// place() returned (the listeners already ran)"
+  }
+ },
+ "/spring/core/application-events/async-listeners": {
+  "def": "A normal listener runs in the publisher's thread, so a slow listener slows the publisher and an exception in it reaches the publisher. Adding `@Async` runs the listener on another thread, so the publisher continues straight away.",
+  "example": {
+   "title": "The listener runs on a different thread",
+   "lang": "java",
+   "code": "import java.util.concurrent.CountDownLatch;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.scheduling.annotation.Async;\nimport org.springframework.scheduling.annotation.EnableAsync;\nimport org.springframework.stereotype.Component;\n\nrecord ReportRequested(String name) { }\n\n@Component\nclass ReportListener {\n    static final CountDownLatch done = new CountDownLatch(1);\n\n    @Async                                                       // run on another thread\n    @EventListener\n    void on(ReportRequested event) {\n        System.out.println(\"listener on another thread: \" + !Thread.currentThread().getName().equals(\"main\"));\n        done.countDown();\n    }\n}\n\n@ComponentScan\n@EnableAsync\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            context.publishEvent(new ReportRequested(\"sales\"));          // the context is itself a publisher\n            System.out.println(\"publisher carries on without waiting\");\n            ReportListener.done.await();\n        }\n    }\n}\n\n// Output:\n// publisher carries on without waiting\n// listener on another thread: true"
+  }
+ },
+ "/spring/core/application-events/transactional-event-listener": {
+  "def": "A `@TransactionalEventListener` waits until the surrounding transaction finishes. By default it runs only after a successful commit, so you never send an email for an order that was later rolled back.",
+  "example": {
+   "title": "The listener runs after commit, and not at all after a rollback",
+   "lang": "java",
+   "code": "import javax.sql.DataSource;\nimport org.springframework.context.ApplicationEventPublisher;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.jdbc.datasource.DataSourceTransactionManager;\nimport org.springframework.jdbc.datasource.DriverManagerDataSource;\nimport org.springframework.stereotype.Component;\nimport org.springframework.transaction.PlatformTransactionManager;\nimport org.springframework.transaction.annotation.EnableTransactionManagement;\nimport org.springframework.transaction.event.TransactionPhase;\nimport org.springframework.transaction.event.TransactionalEventListener;\nimport org.springframework.transaction.support.TransactionTemplate;\n\nrecord OrderSaved(int id) { }\n\n@Component\nclass EmailAfterCommit {\n    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)\n    void on(OrderSaved event) { System.out.println(\"email sent for order \" + event.id()); }\n}\n\n@Configuration\n@EnableTransactionManagement\nclass Config {\n    @Bean DataSource dataSource() { return new DriverManagerDataSource(\"jdbc:h2:mem:events\"); }\n    @Bean PlatformTransactionManager txManager(DataSource ds) { return new DataSourceTransactionManager(ds); }\n    @Bean EmailAfterCommit email() { return new EmailAfterCommit(); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Config.class)) {\n            TransactionTemplate tx = new TransactionTemplate(context.getBean(PlatformTransactionManager.class));\n            ApplicationEventPublisher publisher = context;\n\n            tx.executeWithoutResult(status -> {\n                publisher.publishEvent(new OrderSaved(1));\n                System.out.println(\"order 1 saved, still inside the transaction\");\n            });                                                  // commit happens here, then the listener runs\n\n            tx.executeWithoutResult(status -> {\n                publisher.publishEvent(new OrderSaved(2));\n                status.setRollbackOnly();                        // this one is rolled back: no email\n                System.out.println(\"order 2 rolled back\");\n            });\n        }\n    }\n}\n\n// Output:\n// order 1 saved, still inside the transaction\n// email sent for order 1\n// order 2 rolled back"
+  }
+ },
+ "/spring/core/application-events/built-in-events": {
+  "def": "Spring publishes events about its own life: `ContextRefreshedEvent` when the application is ready and `ContextClosedEvent` when it shuts down. Listen to them to start work after startup or to clean up on shutdown. Spring Boot adds `ApplicationReadyEvent`.",
+  "example": {
+   "title": "Hooking into startup and shutdown",
+   "lang": "java",
+   "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.event.ContextClosedEvent;\nimport org.springframework.context.event.ContextRefreshedEvent;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass Lifecycle {\n    @EventListener\n    void started(ContextRefreshedEvent event) { System.out.println(\"application is ready: warm the caches\"); }\n\n    @EventListener\n    void stopping(ContextClosedEvent event) { System.out.println(\"application is closing: flush and say goodbye\"); }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            System.out.println(\"doing work\");\n        }\n    }\n}\n\n// Output:\n// application is ready: warm the caches\n// doing work\n// application is closing: flush and say goodbye"
   }
  }
 }

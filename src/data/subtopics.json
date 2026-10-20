@@ -174,5 +174,174 @@
     ]
    }
   ]
+ },
+ "java/core-java/collections-framework": {
+  "label": "Collections framework",
+  "subs": [
+   "arraylist-vs-linkedlist",
+   "set-types",
+   "map-types",
+   "queue-and-deque",
+   "comparable-and-comparator",
+   "iterator-and-fail-fast",
+   "collections-utility-methods"
+  ]
+ },
+ "java/core-java/equals-hashcode": {
+  "label": "equals, hashCode, compareTo",
+  "subs": [
+   "equals-contract",
+   "hashcode-contract",
+   "missing-hashcode-problem",
+   "mutable-keys",
+   "objects-hash-and-records"
+  ]
+ },
+ "java/core-java/hashmap-internals": {
+  "label": "HashMap internals",
+  "subs": [
+   "bucket-index",
+   "collisions",
+   "presizing-and-load-factor",
+   "null-keys-and-values",
+   "iteration-and-fail-fast"
+  ]
+ },
+ "java/core-java/concurrenthashmap": {
+  "label": "ConcurrentHashMap",
+  "subs": [
+   "merge-and-compute",
+   "computeifabsent-cache",
+   "bulk-operations",
+   "no-nulls",
+   "synchronized-map-vs-concurrenthashmap"
+  ]
+ },
+ "java/concurrency-jvm/threads-basics": {
+  "label": "Threads",
+  "subs": [
+   "creating-threads",
+   "thread-states",
+   "interrupt-and-join",
+   "daemon-threads",
+   "threadlocal",
+   "deadlock"
+  ]
+ },
+ "java/concurrency-jvm/synchronization-and-locks": {
+  "label": "Synchronization and locks",
+  "subs": [
+   "synchronized",
+   "volatile",
+   "atomic-variables",
+   "reentrantlock",
+   "readwritelock",
+   "latch-and-semaphore",
+   "blockingqueue"
+  ]
+ },
+ "java/concurrency-jvm/memory-model": {
+  "label": "Memory model",
+  "subs": [
+   "happens-before",
+   "volatile-visibility",
+   "safe-publication",
+   "double-checked-locking"
+  ]
+ },
+ "java/concurrency-jvm/executors": {
+  "label": "Executors and thread pools",
+  "subs": [
+   "fixed-thread-pool",
+   "threadpoolexecutor",
+   "scheduled-executor",
+   "future-and-callable",
+   "graceful-shutdown",
+   "forkjoin-pool"
+  ]
+ },
+ "java/concurrency-jvm/completablefuture": {
+  "label": "CompletableFuture",
+  "subs": [
+   "supplyasync-and-thenapply",
+   "thencompose-vs-thencombine",
+   "allof-anyof",
+   "exception-handling",
+   "timeouts-and-executors"
+  ]
+ },
+ "java/concurrency-jvm/virtual-threads": {
+  "label": "Virtual threads",
+  "subs": [
+   "creating-virtual-threads",
+   "executor-per-task",
+   "limiting-concurrency"
+  ]
+ },
+ "java/concurrency-jvm/garbage-collection": {
+  "label": "Garbage collection",
+  "subs": [
+   "heap-and-generations",
+   "reachability-and-references",
+   "memory-leaks",
+   "choosing-a-collector",
+   "gc-logging"
+  ]
+ },
+ "java/concurrency-jvm/jvm-tuning-diagnostics": {
+  "label": "JVM tuning and diagnostics",
+  "subs": [
+   "stack-and-stackoverflow",
+   "heap-sizing-flags",
+   "jcmd-diagnostics",
+   "jit-compilation-flags"
+  ]
+ },
+ "spring/core/ioc-and-dependency-injection": {
+  "label": "IoC and dependency injection",
+  "subs": [
+   "ioc-container",
+   "constructor-injection",
+   "qualifier-and-primary",
+   "inject-all-implementations",
+   "circular-dependencies",
+   "component-scanning"
+  ]
+ },
+ "spring/core/bean-lifecycle-and-scopes": {
+  "label": "Bean lifecycle and scopes",
+  "subs": [
+   "lifecycle-callbacks",
+   "singleton-vs-prototype",
+   "lazy-beans",
+   "bean-post-processor"
+  ]
+ },
+ "spring/core/configuration-profiles-conditions": {
+  "label": "Configuration, profiles, conditions",
+  "subs": [
+   "configuration-and-bean",
+   "profiles",
+   "conditional-beans",
+   "environment-and-property-sources"
+  ]
+ },
+ "spring/core/aop-and-proxies": {
+  "label": "AOP and proxies",
+  "subs": [
+   "around-advice",
+   "pointcut-expressions",
+   "jdk-vs-cglib-proxies",
+   "self-invocation"
+  ]
+ },
+ "spring/core/application-events": {
+  "label": "Application events",
+  "subs": [
+   "publish-and-listen",
+   "async-listeners",
+   "transactional-event-listener",
+   "built-in-events"
+  ]
  }
 }
