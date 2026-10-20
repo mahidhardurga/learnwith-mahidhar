@@ -7,6 +7,10 @@ const config: Config = {
   title: 'LearnWith Mahidhar',
   tagline: 'Java, Spring Boot and Microservices interview prep, explained plainly',
   favicon: 'img/favicon.svg',
+  // Proves ownership to Google AdSense. This meta tag loads nothing and sets no cookies.
+  headTags: [
+    {tagName: 'meta', attributes: {name: 'google-adsense-account', content: 'ca-pub-6020081998211551'}},
+  ],
 
   future: {
     v4: true,
