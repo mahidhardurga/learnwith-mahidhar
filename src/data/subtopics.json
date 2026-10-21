@@ -710,5 +710,51 @@
    "send-and-listen",
    "dead-letter-queue"
   ]
+ },
+ "devops/twelve-factor": {
+  "label": "Twelve-factor app",
+  "subs": [
+   "config-in-environment",
+   "logs-to-stdout",
+   "stateless-processes",
+   "graceful-shutdown"
+  ]
+ },
+ "devops/docker-for-java": {
+  "label": "Docker for Java",
+  "subs": [
+   "multi-stage-dockerfile",
+   "layered-jars",
+   "container-memory-settings",
+   "non-root-and-healthcheck"
+  ]
+ },
+ "devops/kubernetes-basics": {
+  "label": "Kubernetes basics",
+  "subs": [
+   "deployment",
+   "service",
+   "probes",
+   "resource-requests-and-limits",
+   "configmap-and-secret"
+  ]
+ },
+ "devops/ci-cd": {
+  "label": "CI/CD",
+  "subs": [
+   "build-and-test-workflow",
+   "dependency-caching",
+   "build-and-push-image",
+   "deployment-approval"
+  ]
+ },
+ "devops/deployment-strategies": {
+  "label": "Deployment strategies",
+  "subs": [
+   "rolling-update",
+   "blue-green",
+   "canary-release",
+   "feature-flags"
+  ]
  }
 }

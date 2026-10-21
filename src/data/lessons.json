@@ -4354,5 +4354,173 @@
    "lang": "java",
    "code": "import org.springframework.amqp.AmqpRejectAndDontRequeueException;\nimport org.springframework.amqp.core.Binding;\nimport org.springframework.amqp.core.BindingBuilder;\nimport org.springframework.amqp.core.DirectExchange;\nimport org.springframework.amqp.core.Queue;\nimport org.springframework.amqp.core.QueueBuilder;\nimport org.springframework.amqp.rabbit.annotation.RabbitListener;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.stereotype.Component;\n\n@Configuration\nclass DeadLetterConfig {\n    @Bean\n    Queue paymentsQueue() {\n        return QueueBuilder.durable(\"payments\")\n                .withArgument(\"x-dead-letter-exchange\", \"payments.dlx\")           // where rejected messages go\n                .withArgument(\"x-dead-letter-routing-key\", \"payments.dead\")\n                .build();\n    }\n\n    @Bean\n    Queue paymentsDeadQueue() { return QueueBuilder.durable(\"payments.dead\").build(); }\n\n    @Bean\n    DirectExchange paymentsDeadExchange() { return new DirectExchange(\"payments.dlx\"); }\n\n    @Bean\n    Binding deadBinding(Queue paymentsDeadQueue, DirectExchange paymentsDeadExchange) {\n        return BindingBuilder.bind(paymentsDeadQueue).to(paymentsDeadExchange).with(\"payments.dead\");\n    }\n}\n\n@Component\nclass PaymentListener {\n    @RabbitListener(queues = \"payments\")\n    void handle(String payload) {\n        if (payload.isBlank()) {\n            throw new AmqpRejectAndDontRequeueException(\"bad message\");          // not requeued: it moves to the dead-letter queue\n        }\n    }\n}"
   }
+ },
+ "/devops/twelve-factor/config-in-environment": {
+  "def": "Settings that change between environments, such as database URLs and API keys, live in environment variables, not in the code or the built artifact. The same build then runs in test and production, and secrets never get committed to Git.",
+  "example": {
+   "title": "The same code with different environments",
+   "lang": "java",
+   "code": "import java.util.Map;\n\nclass Settings {\n    private final Map<String, String> environment;\n    Settings(Map<String, String> environment) { this.environment = environment; }\n\n    String databaseUrl() { return environment.getOrDefault(\"DATABASE_URL\", \"jdbc:h2:mem:local\"); }     // a safe default for a laptop\n    int poolSize() { return Integer.parseInt(environment.getOrDefault(\"DB_POOL_SIZE\", \"5\")); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        // the real program would pass System.getenv(); two environments are simulated here\n        Settings laptop = new Settings(Map.of());\n        Settings production = new Settings(Map.of(\"DATABASE_URL\", \"jdbc:postgresql://db.internal:5432/shop\", \"DB_POOL_SIZE\", \"20\"));\n\n        System.out.println(\"laptop:     \" + laptop.databaseUrl() + \", pool \" + laptop.poolSize());\n        System.out.println(\"production: \" + production.databaseUrl() + \", pool \" + production.poolSize());\n    }\n}\n\n// Output:\n// laptop:     jdbc:h2:mem:local, pool 5\n// production: jdbc:postgresql://db.internal:5432/shop, pool 20"
+  }
+ },
+ "/devops/twelve-factor/logs-to-stdout": {
+  "def": "The application does not manage log files. It writes each event as one line to standard output, and the platform (Docker, Kubernetes, a log shipper) collects and routes the lines. JSON lines let tools search by field.",
+  "example": {
+   "title": "One JSON object per line",
+   "lang": "java",
+   "code": "import java.time.Instant;\n\nclass Demo {\n    static void log(Instant time, String level, String message, String orderId) {\n        System.out.println(\"{\\\"time\\\":\\\"\" + time + \"\\\",\\\"level\\\":\\\"\" + level + \"\\\",\\\"message\\\":\\\"\" + message + \"\\\",\\\"orderId\\\":\\\"\" + orderId + \"\\\"}\");\n    }\n\n    public static void main(String[] args) {\n        Instant start = Instant.parse(\"2026-01-15T10:00:00Z\");           // fixed so the output is stable\n        log(start, \"INFO\", \"order accepted\", \"A-1001\");\n        log(start.plusMillis(250), \"WARN\", \"payment retry\", \"A-1001\");\n    }\n}\n\n// Output:\n// {\"time\":\"2026-01-15T10:00:00Z\",\"level\":\"INFO\",\"message\":\"order accepted\",\"orderId\":\"A-1001\"}\n// {\"time\":\"2026-01-15T10:00:00.250Z\",\"level\":\"WARN\",\"message\":\"payment retry\",\"orderId\":\"A-1001\"}"
+  }
+ },
+ "/devops/twelve-factor/stateless-processes": {
+  "def": "A twelve-factor process keeps nothing important in its own memory between requests. State such as sessions lives in a database or Redis. Then any instance can serve any request, and you can add, kill or restart instances freely.",
+  "example": {
+   "title": "Memory sessions break behind a load balancer",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\nclass Instance {\n    final Map<String, String> ownSessions = new HashMap<>();                  // stored in this process: lost on restart, invisible to others\n    private final Map<String, String> sharedStore;                           // stands for Redis\n\n    Instance(Map<String, String> sharedStore) { this.sharedStore = sharedStore; }\n\n    void loginInMemory(String user) { ownSessions.put(user, \"logged-in\"); }\n    boolean knowsInMemory(String user) { return ownSessions.containsKey(user); }\n\n    void loginShared(String user) { sharedStore.put(user, \"logged-in\"); }\n    boolean knowsShared(String user) { return sharedStore.containsKey(user); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Map<String, String> redis = new HashMap<>();\n        List<Instance> instances = List.of(new Instance(redis), new Instance(redis));\n\n        instances.get(0).loginInMemory(\"asha\");                              // the first request reaches instance 0\n        instances.get(0).loginShared(\"asha\");\n\n        System.out.println(\"next request on instance 1, memory session: \" + instances.get(1).knowsInMemory(\"asha\"));\n        System.out.println(\"next request on instance 1, shared session: \" + instances.get(1).knowsShared(\"asha\"));\n    }\n}\n\n// Output:\n// next request on instance 1, memory session: false\n// next request on instance 1, shared session: true"
+  }
+ },
+ "/devops/twelve-factor/graceful-shutdown": {
+  "def": "Processes start fast and stop cleanly. On a shutdown signal the app stops taking new requests, lets the requests in flight finish, closes its connections and then exits. In Spring Boot this is `server.shutdown=graceful`.",
+  "example": {
+   "title": "A shutdown hook that finishes the current work",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        // Spring Boot does the same for you with:\n        //   server.shutdown=graceful\n        //   spring.lifecycle.timeout-per-shutdown-phase=30s\n        Runtime.getRuntime().addShutdownHook(new Thread(() -> {\n            System.out.println(\"shutdown signal: not accepting new requests\");\n            System.out.println(\"waiting for 2 in-flight requests to finish\");\n            System.out.println(\"connections closed, exiting\");\n        }));\n\n        System.out.println(\"application started\");\n    }\n}\n\n// Output:\n// application started\n// shutdown signal: not accepting new requests\n// waiting for 2 in-flight requests to finish\n// connections closed, exiting"
+  }
+ },
+ "/devops/docker-for-java/multi-stage-dockerfile": {
+  "def": "A multi-stage Dockerfile builds the application in a stage with the full JDK and Maven, then copies only the finished jar into a small runtime image. The final image has no compiler, no source code and no build cache, so it is smaller and safer.",
+  "example": {
+   "title": "Build with the JDK, run with the JRE",
+   "lang": "docker",
+   "code": "# stage 1: build (large image, thrown away afterwards)\nFROM maven:3.9-eclipse-temurin-21 AS build\nWORKDIR /app\nCOPY pom.xml .\n# cached until pom.xml changes\nRUN mvn -q dependency:go-offline\nCOPY src ./src\nRUN mvn -q package -DskipTests\n\n# stage 2: run (small image, only the jar)\nFROM eclipse-temurin:21-jre\nWORKDIR /app\nCOPY --from=build /app/target/app.jar app.jar\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]"
+  }
+ },
+ "/devops/docker-for-java/layered-jars": {
+  "def": "A Spring Boot jar is mostly third-party libraries that rarely change, plus a little of your code that changes on every build. Splitting the jar into layers lets Docker reuse the cached library layers, so a rebuild pushes only a few kilobytes.",
+  "example": {
+   "title": "Extract the layers and copy them separately",
+   "lang": "docker",
+   "code": "# the build step extracts the layers: dependencies, spring-boot-loader, snapshot-dependencies, application\nFROM eclipse-temurin:21-jre AS extract\nWORKDIR /app\nCOPY target/app.jar app.jar\nRUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted\n\nFROM eclipse-temurin:21-jre\nWORKDIR /app\n# changes rarely: stays cached\nCOPY --from=extract /app/extracted/dependencies/ ./\nCOPY --from=extract /app/extracted/spring-boot-loader/ ./\nCOPY --from=extract /app/extracted/snapshot-dependencies/ ./\n# changes on every build: a tiny layer\nCOPY --from=extract /app/extracted/application/ ./\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]"
+  }
+ },
+ "/devops/docker-for-java/container-memory-settings": {
+  "def": "A container has a memory limit, and the JVM must stay below it or the container is killed. Modern JVMs read the limit, and `-XX:MaxRAMPercentage` sets the heap as a share of it, leaving room for metaspace, threads and native memory.",
+  "example": {
+   "title": "Heap as a percentage of the container limit",
+   "lang": "docker",
+   "code": "FROM eclipse-temurin:21-jre\nWORKDIR /app\nCOPY app.jar app.jar\n\n# with a 1 GiB container limit, the heap may use about 750 MiB; the rest is for metaspace, threads and buffers\nENTRYPOINT [\"java\", \\\n            \"-XX:MaxRAMPercentage=75.0\", \\\n            \"-XX:+ExitOnOutOfMemoryError\", \\\n            \"-jar\", \"app.jar\"]\n\n# docker run --memory=1g shop/orders"
+  }
+ },
+ "/devops/docker-for-java/non-root-and-healthcheck": {
+  "def": "By default a container runs as root, so a bug in the application gives an attacker much more power. Create an unprivileged user, switch to it, and add a health check so the platform can tell when the application is unwell.",
+  "example": {
+   "title": "An unprivileged user and a health check",
+   "lang": "docker",
+   "code": "FROM eclipse-temurin:21-jre\n\n# a user with no login and no special rights\nRUN groupadd --system app && useradd --system --gid app app\nWORKDIR /app\nCOPY --chown=app:app app.jar app.jar\n# everything after this line runs as \"app\"\nUSER app\n\nHEALTHCHECK --interval=30s --timeout=3s --retries=3 \\\n  CMD curl --fail http://localhost:8080/actuator/health || exit 1\n\nEXPOSE 8080\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]"
+  }
+ },
+ "/devops/kubernetes-basics/deployment": {
+  "def": "A Deployment says how many copies of a pod to run and which image to use. Kubernetes keeps that many running: if a pod dies or a node fails, it starts a replacement. Changing the image starts a rolling update.",
+  "example": {
+   "title": "Three replicas of the orders service",
+   "lang": "yaml",
+   "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: orders\nspec:\n  replicas: 3                       # the desired number of pods\n  selector:\n    matchLabels:\n      app: orders\n  template:                         # the pod that is copied\n    metadata:\n      labels:\n        app: orders\n    spec:\n      containers:\n        - name: orders\n          image: shop/orders:1.4.2\n          ports:\n            - containerPort: 8080"
+  }
+ },
+ "/devops/kubernetes-basics/service": {
+  "def": "Pods come and go and their IP addresses change. A Service gives a set of pods one stable address and a DNS name, and spreads the traffic over the ready pods that match its label selector.",
+  "example": {
+   "title": "A stable name in front of the pods",
+   "lang": "yaml",
+   "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: orders\nspec:\n  type: ClusterIP                   # reachable inside the cluster as http://orders\n  selector:\n    app: orders                     # the pods with this label\n  ports:\n    - port: 80                      # the port of the Service\n      targetPort: 8080              # the port of the container"
+  }
+ },
+ "/devops/kubernetes-basics/probes": {
+  "def": "Kubernetes asks your app two questions. The liveness probe asks \"should I restart you?\", and the readiness probe asks \"should I send you traffic?\". A pod that is not ready stays out of the Service until it is, for example while it warms up.",
+  "example": {
+   "title": "Health probes using Actuator",
+   "lang": "yaml",
+   "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: orders\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: orders\n  template:\n    metadata:\n      labels:\n        app: orders\n    spec:\n      containers:\n        - name: orders\n          image: shop/orders:1.4.2\n          readinessProbe:                       # not ready -> removed from the Service, not restarted\n            httpGet:\n              path: /actuator/health/readiness\n              port: 8080\n            initialDelaySeconds: 10\n            periodSeconds: 5\n          livenessProbe:                        # failing -> the container is restarted\n            httpGet:\n              path: /actuator/health/liveness\n              port: 8080\n            initialDelaySeconds: 30\n            periodSeconds: 10"
+  }
+ },
+ "/devops/kubernetes-basics/resource-requests-and-limits": {
+  "def": "A request is the amount of CPU and memory the scheduler reserves for the pod when choosing a node. A limit is the most the container may use: going over the memory limit kills it. Setting both makes the cluster predictable.",
+  "example": {
+   "title": "Reserve 512 MiB, never exceed 1 GiB",
+   "lang": "yaml",
+   "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: orders\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: orders\n  template:\n    metadata:\n      labels:\n        app: orders\n    spec:\n      containers:\n        - name: orders\n          image: shop/orders:1.4.2\n          resources:\n            requests:\n              cpu: 250m              # a quarter of a core, used for scheduling\n              memory: 512Mi\n            limits:\n              memory: 1Gi            # above this the container is killed (OOMKilled)"
+  }
+ },
+ "/devops/kubernetes-basics/configmap-and-secret": {
+  "def": "A ConfigMap holds non-secret settings and a Secret holds sensitive values. Both are injected into the pod as environment variables or files, so the image stays the same in every environment. A Secret is only base64-encoded by default, so restrict who can read it.",
+  "example": {
+   "title": "Settings injected as environment variables",
+   "lang": "yaml",
+   "code": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: orders-config\ndata:\n  SPRING_PROFILES_ACTIVE: prod\n  PAYMENTS_URL: http://payments\n\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: orders\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: orders\n  template:\n    metadata:\n      labels:\n        app: orders\n    spec:\n      containers:\n        - name: orders\n          image: shop/orders:1.4.2\n          envFrom:\n            - configMapRef:\n                name: orders-config            # every key becomes an environment variable\n          env:\n            - name: DB_PASSWORD\n              valueFrom:\n                secretKeyRef:\n                  name: orders-db              # created separately, never committed to Git\n                  key: password"
+  }
+ },
+ "/devops/ci-cd/build-and-test-workflow": {
+  "def": "Continuous integration runs on every push and pull request: check out the code, set up Java, build and run the tests. A red build blocks the merge, so the main branch always works. This is a complete GitHub Actions workflow.",
+  "example": {
+   "title": "The smallest useful CI workflow",
+   "lang": "yaml",
+   "code": "# .github/workflows/ci.yml\nname: CI\non:\n  push:\n    branches: [main]\n  pull_request:\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: 21\n      - name: Build and test\n        run: mvn --batch-mode verify          # compiles, runs unit and integration tests"
+  }
+ },
+ "/devops/ci-cd/dependency-caching": {
+  "def": "Downloading every library on every run wastes minutes. The cache option of `setup-java` saves the local Maven repository between runs, keyed on the hash of your pom files, so it refreshes automatically when a dependency changes.",
+  "example": {
+   "title": "One extra line makes builds faster",
+   "lang": "yaml",
+   "code": "steps:\n  - uses: actions/checkout@v4\n  - uses: actions/setup-java@v4\n    with:\n      distribution: temurin\n      java-version: 21\n      cache: maven                  # restores ~/.m2 and saves it again, keyed on pom.xml\n  - run: mvn --batch-mode verify"
+  }
+ },
+ "/devops/ci-cd/build-and-push-image": {
+  "def": "After the tests pass, the pipeline builds the container image, tags it with the commit id so every image is traceable, and pushes it to a registry. Credentials come from the secret store of the repository, never from the file.",
+  "example": {
+   "title": "Publishing an image on every merge to main",
+   "lang": "yaml",
+   "code": "name: Image\non:\n  push:\n    branches: [main]\n\njobs:\n  image:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/login-action@v3\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}          # provided by GitHub, not stored in the repository\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          push: true\n          tags: ghcr.io/example/orders:${{ github.sha }}   # tagged with the exact commit"
+  }
+ },
+ "/devops/ci-cd/deployment-approval": {
+  "def": "Deploying to production can wait for a human. A GitHub environment can require approval from named reviewers, so the job pauses until someone clicks approve. Only jobs that reference the environment can read its secrets.",
+  "example": {
+   "title": "A deploy job that needs approval",
+   "lang": "yaml",
+   "code": "jobs:\n  deploy-production:\n    runs-on: ubuntu-latest\n    needs: [build, image]                 # only after the tests and the image succeeded\n    environment: production               # configured in GitHub with required reviewers\n    steps:\n      - uses: actions/checkout@v4\n      - name: Roll out the new image\n        run: kubectl set image deployment/orders orders=ghcr.io/example/orders:${{ github.sha }}"
+  }
+ },
+ "/devops/deployment-strategies/rolling-update": {
+  "def": "A rolling update replaces the pods one by one, so there is always capacity and no downtime. `maxSurge` is how many extra pods may exist during the update, and `maxUnavailable` is how many may be missing. A failing readiness probe pauses the rollout.",
+  "example": {
+   "title": "Replace pods gradually",
+   "lang": "yaml",
+   "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: orders\nspec:\n  replicas: 4\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1                 # up to 5 pods while updating\n      maxUnavailable: 0           # never fewer than 4 ready pods\n  selector:\n    matchLabels:\n      app: orders\n  template:\n    metadata:\n      labels:\n        app: orders\n    spec:\n      containers:\n        - name: orders\n          image: shop/orders:1.5.0        # changing this tag starts the rollout"
+  }
+ },
+ "/devops/deployment-strategies/blue-green": {
+  "def": "Blue-green runs two full copies of the application. Blue serves users while green is deployed and tested. Then the Service selector is switched to green in one step, and switching back to blue is the instant rollback.",
+  "example": {
+   "title": "Switching traffic by changing the selector",
+   "lang": "yaml",
+   "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: orders\nspec:\n  selector:\n    app: orders\n    version: blue                 # change this to \"green\" to switch all traffic at once\n  ports:\n    - port: 80\n      targetPort: 8080\n\n# switch:    kubectl patch service orders -p '{\"spec\":{\"selector\":{\"app\":\"orders\",\"version\":\"green\"}}}'\n# roll back: the same command with \"blue\""
+  }
+ },
+ "/devops/deployment-strategies/canary-release": {
+  "def": "A canary release sends a small share of the traffic, say 10%, to the new version while the rest uses the old one. You watch the error rate and latency, and then raise the share step by step or roll back.",
+  "example": {
+   "title": "Weighted routing between two versions",
+   "lang": "java",
+   "code": "import java.util.Random;\n\nclass Demo {\n    static String route(Random random, int canaryPercent) {\n        return random.nextInt(100) < canaryPercent ? \"v2 (canary)\" : \"v1\";\n    }\n\n    public static void main(String[] args) {\n        Random random = new Random(42);                                  // a fixed seed keeps the output stable\n        int canary = 0;\n        int requests = 1000;\n\n        for (int i = 0; i < requests; i++) {\n            if (route(random, 10).startsWith(\"v2\")) canary++;            // 10% of the traffic goes to the new version\n        }\n        System.out.println(\"canary received \" + canary + \" of \" + requests + \" requests\");\n    }\n}\n\n// Output:\n// canary received 109 of 1000 requests"
+  }
+ },
+ "/devops/deployment-strategies/feature-flags": {
+  "def": "A feature flag separates deploying code from releasing a feature. The code ships switched off, and you turn it on for a few users, then everyone, without a new deployment. If something goes wrong, turning the flag off is the rollback.",
+  "example": {
+   "title": "Turning a feature on for some users",
+   "lang": "java",
+   "code": "import java.util.Set;\n\nclass FeatureFlags {\n    private final boolean enabledForEveryone;\n    private final Set<String> betaUsers;\n\n    FeatureFlags(boolean enabledForEveryone, Set<String> betaUsers) {\n        this.enabledForEveryone = enabledForEveryone;\n        this.betaUsers = betaUsers;\n    }\n\n    boolean newCheckoutEnabled(String user) { return enabledForEveryone || betaUsers.contains(user); }\n}\n\nclass Demo {\n    static String checkout(FeatureFlags flags, String user) {\n        return flags.newCheckoutEnabled(user) ? \"new checkout\" : \"old checkout\";\n    }\n\n    public static void main(String[] args) {\n        FeatureFlags beta = new FeatureFlags(false, Set.of(\"asha\"));\n        System.out.println(\"asha: \" + checkout(beta, \"asha\"));\n        System.out.println(\"ravi: \" + checkout(beta, \"ravi\"));\n\n        FeatureFlags everyone = new FeatureFlags(true, Set.of());        // the flag is flipped, no new deployment\n        System.out.println(\"ravi after the release: \" + checkout(everyone, \"ravi\"));\n    }\n}\n\n// Output:\n// asha: new checkout\n// ravi: old checkout\n// ravi after the release: new checkout"
+  }
  }
 }
