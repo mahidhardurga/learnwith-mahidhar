@@ -405,5 +405,79 @@
    "problemdetail",
    "responsestatusexception"
   ]
+ },
+ "spring/boot/testing-basics": {
+  "label": "Unit testing basics",
+  "subs": [
+   "junit5-and-assertj",
+   "mockito-mocks",
+   "parameterized-tests",
+   "testing-exceptions-and-setup"
+  ]
+ },
+ "spring/boot/testing-slices-testcontainers": {
+  "label": "Slice tests and Testcontainers",
+  "subs": [
+   "webmvctest",
+   "datajpatest",
+   "springboottest",
+   "testcontainers"
+  ]
+ },
+ "spring/data/jpa-basics": {
+  "label": "JPA basics",
+  "subs": [
+   "entities-and-ids",
+   "derived-queries",
+   "query-annotation",
+   "relationships",
+   "pagination-and-sorting"
+  ]
+ },
+ "spring/data/n-plus-one-lazy-loading": {
+  "label": "N+1 and lazy loading",
+  "subs": [
+   "what-is-n-plus-one",
+   "join-fetch",
+   "entity-graph",
+   "batch-fetching",
+   "dto-projection"
+  ]
+ },
+ "spring/data/sql-tuning-indexing": {
+  "label": "SQL tuning and indexing",
+  "subs": [
+   "reading-a-query-plan",
+   "composite-index",
+   "functions-on-columns",
+   "like-and-wildcards"
+  ]
+ },
+ "spring/data/caching": {
+  "label": "Caching",
+  "subs": [
+   "cacheable-basics",
+   "cache-evict-and-put",
+   "cache-keys-and-conditions",
+   "caffeine-expiry"
+  ]
+ },
+ "spring/data/transactions": {
+  "label": "Transactions",
+  "subs": [
+   "transactional-basics",
+   "rollback-rules",
+   "propagation",
+   "self-invocation",
+   "programmatic-transactions"
+  ]
+ },
+ "spring/data/locking": {
+  "label": "Locking",
+  "subs": [
+   "optimistic-locking",
+   "retry-on-conflict",
+   "pessimistic-locking"
+  ]
  }
 }
