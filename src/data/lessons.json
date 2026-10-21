@@ -4218,5 +4218,141 @@
    "lang": "json",
    "code": "{\n  \"_id\": \"order-1001\",\n  \"customer\": { \"id\": 7, \"name\": \"Asha\" },\n  \"items\": [\n    { \"sku\": \"A-1\", \"name\": \"Pen\", \"qty\": 2, \"price\": 40 },\n    { \"sku\": \"B-9\", \"name\": \"Notebook\", \"qty\": 1, \"price\": 120 }\n  ],\n  \"total\": 200,\n  \"status\": \"PAID\"\n}"
   }
+ },
+ "/messaging/kafka-fundamentals/topics-and-partitions": {
+  "def": "A topic is split into partitions, and each partition is an ordered log. When a record has a key, Kafka hashes the key to choose the partition, so the same key always lands in the same partition.",
+  "example": {
+   "title": "The partition chosen for each key",
+   "lang": "java",
+   "code": "import java.nio.charset.StandardCharsets;\nimport org.apache.kafka.clients.producer.internals.BuiltInPartitioner;\n\nclass Demo {\n    public static void main(String[] args) {\n        int partitions = 3;\n        for (String key : new String[] {\"order-1\", \"order-2\", \"order-3\", \"order-1\", \"order-2\"}) {\n            int partition = BuiltInPartitioner.partitionForKey(key.getBytes(StandardCharsets.UTF_8), partitions);   // hash(key) % partitions\n            System.out.println(key + \" -> partition \" + partition);\n        }\n    }\n}\n\n// Output:\n// order-1 -> partition 1\n// order-2 -> partition 0\n// order-3 -> partition 0\n// order-1 -> partition 1\n// order-2 -> partition 0"
+  }
+ },
+ "/messaging/kafka-fundamentals/producer-config": {
+  "def": "Three settings decide how safe a producer is. `acks=all` waits until all in-sync replicas have the record, `enable.idempotence=true` stops retries from creating duplicates, and `linger.ms` with compression batches records for throughput.",
+  "example": {
+   "title": "A safe producer configuration, validated by Kafka",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.serialization.StringSerializer;\n\nclass Demo {\n    public static void main(String[] args) {\n        ProducerConfig config = new ProducerConfig(Map.<String, Object>of(\n                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\",\n                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,\n                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class,\n                ProducerConfig.ACKS_CONFIG, \"all\",                         // wait for all in-sync replicas\n                ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true,            // retries cannot duplicate records\n                ProducerConfig.LINGER_MS_CONFIG, 5,                        // wait up to 5 ms to fill a batch\n                ProducerConfig.COMPRESSION_TYPE_CONFIG, \"lz4\"));\n\n        System.out.println(\"acks=\" + config.getString(ProducerConfig.ACKS_CONFIG) + \" (-1 means all)\"\n                + \", idempotence=\" + config.getBoolean(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG)\n                + \", linger.ms=\" + config.getLong(ProducerConfig.LINGER_MS_CONFIG)\n                + \", compression=\" + config.getString(ProducerConfig.COMPRESSION_TYPE_CONFIG));\n    }\n}\n\n// Output:\n// acks=-1 (-1 means all), idempotence=true, linger.ms=5, compression=lz4"
+  }
+ },
+ "/messaging/kafka-fundamentals/sending-records": {
+  "def": "A producer sends `ProducerRecord`s to a topic with an optional key. Testing code that produces records does not need a broker: the `MockProducer` that ships with Kafka collects what was sent so you can assert on it.",
+  "example": {
+   "title": "Sending two records and inspecting them",
+   "lang": "java",
+   "code": "import org.apache.kafka.clients.producer.MockProducer;\nimport org.apache.kafka.clients.producer.ProducerRecord;\nimport org.apache.kafka.common.serialization.StringSerializer;\n\nclass Demo {\n    public static void main(String[] args) {\n        MockProducer<String, String> producer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());   // no broker needed\n\n        producer.send(new ProducerRecord<>(\"orders\", \"order-1\", \"created\"));\n        producer.send(new ProducerRecord<>(\"orders\", \"order-1\", \"paid\"));\n\n        producer.history().forEach(record -> System.out.println(record.topic() + \" key=\" + record.key() + \" value=\" + record.value()));\n        System.out.println(\"records sent: \" + producer.history().size());\n    }\n}\n\n// Output:\n// orders key=order-1 value=created\n// orders key=order-1 value=paid\n// records sent: 2"
+  }
+ },
+ "/messaging/kafka-fundamentals/consuming-records": {
+  "def": "A consumer repeatedly calls `poll`, which returns a batch of records from its partitions, processes them, and then commits the offset, the position up to which it has finished. After a restart it continues from the committed offset.",
+  "example": {
+   "title": "Poll, process, commit",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.Set;\nimport org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.apache.kafka.clients.consumer.ConsumerRecords;\nimport org.apache.kafka.clients.consumer.MockConsumer;\nimport org.apache.kafka.clients.consumer.OffsetResetStrategy;\nimport org.apache.kafka.common.TopicPartition;\n\nclass Demo {\n    public static void main(String[] args) {\n        MockConsumer<String, String> consumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);\n        TopicPartition partition = new TopicPartition(\"orders\", 0);\n        consumer.assign(List.of(partition));\n        consumer.updateBeginningOffsets(Map.of(partition, 0L));\n        consumer.addRecord(new ConsumerRecord<>(\"orders\", 0, 0L, \"order-1\", \"created\"));\n        consumer.addRecord(new ConsumerRecord<>(\"orders\", 0, 1L, \"order-1\", \"paid\"));\n\n        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));\n        for (ConsumerRecord<String, String> record : records) {\n            System.out.println(\"offset \" + record.offset() + \": \" + record.value());               // process the record\n        }\n        consumer.commitSync();                                                                     // remember our position\n        System.out.println(\"committed offset: \" + consumer.committed(Set.of(partition)).get(partition).offset());\n    }\n}\n\n// Output:\n// offset 0: created\n// offset 1: paid\n// committed offset: 2"
+  }
+ },
+ "/messaging/kafka-fundamentals/retention-and-compaction": {
+  "def": "Kafka keeps records for a set time or size (retention), then deletes old segments. A compacted topic instead keeps only the latest record for each key, which suits \"current state\" topics such as a customer profile table.",
+  "example": {
+   "title": "Creating a time-limited and a compacted topic",
+   "lang": "bash",
+   "code": "# keep order events for 7 days, then delete them\nkafka-topics.sh --bootstrap-server localhost:9092 --create --topic orders \\\n    --partitions 6 --replication-factor 3 \\\n    --config retention.ms=604800000\n\n# keep only the newest record per key, forever (a changelog of the latest state)\nkafka-topics.sh --bootstrap-server localhost:9092 --create --topic customer-profiles \\\n    --partitions 3 --replication-factor 3 \\\n    --config cleanup.policy=compact"
+  }
+ },
+ "/messaging/kafka-consumers-offsets/consumer-group-assignment": {
+  "def": "Consumers with the same `group.id` form a group, and Kafka gives each partition to exactly one consumer in the group. Adding consumers spreads the work, but you can never usefully have more consumers than partitions.",
+  "example": {
+   "title": "Six partitions shared by two and then by three consumers",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport java.util.TreeMap;\nimport org.apache.kafka.clients.consumer.ConsumerPartitionAssignor.Subscription;\nimport org.apache.kafka.clients.consumer.RangeAssignor;\nimport org.apache.kafka.common.TopicPartition;\n\nclass Demo {\n    static void show(int consumers) {\n        Map<String, Subscription> subscriptions = new TreeMap<>();\n        for (int i = 1; i <= consumers; i++) subscriptions.put(\"consumer-\" + i, new Subscription(List.of(\"orders\")));\n\n        Map<String, List<TopicPartition>> assignment = new RangeAssignor().assign(Map.of(\"orders\", 6), subscriptions);\n        System.out.println(consumers + \" consumers:\");\n        new TreeMap<>(assignment).forEach((consumer, partitions) ->\n                System.out.println(\"  \" + consumer + \" -> \" + partitions.stream().map(TopicPartition::partition).sorted().toList()));\n    }\n\n    public static void main(String[] args) {\n        show(2);\n        show(3);\n    }\n}\n\n// Output:\n// 2 consumers:\n//   consumer-1 -> [0, 1, 2]\n//   consumer-2 -> [3, 4, 5]\n// 3 consumers:\n//   consumer-1 -> [0, 1]\n//   consumer-2 -> [2, 3]\n//   consumer-3 -> [4, 5]"
+  }
+ },
+ "/messaging/kafka-consumers-offsets/at-least-once-commit": {
+  "def": "When you commit decides what happens after a crash. Commit after processing and a crash causes the last records to be processed again (at least once). Commit before processing and a crash can lose records (at most once). Most systems choose at-least-once and make processing idempotent.",
+  "example": {
+   "title": "A crash before the commit repeats a record",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    static final List<String> log = List.of(\"r0\", \"r1\", \"r2\", \"r3\");              // one partition\n    static int committedOffset = 0;\n\n    static void consume(int crashAfterRecords) {\n        int processedInThisRun = 0;\n        for (int offset = committedOffset; offset < log.size(); offset++) {\n            System.out.println(\"processing \" + log.get(offset));\n            processedInThisRun++;\n            if (processedInThisRun == crashAfterRecords) {\n                System.out.println(\"-- crash before committing --\");\n                return;                                                          // the commit below never happens\n            }\n            committedOffset = offset + 1;                                        // commit after processing\n        }\n    }\n\n    public static void main(String[] args) {\n        consume(3);                                                              // processes r0, r1, then r2 and crashes\n        System.out.println(\"restart from committed offset \" + committedOffset);\n        consume(0);                                                              // r2 is processed again\n    }\n}\n\n// Output:\n// processing r0\n// processing r1\n// processing r2\n// -- crash before committing --\n// restart from committed offset 2\n// processing r2\n// processing r3"
+  }
+ },
+ "/messaging/kafka-consumers-offsets/kafka-listener": {
+  "def": "Spring Kafka runs the poll loop for you. A method marked `@KafkaListener` receives each record, and with manual acknowledgment you decide when the offset is committed, after your work succeeded.",
+  "example": {
+   "title": "A listener that acknowledges after processing",
+   "lang": "java",
+   "code": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.kafka.support.Acknowledgment;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass OrderEvents {\n\n    // application.yml:  spring.kafka.listener.ack-mode: manual\n    //                   spring.kafka.consumer.enable-auto-commit: false\n    @KafkaListener(topics = \"orders\", groupId = \"email-service\")\n    void onOrder(String payload, Acknowledgment acknowledgment) {\n        sendEmail(payload);\n        acknowledgment.acknowledge();                           // commit only after the email was sent\n    }\n\n    private void sendEmail(String payload) { /* ... */ }\n}"
+  }
+ },
+ "/messaging/kafka-consumers-offsets/cooperative-rebalancing": {
+  "def": "When a consumer joins or leaves, Kafka moves partitions between the consumers (a rebalance). The old eager protocol stops everyone. The cooperative sticky assignor moves only the partitions that must move, and a `group.instance.id` lets a restarted consumer keep its partitions.",
+  "example": {
+   "title": "Settings that make rebalances gentler",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport org.apache.kafka.clients.consumer.ConsumerConfig;\nimport org.apache.kafka.clients.consumer.CooperativeStickyAssignor;\nimport org.apache.kafka.common.serialization.StringDeserializer;\n\nclass Demo {\n    public static void main(String[] args) {\n        ConsumerConfig config = new ConsumerConfig(Map.<String, Object>of(\n                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\",\n                ConsumerConfig.GROUP_ID_CONFIG, \"email-service\",\n                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,\n                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,\n                ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName(),   // move as few partitions as possible\n                ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, \"email-service-pod-1\",                                  // static membership: a restart keeps its partitions\n                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false));\n\n        System.out.println(\"strategy: \" + config.getList(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG));\n        System.out.println(\"static member: \" + config.getString(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG));\n        System.out.println(\"auto commit: \" + config.getBoolean(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG));\n    }\n}\n\n// Output:\n// strategy: [org.apache.kafka.clients.consumer.CooperativeStickyAssignor]\n// static member: email-service-pod-1\n// auto commit: false"
+  }
+ },
+ "/messaging/kafka-ordering-design/ordering-per-key": {
+  "def": "Kafka orders records only within one partition. If you use the entity id as the key, all events of that entity go to the same partition and stay in order. Events of different entities may interleave, which is usually fine.",
+  "example": {
+   "title": "Each order keeps its own sequence",
+   "lang": "java",
+   "code": "import java.nio.charset.StandardCharsets;\nimport java.util.ArrayList;\nimport java.util.List;\nimport org.apache.kafka.clients.producer.internals.BuiltInPartitioner;\n\nclass Demo {\n    public static void main(String[] args) {\n        String[][] events = {{\"order-1\", \"created\"}, {\"order-2\", \"created\"}, {\"order-1\", \"paid\"}, {\"order-1\", \"shipped\"}, {\"order-2\", \"paid\"}};\n\n        List<List<String>> partitions = new ArrayList<>();\n        for (int i = 0; i < 3; i++) partitions.add(new ArrayList<>());\n        for (String[] event : events) {\n            int partition = BuiltInPartitioner.partitionForKey(event[0].getBytes(StandardCharsets.UTF_8), 3);\n            partitions.get(partition).add(event[0] + \":\" + event[1]);                          // appended in arrival order\n        }\n        for (int i = 0; i < partitions.size(); i++) System.out.println(\"partition \" + i + \": \" + partitions.get(i));\n    }\n}\n\n// Output:\n// partition 0: [order-2:created, order-2:paid]\n// partition 1: [order-1:created, order-1:paid, order-1:shipped]\n// partition 2: []"
+  }
+ },
+ "/messaging/kafka-ordering-design/hot-partitions": {
+  "def": "Keys decide the load. If one key produces most of the traffic, its partition, and the one consumer reading it, becomes a bottleneck while the others sit idle. Check key distribution early and add a salt to very busy keys when order does not matter across them.",
+  "example": {
+   "title": "One busy key overloads one partition",
+   "lang": "java",
+   "code": "import java.nio.charset.StandardCharsets;\nimport org.apache.kafka.clients.producer.internals.BuiltInPartitioner;\n\nclass Demo {\n    public static void main(String[] args) {\n        int[] load = new int[3];\n        for (int i = 0; i < 1000; i++) {\n            String key = i % 10 < 7 ? \"big-customer\" : \"customer-\" + i;                       // 70% of events belong to one customer\n            load[BuiltInPartitioner.partitionForKey(key.getBytes(StandardCharsets.UTF_8), 3)]++;\n        }\n        for (int p = 0; p < load.length; p++) System.out.println(\"partition \" + p + \": \" + load[p] + \" events\");\n    }\n}\n\n// Output:\n// partition 0: 802 events\n// partition 1: 100 events\n// partition 2: 98 events"
+  }
+ },
+ "/messaging/kafka-ordering-design/idempotent-producer-rules": {
+  "def": "With idempotence on, the broker discards a record that the producer re-sends after a timeout, and ordering is kept even with retries. It needs `acks=all`, and Kafka refuses an unsafe combination at start-up instead of silently running without protection.",
+  "example": {
+   "title": "Kafka rejects an unsafe combination",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.config.ConfigException;\nimport org.apache.kafka.common.serialization.StringSerializer;\n\nclass Demo {\n    static Map<String, Object> settings(String acks) {\n        return Map.of(\n                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\",\n                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,\n                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class,\n                ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true,\n                ProducerConfig.ACKS_CONFIG, acks);\n    }\n\n    public static void main(String[] args) {\n        new ProducerConfig(settings(\"all\"));\n        System.out.println(\"idempotence with acks=all: accepted\");\n\n        try {\n            new ProducerConfig(settings(\"1\"));\n            System.out.println(\"idempotence with acks=1: accepted\");\n        } catch (ConfigException e) {\n            System.out.println(\"idempotence with acks=1: rejected\");\n        }\n    }\n}\n\n// Output:\n// idempotence with acks=all: accepted\n// idempotence with acks=1: rejected"
+  }
+ },
+ "/messaging/kafka-ordering-design/partition-count-planning": {
+  "def": "Partitions set the maximum parallelism of a topic. Work out the target throughput, divide it by what one producer and one consumer partition can handle, and take the larger number, with some headroom. You can add partitions later, but that changes which partition each key maps to.",
+  "example": {
+   "title": "A back-of-the-envelope calculation",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        double targetMbPerSecond = 50;\n        double producerMbPerPartition = 10;                                      // measured: what one partition accepts\n        double consumerMbPerPartition = 5;                                       // measured: what one consumer can process\n\n        int forProducers = (int) Math.ceil(targetMbPerSecond / producerMbPerPartition);\n        int forConsumers = (int) Math.ceil(targetMbPerSecond / consumerMbPerPartition);\n        int partitions = Math.max(forProducers, forConsumers);\n\n        System.out.println(\"needed for producers: \" + forProducers + \", for consumers: \" + forConsumers);\n        System.out.println(\"partitions to create: \" + partitions + \" (plus headroom, for example \" + (int) Math.ceil(partitions * 1.5) + \")\");\n    }\n}\n\n// Output:\n// needed for producers: 5, for consumers: 10\n// partitions to create: 10 (plus headroom, for example 15)"
+  }
+ },
+ "/messaging/rabbitmq-basics/exchange-routing": {
+  "def": "A producer never sends to a queue directly. It sends to an exchange with a routing key, and bindings decide which queues get a copy. A direct exchange matches the key exactly, a topic exchange matches patterns (`*` is one word, `#` is any number of words), and a fanout exchange copies to every queue.",
+  "example": {
+   "title": "A small model of topic routing",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.TreeMap;\n\nclass Demo {\n    // the binding patterns of a topic exchange: queue name -> pattern\n    static final Map<String, String> bindings = new TreeMap<>(Map.of(\n            \"email-queue\", \"order.created.*\",\n            \"audit-queue\", \"order.#\",\n            \"eu-queue\", \"*.*.eu\"));\n\n    static boolean matches(String pattern, String routingKey) {\n        String regex = pattern.replace(\".\", \"\\\\.\").replace(\"*\", \"[^.]+\").replace(\"#\", \".*\");\n        return routingKey.matches(regex);\n    }\n\n    public static void main(String[] args) {\n        for (String routingKey : new String[] {\"order.created.eu\", \"order.cancelled.us\"}) {\n            List<String> queues = new ArrayList<>();\n            bindings.forEach((queue, pattern) -> { if (matches(pattern, routingKey)) queues.add(queue); });\n            System.out.println(routingKey + \" -> \" + queues);\n        }\n    }\n}\n\n// Output:\n// order.created.eu -> [audit-queue, email-queue, eu-queue]\n// order.cancelled.us -> [audit-queue]"
+  }
+ },
+ "/messaging/rabbitmq-basics/declare-topology": {
+  "def": "With Spring AMQP you declare the exchange, the queue and the binding as beans. When the application starts, Spring creates them in RabbitMQ if they do not exist. Make queues `durable` so they survive a broker restart.",
+  "example": {
+   "title": "One exchange, one queue, one binding",
+   "lang": "java",
+   "code": "import org.springframework.amqp.core.Binding;\nimport org.springframework.amqp.core.BindingBuilder;\nimport org.springframework.amqp.core.DirectExchange;\nimport org.springframework.amqp.core.Queue;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\nclass RabbitTopology {\n\n    @Bean\n    DirectExchange ordersExchange() { return new DirectExchange(\"orders\"); }\n\n    @Bean\n    Queue emailQueue() { return new Queue(\"order-emails\", true); }                       // durable\n\n    @Bean\n    Binding emailBinding(Queue emailQueue, DirectExchange ordersExchange) {\n        return BindingBuilder.bind(emailQueue).to(ordersExchange).with(\"order.created\"); // routing key\n    }\n}"
+  }
+ },
+ "/messaging/rabbitmq-basics/send-and-listen": {
+  "def": "`RabbitTemplate` sends a message to an exchange with a routing key, and a method marked `@RabbitListener` receives the messages from a queue. By default Spring acknowledges the message when the method returns normally, and rejects it if the method throws.",
+  "example": {
+   "title": "Publish an event, handle it in another service",
+   "lang": "java",
+   "code": "import org.springframework.amqp.rabbit.annotation.RabbitListener;\nimport org.springframework.amqp.rabbit.core.RabbitTemplate;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass OrderPublisher {\n    private final RabbitTemplate rabbit;\n    OrderPublisher(RabbitTemplate rabbit) { this.rabbit = rabbit; }\n\n    void orderCreated(String orderId) {\n        rabbit.convertAndSend(\"orders\", \"order.created\", orderId);          // exchange, routing key, message\n    }\n}\n\n@Component\nclass EmailListener {\n    @RabbitListener(queues = \"order-emails\")\n    void onOrderCreated(String orderId) {\n        System.out.println(\"sending confirmation for \" + orderId);          // returning normally acknowledges the message\n    }\n}"
+  }
+ },
+ "/messaging/rabbitmq-basics/dead-letter-queue": {
+  "def": "A message that keeps failing should not block the queue or loop forever. Give the queue a dead-letter exchange: rejected messages (without requeue) are moved there, to a queue you can inspect, alert on and replay after the bug is fixed.",
+  "example": {
+   "title": "A queue that sends failures to a dead-letter queue",
+   "lang": "java",
+   "code": "import org.springframework.amqp.AmqpRejectAndDontRequeueException;\nimport org.springframework.amqp.core.Binding;\nimport org.springframework.amqp.core.BindingBuilder;\nimport org.springframework.amqp.core.DirectExchange;\nimport org.springframework.amqp.core.Queue;\nimport org.springframework.amqp.core.QueueBuilder;\nimport org.springframework.amqp.rabbit.annotation.RabbitListener;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.stereotype.Component;\n\n@Configuration\nclass DeadLetterConfig {\n    @Bean\n    Queue paymentsQueue() {\n        return QueueBuilder.durable(\"payments\")\n                .withArgument(\"x-dead-letter-exchange\", \"payments.dlx\")           // where rejected messages go\n                .withArgument(\"x-dead-letter-routing-key\", \"payments.dead\")\n                .build();\n    }\n\n    @Bean\n    Queue paymentsDeadQueue() { return QueueBuilder.durable(\"payments.dead\").build(); }\n\n    @Bean\n    DirectExchange paymentsDeadExchange() { return new DirectExchange(\"payments.dlx\"); }\n\n    @Bean\n    Binding deadBinding(Queue paymentsDeadQueue, DirectExchange paymentsDeadExchange) {\n        return BindingBuilder.bind(paymentsDeadQueue).to(paymentsDeadExchange).with(\"payments.dead\");\n    }\n}\n\n@Component\nclass PaymentListener {\n    @RabbitListener(queues = \"payments\")\n    void handle(String payload) {\n        if (payload.isBlank()) {\n            throw new AmqpRejectAndDontRequeueException(\"bad message\");          // not requeued: it moves to the dead-letter queue\n        }\n    }\n}"
+  }
  }
 }

@@ -673,5 +673,42 @@
    "redis-sorted-set",
    "document-model"
   ]
+ },
+ "messaging/kafka-fundamentals": {
+  "label": "Kafka fundamentals",
+  "subs": [
+   "topics-and-partitions",
+   "producer-config",
+   "sending-records",
+   "consuming-records",
+   "retention-and-compaction"
+  ]
+ },
+ "messaging/kafka-consumers-offsets": {
+  "label": "Consumers and offsets",
+  "subs": [
+   "consumer-group-assignment",
+   "at-least-once-commit",
+   "kafka-listener",
+   "cooperative-rebalancing"
+  ]
+ },
+ "messaging/kafka-ordering-design": {
+  "label": "Ordering and design",
+  "subs": [
+   "ordering-per-key",
+   "hot-partitions",
+   "idempotent-producer-rules",
+   "partition-count-planning"
+  ]
+ },
+ "messaging/rabbitmq-basics": {
+  "label": "RabbitMQ basics",
+  "subs": [
+   "exchange-routing",
+   "declare-topology",
+   "send-and-listen",
+   "dead-letter-queue"
+  ]
  }
 }
