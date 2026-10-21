@@ -3994,5 +3994,229 @@
    "lang": "java",
    "code": "class Demo {\n    public static void main(String[] args) {\n        double slo = 0.999;\n        int minutesInThirtyDays = 30 * 24 * 60;\n\n        double budgetMinutes = minutesInThirtyDays * (1 - slo);\n        System.out.printf(\"a %.1f%% SLO allows %.1f minutes of downtime in 30 days%n\", slo * 100, budgetMinutes);\n\n        double downtimeSoFar = 30;                                                  // one bad deploy\n        System.out.printf(\"budget left after %.0f minutes down: %.1f minutes (%.0f%%)%n\",\n                downtimeSoFar, budgetMinutes - downtimeSoFar, (budgetMinutes - downtimeSoFar) / budgetMinutes * 100);\n    }\n}\n\n// Output:\n// a 99.9% SLO allows 43.2 minutes of downtime in 30 days\n// budget left after 30 minutes down: 13.2 minutes (31%)"
   }
+ },
+ "/databases/relational-design/normalization": {
+  "def": "Normalization means storing each fact in one place. If a customer's city is copied onto every order row, changing it means updating many rows, and missing one leaves the data inconsistent. Split the data into tables and join them when you read.",
+  "example": {
+   "title": "Customers and orders in separate tables",
+   "lang": "sql",
+   "code": "CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(20) NOT NULL, city VARCHAR(20) NOT NULL);\nCREATE TABLE orders (id INT PRIMARY KEY, customer_id INT NOT NULL REFERENCES customers(id), item VARCHAR(20) NOT NULL);\n\nINSERT INTO customers VALUES (1, 'Asha', 'Pune'), (2, 'Ravi', 'Delhi');\nINSERT INTO orders VALUES (10, 1, 'pen'), (11, 1, 'book'), (12, 2, 'lamp');\n\n-- the city lives in one row, so one update is enough\nUPDATE customers SET city = 'Mumbai' WHERE id = 1;\n\n-- columns: order id, customer, city, item\nSELECT o.id, c.name, c.city, o.item\nFROM orders o JOIN customers c ON c.id = o.customer_id\nORDER BY o.id;\n\n-- Output:\n-- 10 | Asha | Mumbai | pen\n-- 11 | Asha | Mumbai | book\n-- 12 | Ravi | Delhi | lamp"
+  }
+ },
+ "/databases/relational-design/constraints": {
+  "def": "Constraints are rules the database enforces for you: `NOT NULL`, `UNIQUE`, `PRIMARY KEY`, `FOREIGN KEY` and `CHECK`. Bad data is rejected at the door, whichever application or script tries to write it.",
+  "example": {
+   "title": "Four kinds of bad data, four rejections",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.SQLException;\nimport java.sql.Statement;\n\nclass Demo {\n    static void attempt(Statement statement, String label, String sql) {\n        try {\n            statement.execute(sql);\n            System.out.println(label + \": accepted\");\n        } catch (SQLException e) {\n            System.out.println(label + \": rejected, SQLSTATE \" + e.getSQLState());       // standard error classes: 23xxx\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        try (Connection connection = DriverManager.getConnection(\"jdbc:h2:mem:constraints\"); Statement s = connection.createStatement()) {\n            s.execute(\"create table customers (id int primary key)\");\n            s.execute(\"create table accounts (id int primary key, owner int not null references customers(id), \"\n                    + \"email varchar(30) unique, balance int check (balance >= 0))\");\n            s.execute(\"insert into customers values (1)\");\n            s.execute(\"insert into accounts values (1, 1, 'a@example.com', 100)\");\n\n            attempt(s, \"missing owner (NOT NULL)\", \"insert into accounts (id, email, balance) values (2, 'b@example.com', 5)\");\n            attempt(s, \"same email (UNIQUE)\", \"insert into accounts values (3, 1, 'a@example.com', 5)\");\n            attempt(s, \"unknown owner (FOREIGN KEY)\", \"insert into accounts values (4, 99, 'd@example.com', 5)\");\n            attempt(s, \"negative balance (CHECK)\", \"insert into accounts values (5, 1, 'e@example.com', -1)\");\n            attempt(s, \"valid row\", \"insert into accounts values (6, 1, 'f@example.com', 5)\");\n        }\n    }\n}\n\n// Output:\n// missing owner (NOT NULL): rejected, SQLSTATE 23502\n// same email (UNIQUE): rejected, SQLSTATE 23505\n// unknown owner (FOREIGN KEY): rejected, SQLSTATE 23506\n// negative balance (CHECK): rejected, SQLSTATE 23513\n// valid row: accepted"
+  }
+ },
+ "/databases/relational-design/many-to-many": {
+  "def": "A student takes many courses and a course has many students. A relational table cannot hold a list, so a third table, a junction table, holds one row per pair. Its primary key is the pair of ids, which also prevents duplicates.",
+  "example": {
+   "title": "A junction table between students and courses",
+   "lang": "sql",
+   "code": "CREATE TABLE students (id INT PRIMARY KEY, name VARCHAR(20));\nCREATE TABLE courses (id INT PRIMARY KEY, title VARCHAR(20));\nCREATE TABLE enrollments (\n    student_id INT REFERENCES students(id),\n    course_id INT REFERENCES courses(id),\n    PRIMARY KEY (student_id, course_id)           -- the same pair cannot be stored twice\n);\n\nINSERT INTO students VALUES (1, 'Asha'), (2, 'Ravi');\nINSERT INTO courses VALUES (10, 'Java'), (20, 'SQL'), (30, 'Spring');\nINSERT INTO enrollments VALUES (1, 10), (1, 20), (2, 20), (2, 30);\n\n-- columns: student, courses taken\nSELECT s.name, STRING_AGG(c.title, ', ' ORDER BY c.title)\nFROM students s\nJOIN enrollments e ON e.student_id = s.id\nJOIN courses c ON c.id = e.course_id\nGROUP BY s.name\nORDER BY s.name;\n\n-- Output:\n-- Asha | Java, SQL\n-- Ravi | SQL, Spring"
+  }
+ },
+ "/databases/relational-design/surrogate-and-natural-keys": {
+  "def": "A natural key is a value from the real world, such as an email or an ISBN. A surrogate key is a meaningless generated number. Use a surrogate id as the primary key, since real-world values change, and keep the natural key with a `UNIQUE` constraint.",
+  "example": {
+   "title": "A generated id plus a unique business key",
+   "lang": "sql",
+   "code": "CREATE TABLE users (\n    id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,    -- surrogate: the database assigns it, it never changes\n    email VARCHAR(50) NOT NULL UNIQUE                         -- natural key: still must be unique\n);\n\nINSERT INTO users (email) VALUES ('asha@example.com'), ('ravi@example.com');\n\n-- the id stays the same, so references stay valid\nUPDATE users SET email = 'asha.k@example.com' WHERE email = 'asha@example.com';\n\n-- columns: id, email\nSELECT id, email FROM users ORDER BY id;\n\n-- Output:\n-- 1 | asha.k@example.com\n-- 2 | ravi@example.com"
+  }
+ },
+ "/databases/sql-patterns/joins": {
+  "def": "An inner join keeps only the rows that match on both sides. A left join keeps every row from the left table and fills the missing right-hand columns with `NULL`, which is how you list customers even when they have no orders.",
+  "example": {
+   "title": "Customers with and without orders",
+   "lang": "sql",
+   "code": "CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(20));\nCREATE TABLE orders (id INT PRIMARY KEY, customer_id INT, total INT);\nINSERT INTO customers VALUES (1, 'Asha'), (2, 'Ravi'), (3, 'Mei');\nINSERT INTO orders VALUES (10, 1, 300), (11, 1, 200), (12, 2, 100);\n\n-- inner join: only matching rows. Result: (Asha, 10) (Asha, 11) (Ravi, 12)  - Mei has no orders, so she disappears\nSELECT c.name, o.id FROM customers c JOIN orders o ON o.customer_id = c.id ORDER BY o.id;\n\n-- left join: every customer stays. Result: the same three rows plus (Mei, NULL)\nSELECT c.name, o.id FROM customers c LEFT JOIN orders o ON o.customer_id = c.id ORDER BY c.id, o.id;"
+  }
+ },
+ "/databases/sql-patterns/anti-join": {
+  "def": "To find rows that have no related row, such as customers who never ordered, use `NOT EXISTS`. It is clear, fast, and safe with `NULL`s. `NOT IN` is a trap: if the subquery returns even one `NULL`, it matches nothing at all.",
+  "example": {
+   "title": "Customers who have never ordered",
+   "lang": "sql",
+   "code": "CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(20));\nCREATE TABLE orders (id INT PRIMARY KEY, customer_id INT, total INT);\nINSERT INTO customers VALUES (1, 'Asha'), (2, 'Ravi'), (3, 'Mei');\nINSERT INTO orders VALUES (10, 1, 300), (11, 1, 200), (12, 2, 100);\n\n-- columns: name\nSELECT c.name\nFROM customers c\nWHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)\nORDER BY c.name;\n\n-- Output:\n-- Mei"
+  }
+ },
+ "/databases/sql-patterns/group-by-having": {
+  "def": "`GROUP BY` collapses rows into one row per group so you can count and add up. `WHERE` filters rows before grouping, and `HAVING` filters the groups afterwards, for example only customers who spent more than 150.",
+  "example": {
+   "title": "Total spend per customer, big spenders only",
+   "lang": "sql",
+   "code": "CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(20));\nCREATE TABLE orders (id INT PRIMARY KEY, customer_id INT, total INT);\nINSERT INTO customers VALUES (1, 'Asha'), (2, 'Ravi'), (3, 'Mei');\nINSERT INTO orders VALUES (10, 1, 300), (11, 1, 200), (12, 2, 100);\n\n-- columns: customer id, number of orders, total spent\nSELECT customer_id, COUNT(*), SUM(total)\nFROM orders\nGROUP BY customer_id\nHAVING SUM(total) > 150\nORDER BY customer_id;\n\n-- Output:\n-- 1 | 2 | 500"
+  }
+ },
+ "/databases/sql-patterns/window-functions": {
+  "def": "A window function calculates across a set of related rows without collapsing them, as `GROUP BY` does. Use it for rankings, running totals and the previous row's value, with `OVER (PARTITION BY ... ORDER BY ...)`.",
+  "example": {
+   "title": "Rank and running total per customer",
+   "lang": "sql",
+   "code": "CREATE TABLE sales (customer VARCHAR(10), sale_day INT, amount INT);\nINSERT INTO sales VALUES ('asha', 1, 100), ('asha', 2, 50), ('asha', 3, 200), ('ravi', 1, 70), ('ravi', 2, 30);\n\n-- columns: customer, sale_day, amount, rank of the amount, running total\nSELECT customer, sale_day, amount,\n       RANK() OVER (PARTITION BY customer ORDER BY amount DESC) AS amount_rank,\n       SUM(amount) OVER (PARTITION BY customer ORDER BY sale_day) AS running_total\nFROM sales\nORDER BY customer, sale_day;\n\n-- Output:\n-- asha | 1 | 100 | 2 | 100\n-- asha | 2 | 50 | 3 | 150\n-- asha | 3 | 200 | 1 | 350\n-- ravi | 1 | 70 | 1 | 70\n-- ravi | 2 | 30 | 2 | 100"
+  }
+ },
+ "/databases/sql-patterns/recursive-cte": {
+  "def": "A common table expression (CTE) names a sub-query. A recursive one refers to itself, which is how you walk a hierarchy of unknown depth, such as an organisation chart: start from the top and keep adding the people who report to the last level.",
+  "example": {
+   "title": "Everyone under the CEO, with their level",
+   "lang": "sql",
+   "code": "CREATE TABLE staff (id INT PRIMARY KEY, name VARCHAR(10), manager_id INT);\nINSERT INTO staff VALUES (1, 'Meera', NULL), (2, 'Asha', 1), (3, 'Ravi', 1), (4, 'Kiran', 2), (5, 'Dev', 4);\n\n-- columns: name, level below the CEO\nWITH RECURSIVE chain(id, name, level) AS (\n    SELECT id, name, 0 FROM staff WHERE manager_id IS NULL         -- the starting point\n    UNION ALL\n    SELECT s.id, s.name, c.level + 1\n    FROM staff s JOIN chain c ON s.manager_id = c.id                -- add the next level\n)\nSELECT name, level FROM chain ORDER BY level, name;\n\n-- Output:\n-- Meera | 0\n-- Asha | 1\n-- Ravi | 1\n-- Kiran | 2\n-- Dev | 3"
+  }
+ },
+ "/databases/sql-patterns/upsert-merge": {
+  "def": "An upsert inserts a row if it is new and updates it if it exists, in one atomic statement. That avoids the race in \"select, then insert or update\". The standard form is `MERGE`, and PostgreSQL also offers `INSERT ... ON CONFLICT`.",
+  "example": {
+   "title": "Insert new products, update existing ones",
+   "lang": "sql",
+   "code": "CREATE TABLE stock (sku VARCHAR(10) PRIMARY KEY, quantity INT);\nINSERT INTO stock VALUES ('pen', 10), ('book', 5);\n\nMERGE INTO stock t\nUSING (VALUES ('pen', 4), ('lamp', 7)) AS s(sku, quantity)          -- incoming data: one existing, one new\nON t.sku = s.sku\nWHEN MATCHED THEN UPDATE SET quantity = t.quantity + s.quantity\nWHEN NOT MATCHED THEN INSERT (sku, quantity) VALUES (s.sku, s.quantity);\n\n-- columns: sku, quantity\nSELECT sku, quantity FROM stock ORDER BY sku;\n\n-- Output:\n-- book | 5\n-- lamp | 7\n-- pen | 14"
+  }
+ },
+ "/databases/sql-patterns/keyset-pagination": {
+  "def": "`OFFSET 100000` makes the database read and throw away 100,000 rows before returning the page, so deep pages are slow. Keyset pagination remembers the last id seen and asks for the rows after it, which uses the index and stays fast on every page.",
+  "example": {
+   "title": "The next page starts after the last id",
+   "lang": "sql",
+   "code": "CREATE TABLE posts (id INT PRIMARY KEY, title VARCHAR(20));\nINSERT INTO posts SELECT n, 'post ' || n FROM SYSTEM_RANGE(1, 10) AS r(n);\n\n-- page 1. Result: 1, 2, 3\nSELECT id FROM posts ORDER BY id LIMIT 3;\n\n-- page 2: remember the last id of page 1 (3) and continue after it, no OFFSET needed. Result: 4, 5, 6\nSELECT id FROM posts WHERE id > 3 ORDER BY id LIMIT 3;"
+  }
+ },
+ "/databases/schema-migrations/flyway-versioned-migrations": {
+  "def": "Flyway applies numbered SQL scripts (`V1__...`, `V2__...`) in order, once each, and records them in a history table. Every environment ends up with the same schema, and a new developer or server only gets the scripts it has not run yet.",
+  "example": {
+   "title": "Two scripts applied, a second run does nothing",
+   "lang": "java",
+   "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\nimport org.flywaydb.core.Flyway;\nimport org.flywaydb.core.api.MigrationInfo;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        Path scripts = Files.createTempDirectory(\"migrations\");                    // normally src/main/resources/db/migration\n        Files.writeString(scripts.resolve(\"V1__create_users.sql\"), \"create table users (id int primary key, name varchar(20));\");\n        Files.writeString(scripts.resolve(\"V2__add_email.sql\"), \"alter table users add column email varchar(50);\");\n\n        Flyway flyway = Flyway.configure()\n                .dataSource(\"jdbc:h2:mem:migrations;DB_CLOSE_DELAY=-1\", \"sa\", \"\")\n                .locations(\"filesystem:\" + scripts)\n                .load();\n\n        System.out.println(\"applied now: \" + flyway.migrate().migrationsExecuted);\n        for (MigrationInfo info : flyway.info().applied()) {\n            System.out.println(\"V\" + info.getVersion() + \" \" + info.getDescription());\n        }\n        System.out.println(\"applied on the second run: \" + flyway.migrate().migrationsExecuted);\n    }\n}\n\n// Output:\n// applied now: 2\n// V1 create users\n// V2 add email\n// applied on the second run: 0"
+  }
+ },
+ "/databases/schema-migrations/flyway-checksum-validation": {
+  "def": "Flyway stores a checksum of every script it has run. If you edit an old script, the checksum no longer matches and validation fails, because other databases already ran the old version. Fix mistakes with a new migration instead.",
+  "example": {
+   "title": "An edited script is detected",
+   "lang": "java",
+   "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\nimport org.flywaydb.core.Flyway;\nimport org.flywaydb.core.api.exception.FlywayValidateException;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        Path scripts = Files.createTempDirectory(\"migrations\");\n        Path v1 = scripts.resolve(\"V1__create_users.sql\");\n        Files.writeString(v1, \"create table users (id int primary key);\");\n\n        Flyway flyway = Flyway.configure()\n                .dataSource(\"jdbc:h2:mem:checksums;DB_CLOSE_DELAY=-1\", \"sa\", \"\")\n                .locations(\"filesystem:\" + scripts)\n                .load();\n        flyway.migrate();\n        System.out.println(\"first run ok\");\n\n        Files.writeString(v1, \"create table users (id int primary key, name varchar(20));\");   // somebody edits history\n        try {\n            flyway.validate();\n        } catch (FlywayValidateException e) {\n            System.out.println(\"validation failed: \" + e.getMessage().contains(\"checksum mismatch\"));\n        }\n    }\n}\n\n// Output:\n// first run ok\n// validation failed: true"
+  }
+ },
+ "/databases/schema-migrations/expand-and-contract": {
+  "def": "To change a column without downtime, do it in small steps that each work with both the old and the new code. Expand: add the new column and copy the data. Switch the application over. Contract: drop the old column in a later release.",
+  "example": {
+   "title": "Renaming a column in three safe steps",
+   "lang": "sql",
+   "code": "CREATE TABLE users (id INT PRIMARY KEY, email VARCHAR(50));\nINSERT INTO users VALUES (1, 'asha@example.com'), (2, 'ravi@example.com');\n\n-- release 1 (expand): add the new column and copy the data; the old application still works\nALTER TABLE users ADD COLUMN contact_email VARCHAR(50);\nUPDATE users SET contact_email = email;\n\n-- release 2: the application now reads and writes contact_email only (nothing to run in the database)\n\n-- release 3 (contract): nobody uses the old column any more, so remove it\nALTER TABLE users DROP COLUMN email;\n\n-- columns: id, contact_email\nSELECT id, contact_email FROM users ORDER BY id;\n\n-- Output:\n-- 1 | asha@example.com\n-- 2 | ravi@example.com"
+  }
+ },
+ "/databases/schema-migrations/baseline-existing-database": {
+  "def": "A database that already exists has no history table. A baseline tells Flyway \"everything up to version 1 is already here\", so it skips the scripts up to the baseline and applies only the newer ones.",
+  "example": {
+   "title": "Baseline at version 1, then migrate",
+   "lang": "java",
+   "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.Statement;\nimport org.flywaydb.core.Flyway;\nimport org.flywaydb.core.api.MigrationInfo;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        String url = \"jdbc:h2:mem:legacy;DB_CLOSE_DELAY=-1\";\n        try (Connection connection = DriverManager.getConnection(url, \"sa\", \"\"); Statement statement = connection.createStatement()) {\n            statement.execute(\"create table users (id int primary key, name varchar(20))\");    // created long ago, by hand\n        }\n\n        Path scripts = Files.createTempDirectory(\"migrations\");\n        Files.writeString(scripts.resolve(\"V1__create_users.sql\"), \"create table users (id int primary key, name varchar(20));\");\n        Files.writeString(scripts.resolve(\"V2__add_email.sql\"), \"alter table users add column email varchar(50);\");\n\n        Flyway flyway = Flyway.configure()\n                .dataSource(url, \"sa\", \"\")\n                .locations(\"filesystem:\" + scripts)\n                .baselineOnMigrate(true)                                                 // an existing schema without history\n                .baselineVersion(\"1\")                                                    // treat it as version 1\n                .load();\n\n        flyway.migrate();\n        for (MigrationInfo info : flyway.info().applied()) {\n            System.out.println(\"V\" + info.getVersion() + \" \" + info.getType());\n        }\n    }\n}\n\n// Output:\n// V1 BASELINE\n// V2 SQL"
+  }
+ },
+ "/databases/acid-isolation-mvcc/atomicity-rollback": {
+  "def": "Atomic means a transaction is all or nothing. If anything fails halfway, the database undoes every change made so far, so you never see a transfer where the money left one account but did not reach the other.",
+  "example": {
+   "title": "A failed transfer is rolled back",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.ResultSet;\nimport java.sql.Statement;\n\nclass Demo {\n    static String balances(Statement statement) throws Exception {\n        ResultSet rows = statement.executeQuery(\"select group_concat(balance order by id) from account\");\n        rows.next();\n        return rows.getString(1);\n    }\n\n    public static void main(String[] args) throws Exception {\n        try (Connection connection = DriverManager.getConnection(\"jdbc:h2:mem:atomic\"); Statement statement = connection.createStatement()) {\n            statement.execute(\"create table account (id int primary key, balance int)\");\n            statement.execute(\"insert into account values (1, 100), (2, 0)\");\n\n            connection.setAutoCommit(false);                                          // start a transaction\n            try {\n                statement.executeUpdate(\"update account set balance = balance - 40 where id = 1\");\n                throw new IllegalStateException(\"the application crashed before crediting account 2\");\n            } catch (IllegalStateException e) {\n                connection.rollback();                                                // undo the debit\n            }\n            System.out.println(\"balances after rollback: \" + balances(statement));\n        }\n    }\n}\n\n// Output:\n// balances after rollback: 100,0"
+  }
+ },
+ "/databases/acid-isolation-mvcc/read-committed-vs-repeatable-read": {
+  "def": "Isolation decides what one transaction can see of another one's changes. Under `READ COMMITTED` a second read of the same row can return a new value (a non-repeatable read). Under `REPEATABLE READ` the transaction keeps seeing the data as it was when it started.",
+  "example": {
+   "title": "The same read twice, under two isolation levels",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.ResultSet;\nimport java.sql.Statement;\n\nclass Demo {\n    static int read(Connection connection) throws Exception {\n        try (Statement statement = connection.createStatement(); ResultSet rows = statement.executeQuery(\"select balance from account where id = 1\")) {\n            rows.next();\n            return rows.getInt(1);\n        }\n    }\n\n    static void experiment(int isolation, String label) throws Exception {\n        try (Connection reader = DriverManager.getConnection(\"jdbc:h2:mem:isolation\" + isolation);\n             Connection writer = DriverManager.getConnection(\"jdbc:h2:mem:isolation\" + isolation)) {\n            try (Statement statement = reader.createStatement()) {\n                statement.execute(\"create table account (id int primary key, balance int)\");\n                statement.execute(\"insert into account values (1, 100)\");\n            }\n            reader.setTransactionIsolation(isolation);\n            reader.setAutoCommit(false);\n\n            int first = read(reader);                                                 // the reader's transaction starts here\n            try (Statement statement = writer.createStatement()) {\n                statement.executeUpdate(\"update account set balance = 200 where id = 1\");   // another user commits a change\n            }\n            int second = read(reader);\n            System.out.println(label + \": first read \" + first + \", second read \" + second);\n            reader.commit();\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        experiment(Connection.TRANSACTION_READ_COMMITTED, \"READ COMMITTED  \");\n        experiment(Connection.TRANSACTION_REPEATABLE_READ, \"REPEATABLE READ \");\n    }\n}\n\n// Output:\n// READ COMMITTED  : first read 100, second read 200\n// REPEATABLE READ : first read 100, second read 100"
+  }
+ },
+ "/databases/acid-isolation-mvcc/lost-update": {
+  "def": "A lost update happens when two transactions read the same value, each compute a new one, and the last write silently erases the first. Avoid it by doing the arithmetic inside the `UPDATE` statement, or by locking or versioning the row.",
+  "example": {
+   "title": "Read-modify-write against an atomic update",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.ResultSet;\nimport java.sql.Statement;\n\nclass Demo {\n    static int read(Connection connection) throws Exception {\n        try (Statement statement = connection.createStatement(); ResultSet rows = statement.executeQuery(\"select balance from account where id = 1\")) {\n            rows.next();\n            return rows.getInt(1);\n        }\n    }\n\n    static void write(Connection connection, String sql) throws Exception {\n        try (Statement statement = connection.createStatement()) { statement.executeUpdate(sql); }\n    }\n\n    public static void main(String[] args) throws Exception {\n        try (Connection a = DriverManager.getConnection(\"jdbc:h2:mem:lost\"); Connection b = DriverManager.getConnection(\"jdbc:h2:mem:lost\")) {\n            write(a, \"create table account (id int primary key, balance int)\");\n            write(a, \"insert into account values (1, 100)\");\n\n            // wrong: both users read 100, each adds 10 in the application, the second write overwrites the first\n            int seenByA = read(a);\n            int seenByB = read(b);\n            write(a, \"update account set balance = \" + (seenByA + 10) + \" where id = 1\");\n            write(b, \"update account set balance = \" + (seenByB + 10) + \" where id = 1\");\n            System.out.println(\"read-modify-write: \" + read(a) + \"  (should be 120)\");\n\n            // right: the database does the addition on the current value\n            write(a, \"update account set balance = 100 where id = 1\");\n            write(a, \"update account set balance = balance + 10 where id = 1\");\n            write(b, \"update account set balance = balance + 10 where id = 1\");\n            System.out.println(\"atomic update:     \" + read(a));\n        }\n    }\n}\n\n// Output:\n// read-modify-write: 110  (should be 120)\n// atomic update:     120"
+  }
+ },
+ "/databases/acid-isolation-mvcc/mvcc-readers-and-writers": {
+  "def": "With multi-version concurrency control (MVCC) the database keeps old versions of changed rows. A reader sees the last committed version while a writer is still working, so reads do not wait for writes and writes do not wait for reads.",
+  "example": {
+   "title": "A reader is not blocked by an open write",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.ResultSet;\nimport java.sql.Statement;\n\nclass Demo {\n    static int read(Connection connection) throws Exception {\n        try (Statement statement = connection.createStatement(); ResultSet rows = statement.executeQuery(\"select stock from product where id = 1\")) {\n            rows.next();\n            return rows.getInt(1);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        try (Connection writer = DriverManager.getConnection(\"jdbc:h2:mem:mvcc\"); Connection reader = DriverManager.getConnection(\"jdbc:h2:mem:mvcc\")) {\n            try (Statement statement = writer.createStatement()) {\n                statement.execute(\"create table product (id int primary key, stock int)\");\n                statement.execute(\"insert into product values (1, 10)\");\n            }\n\n            writer.setAutoCommit(false);\n            try (Statement statement = writer.createStatement()) {\n                statement.executeUpdate(\"update product set stock = 3 where id = 1\");        // not committed yet\n            }\n\n            System.out.println(\"reader during the write: \" + read(reader) + \"  (old version, no waiting)\");\n            writer.commit();\n            System.out.println(\"reader after the commit: \" + read(reader));\n        }\n    }\n}\n\n// Output:\n// reader during the write: 10  (old version, no waiting)\n// reader after the commit: 3"
+  }
+ },
+ "/databases/acid-isolation-mvcc/row-locking": {
+  "def": "`SELECT ... FOR UPDATE` locks the rows it returns until the transaction ends. A second transaction asking for the same rows must wait, and fails with a timeout if the lock is not released. It is how you safely read-then-change a row that many users compete for.",
+  "example": {
+   "title": "The second transaction cannot take the lock",
+   "lang": "java",
+   "code": "import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.SQLException;\nimport java.sql.Statement;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        try (Connection first = DriverManager.getConnection(\"jdbc:h2:mem:locking\"); Connection second = DriverManager.getConnection(\"jdbc:h2:mem:locking\")) {\n            try (Statement statement = first.createStatement()) {\n                statement.execute(\"create table seat (id int primary key, booked boolean)\");\n                statement.execute(\"insert into seat values (1, false)\");\n            }\n            first.setAutoCommit(false);\n            second.setAutoCommit(false);\n            try (Statement statement = second.createStatement()) { statement.execute(\"set lock_timeout 300\"); }   // wait at most 300 ms\n\n            try (Statement statement = first.createStatement()) {\n                statement.executeQuery(\"select * from seat where id = 1 for update\");               // first transaction locks the row\n            }\n            try (Statement statement = second.createStatement()) {\n                statement.executeQuery(\"select * from seat where id = 1 for update\");\n                System.out.println(\"second transaction got the lock\");\n            } catch (SQLException e) {\n                System.out.println(\"second transaction timed out waiting for the lock\");\n            }\n\n            first.commit();                                                                          // releases the lock\n            try (Statement statement = second.createStatement()) {\n                statement.executeQuery(\"select * from seat where id = 1 for update\");\n                System.out.println(\"after the commit, the second transaction gets it\");\n            }\n        }\n    }\n}\n\n// Output:\n// second transaction timed out waiting for the lock\n// after the commit, the second transaction gets it"
+  }
+ },
+ "/databases/replication-sharding/read-replicas-and-lag": {
+  "def": "A primary database takes the writes and copies them to read replicas, which serve reads and spread the load. The copy is not instant: for a short time a replica is behind (replication lag), so a read right after a write may return old data.",
+  "example": {
+   "title": "A stale read from a replica",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\nclass Demo {\n    static final Map<String, String> primary = new HashMap<>();\n    static final Map<String, String> replica = new HashMap<>();\n    static final List<String[]> replicationLog = new ArrayList<>();               // changes not yet applied on the replica\n\n    static void write(String key, String value) {\n        primary.put(key, value);\n        replicationLog.add(new String[] {key, value});                             // shipped to the replica a moment later\n    }\n\n    static void replicate() {\n        replicationLog.forEach(change -> replica.put(change[0], change[1]));\n        replicationLog.clear();\n    }\n\n    public static void main(String[] args) {\n        write(\"profile:asha\", \"city=Pune\");\n        System.out.println(\"replica right after the write:  \" + replica.get(\"profile:asha\"));\n        System.out.println(\"primary right after the write:  \" + primary.get(\"profile:asha\") + \"   <- read-your-writes: ask the primary\");\n\n        replicate();                                                                // the lag is over\n        System.out.println(\"replica after replication:      \" + replica.get(\"profile:asha\"));\n    }\n}\n\n// Output:\n// replica right after the write:  null\n// primary right after the write:  city=Pune   <- read-your-writes: ask the primary\n// replica after replication:      city=Pune"
+  }
+ },
+ "/databases/replication-sharding/hash-sharding": {
+  "def": "Sharding splits the rows of one table across several database servers. A common rule is `hash(key) % number_of_shards`. It spreads the data evenly, but if you add a shard the modulus changes and most keys move to a different server.",
+  "example": {
+   "title": "How many keys move when a fourth shard is added",
+   "lang": "java",
+   "code": "class Demo {\n    static int shardOf(String key, int shards) {\n        return Math.floorMod(key.hashCode(), shards);\n    }\n\n    public static void main(String[] args) {\n        int keys = 1000;\n        int[] perShard = new int[3];\n        int moved = 0;\n\n        for (int i = 0; i < keys; i++) {\n            String key = \"user-\" + i;\n            perShard[shardOf(key, 3)]++;\n            if (shardOf(key, 3) != shardOf(key, 4)) moved++;                       // different shard after adding one\n        }\n        System.out.println(\"keys per shard with 3 shards: \" + perShard[0] + \", \" + perShard[1] + \", \" + perShard[2]);\n        System.out.println(\"keys that must move when going from 3 to 4 shards: \" + moved + \" of \" + keys);\n    }\n}\n\n// Output:\n// keys per shard with 3 shards: 333, 333, 334\n// keys that must move when going from 3 to 4 shards: 753 of 1000"
+  }
+ },
+ "/databases/replication-sharding/consistent-hashing": {
+  "def": "Consistent hashing places servers and keys on a ring. A key belongs to the next server clockwise. When a server is added, it only takes over the keys between itself and its neighbour, so only about 1/N of the keys move instead of most of them.",
+  "example": {
+   "title": "Adding a fourth node moves far fewer keys",
+   "lang": "java",
+   "code": "import java.nio.charset.StandardCharsets;\nimport java.security.MessageDigest;\nimport java.util.Map;\nimport java.util.TreeMap;\n\nclass Ring {\n    private final TreeMap<Long, String> ring = new TreeMap<>();\n\n    static long hash(String text) {\n        try {\n            byte[] digest = MessageDigest.getInstance(\"MD5\").digest(text.getBytes(StandardCharsets.UTF_8));\n            long value = 0;\n            for (int i = 0; i < 8; i++) value = (value << 8) | (digest[i] & 0xff);\n            return value;\n        } catch (Exception e) {\n            throw new IllegalStateException(e);\n        }\n    }\n\n    void addNode(String node) {\n        for (int replica = 0; replica < 100; replica++) ring.put(hash(node + \"#\" + replica), node);   // virtual nodes even out the load\n    }\n\n    String nodeFor(String key) {\n        Map.Entry<Long, String> entry = ring.ceilingEntry(hash(key));              // the next node clockwise\n        return (entry != null ? entry : ring.firstEntry()).getValue();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Ring ring = new Ring();\n        for (String node : new String[] {\"A\", \"B\", \"C\"}) ring.addNode(node);\n\n        int keys = 1000;\n        String[] before = new String[keys];\n        for (int i = 0; i < keys; i++) before[i] = ring.nodeFor(\"user-\" + i);\n\n        ring.addNode(\"D\");\n        int moved = 0;\n        for (int i = 0; i < keys; i++) if (!before[i].equals(ring.nodeFor(\"user-\" + i))) moved++;\n        System.out.println(\"keys moved after adding a fourth node: \" + moved + \" of \" + keys);\n    }\n}\n\n// Output:\n// keys moved after adding a fourth node: 256 of 1000"
+  }
+ },
+ "/databases/replication-sharding/table-partitioning": {
+  "def": "Partitioning splits one big table into smaller physical pieces inside one database, usually by date. Queries on a date range read only the matching partitions, and old data can be removed by dropping a whole partition, which is instant.",
+  "example": {
+   "title": "Monthly range partitions in PostgreSQL",
+   "lang": "sql",
+   "code": "CREATE TABLE events (\n    id         BIGINT NOT NULL,\n    created_at TIMESTAMP NOT NULL,\n    payload    TEXT\n) PARTITION BY RANGE (created_at);\n\nCREATE TABLE events_2026_01 PARTITION OF events\n    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');\nCREATE TABLE events_2026_02 PARTITION OF events\n    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');\n\n-- only events_2026_01 is read (partition pruning)\nSELECT count(*) FROM events WHERE created_at >= '2026-01-10' AND created_at < '2026-01-20';\n\n-- removing a month of old data is a metadata change, not millions of DELETEs\nDROP TABLE events_2026_01;"
+  }
+ },
+ "/databases/nosql-and-redis/cache-aside": {
+  "def": "In cache-aside the application looks in the cache first. On a miss it reads the database, stores the result in the cache and returns it. When the data changes it deletes the cached copy. Redis is the usual cache, and the logic is the same with any store.",
+  "example": {
+   "title": "Read through the cache, invalidate on update",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static final Map<String, String> database = new HashMap<>(Map.of(\"user:1\", \"Asha\"));\n    static final Map<String, String> cache = new HashMap<>();                       // stands for Redis\n    static int databaseReads = 0;\n\n    static String read(String key) {\n        String cached = cache.get(key);\n        if (cached != null) return cached;                                          // hit\n        databaseReads++;                                                            // miss: go to the database\n        String value = database.get(key);\n        cache.put(key, value);                                                      // with Redis you would also set a TTL here\n        return value;\n    }\n\n    static void update(String key, String value) {\n        database.put(key, value);\n        cache.remove(key);                                                          // invalidate, so the next read reloads\n    }\n\n    public static void main(String[] args) {\n        read(\"user:1\");\n        read(\"user:1\");\n        System.out.println(\"database reads after two gets: \" + databaseReads);\n\n        update(\"user:1\", \"Asha K\");\n        System.out.println(read(\"user:1\") + \", database reads now: \" + databaseReads);\n    }\n}\n\n// Output:\n// database reads after two gets: 1\n// Asha K, database reads now: 2"
+  }
+ },
+ "/databases/nosql-and-redis/redis-strings-and-ttl": {
+  "def": "The simplest Redis type is a string stored under a key. `SET` and `GET` store and read it, `EXPIRE` makes it disappear after some seconds, and `INCR` adds one atomically, so it is safe as a counter or rate limiter even with many clients.",
+  "example": {
+   "title": "A short redis-cli session",
+   "lang": "bash",
+   "code": "127.0.0.1:6379> SET session:42 \"asha\"\nOK\n127.0.0.1:6379> EXPIRE session:42 30        # forget it after 30 seconds\n(integer) 1\n127.0.0.1:6379> GET session:42\n\"asha\"\n\n127.0.0.1:6379> INCR visits:home            # atomic, even with thousands of clients\n(integer) 1\n127.0.0.1:6379> INCR visits:home\n(integer) 2"
+  }
+ },
+ "/databases/nosql-and-redis/redis-sorted-set": {
+  "def": "A sorted set keeps unique members ordered by a score. Adding, updating a score and reading the top N are all fast, which makes it a natural fit for leaderboards and priority queues.",
+  "example": {
+   "title": "A leaderboard",
+   "lang": "bash",
+   "code": "127.0.0.1:6379> ZADD leaderboard 250 asha 300 ravi 180 mei\n(integer) 3\n127.0.0.1:6379> ZINCRBY leaderboard 100 mei      # mei scores again: 180 + 100\n\"280\"\n127.0.0.1:6379> ZREVRANGE leaderboard 0 1 WITHSCORES      # the top two\n1) \"ravi\"\n2) \"300\"\n3) \"mei\"\n4) \"280\"\n127.0.0.1:6379> ZREVRANK leaderboard asha      # position counted from the top, starting at 0\n(integer) 2"
+  }
+ },
+ "/databases/nosql-and-redis/document-model": {
+  "def": "A document database such as MongoDB stores each record as a JSON-like document. Related data that is read together, such as an order and its items, lives inside one document, so one read returns everything. The cost is that the data is repeated and joins are limited.",
+  "example": {
+   "title": "An order with its items embedded",
+   "lang": "json",
+   "code": "{\n  \"_id\": \"order-1001\",\n  \"customer\": { \"id\": 7, \"name\": \"Asha\" },\n  \"items\": [\n    { \"sku\": \"A-1\", \"name\": \"Pen\", \"qty\": 2, \"price\": 40 },\n    { \"sku\": \"B-9\", \"name\": \"Notebook\", \"qty\": 1, \"price\": 120 }\n  ],\n  \"total\": 200,\n  \"status\": \"PAID\"\n}"
+  }
  }
 }

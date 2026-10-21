@@ -615,5 +615,63 @@
    "trace-context",
    "slo-error-budget"
   ]
+ },
+ "databases/relational-design": {
+  "label": "Relational design",
+  "subs": [
+   "normalization",
+   "constraints",
+   "many-to-many",
+   "surrogate-and-natural-keys"
+  ]
+ },
+ "databases/sql-patterns": {
+  "label": "SQL patterns",
+  "subs": [
+   "joins",
+   "anti-join",
+   "group-by-having",
+   "window-functions",
+   "recursive-cte",
+   "upsert-merge",
+   "keyset-pagination"
+  ]
+ },
+ "databases/schema-migrations": {
+  "label": "Schema migrations",
+  "subs": [
+   "flyway-versioned-migrations",
+   "flyway-checksum-validation",
+   "expand-and-contract",
+   "baseline-existing-database"
+  ]
+ },
+ "databases/acid-isolation-mvcc": {
+  "label": "ACID, isolation and MVCC",
+  "subs": [
+   "atomicity-rollback",
+   "read-committed-vs-repeatable-read",
+   "lost-update",
+   "mvcc-readers-and-writers",
+   "row-locking"
+  ]
+ },
+ "databases/replication-sharding": {
+  "label": "Replication and sharding",
+  "subs": [
+   "read-replicas-and-lag",
+   "hash-sharding",
+   "consistent-hashing",
+   "table-partitioning"
+  ]
+ },
+ "databases/nosql-and-redis": {
+  "label": "NoSQL and Redis",
+  "subs": [
+   "cache-aside",
+   "redis-strings-and-ttl",
+   "redis-sorted-set",
+   "document-model"
+  ]
  }
 }
