@@ -133,9 +133,7 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 
 | Page | Status | Notes |
 | --- | --- | --- |
-| questions-fresher | drafted | Questions 1-35 |
-| questions-mid-level | drafted | Questions 36-70 |
-| questions-senior | drafted | Questions 71-100 |
+| interview-questions | drafted | One list of 100 questions in 12 theme pages (merged from the former fresher, mid-level and senior pages) |
 | behavioral-star | drafted | Worked examples are fictional and labelled as such |
 | coding-problems | drafted | ✔ run: 16 problems, 24 test checks |
 | cheat-sheets | drafted | |
@@ -165,7 +163,7 @@ Docs-only site; every technology is a top-level sidebar section and its topics a
 - Experience levels (beginner, mid, senior) and the study plan were removed. There is one version of every page, and the Definition is written in short, plain words (2-3 sentences).
 - Every topic follows one simple flow (see README): definition, why it exists, the page's own sections, design notes, when to use it, common mistakes, interview questions, quiz, takeaways. 76 pages have a written definition, why it exists and when to use it, and many have system design notes. All wording was written for this site and is worth a read when reviewing each page.
 - Design notes come from `lessons.json` where written. Adding standalone examples and design notes to the pages that lack them is a sensible follow-up.
-- The three question banks keep their file names (and URLs) but are now titled Foundations (1-35), Applied (36-70) and Advanced (71-100).
+- The question banks (formerly Foundations, Applied and Advanced) were later merged into one topic, Interview questions, with 12 theme pages.
 - UI: Apple-style neutrals, system font stack, translucent navbar, numbered part headers, redesigned home page. Colours and spacing are tokens at the top of `src/css/custom.css`.
 
 ## AI and LLMs section (first batch of 8)
@@ -179,4 +177,4 @@ Verification: every runnable Java snippet was compiled and run (outputs on the p
 - Topic pages were simplified further: each shows only the title, a short definition and one example (see README). The longer text, interview questions, quizzes and labs are still in the markdown files but hidden; they can be brought back per page. Java is grouped in the sidebar as Language basics, Collections, Concurrency and JVM (`sidebars.ts`).
 - Sub-topics: Java > Language basics has a tree under each topic: OOP and design (11 pages), Generics (6), Exception handling (6), Immutability (5), and "Java 8 to 25 features", which is grouped by version (Java 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25) with 48 pages, including Streams and lambdas under Java 8. Every example was compiled and run (the module and single-file examples were run by hand). All 95 topics now have sub-topic trees (455 sub-topic pages in total), grouped in the sidebar like the topic pages.
 - How the sub-topic examples were verified: plain Java ran on JDK 26; Spring examples ran against Spring Boot 3.5.16 (web, JPA with H2, Security, Actuator, Validation, Cache, Flyway, Micrometer, Resilience4j); SQL ran on H2 in PostgreSQL mode; Kafka examples use the real kafka-clients 3.9 classes (partitioner, `MockProducer`, `MockConsumer`, `RangeAssignor`, config validation); the RabbitMQ, Testcontainers, Spring AI (1.0.0) and LangChain4j (1.0.1) examples were compiled but not run, because they need a broker, Docker or a model API key. YAML (Kubernetes, CI, Spring config) was parsed but not applied, Dockerfile and JVM flags were checked by hand and with `java <flag> -version`, and the layered-jar Dockerfile steps were reproduced with a real Boot jar. The Redis (`redis-cli`) and HTTP-protocol examples are written from the documented behaviour, not run. The AI pages use small stand-ins for the model, so they show the technique and not real model output.
-- Not changed: the three interview-question pages by experience level in the Toolkit have no sub-topics, because the site now uses one level for everyone.
+- The three interview-question pages by experience level were merged into one Toolkit topic, Interview questions, with 12 theme sub-pages holding the same 100 questions and answers (the old level-specific preparation tips were dropped).

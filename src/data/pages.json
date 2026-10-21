@@ -296,8 +296,8 @@
   "title": "Trade-off discussions"
  },
  {
-  "path": "/toolkit/questions-fresher",
-  "title": "Questions: Foundations"
+  "path": "/toolkit/interview-questions",
+  "title": "Interview questions"
  },
  {
   "path": "/toolkit/coding-problems",
@@ -308,16 +308,8 @@
   "title": "Cheat sheets"
  },
  {
-  "path": "/toolkit/questions-mid-level",
-  "title": "Questions: Applied"
- },
- {
   "path": "/toolkit/behavioral-star",
   "title": "Behavioural answers (STAR)"
- },
- {
-  "path": "/toolkit/questions-senior",
-  "title": "Questions: Advanced"
  },
  {
   "path": "/ai/foundations/what-is-an-llm",

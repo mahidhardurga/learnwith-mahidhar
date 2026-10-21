@@ -28,9 +28,9 @@ Every page has a short intro, concepts explained plainly, code examples, Mermaid
 
 ## Where to start
 
-- New to the stack: begin with [OOP](java/core-java/oop-and-design.md), the [collections framework](java/core-java/collections-framework.md) and [Spring IoC](spring/core/ioc-and-dependency-injection.md), then drill [questions 1-35](toolkit/questions-fresher.md).
-- Going deeper: [Spring internals](spring/core/aop-and-proxies.md), [transactions](spring/data/transactions.md) and [microservices patterns](microservices/data-consistency/saga.md), then [questions 36-70](toolkit/questions-mid-level.md).
-- Architecture and trade-offs: [JVM diagnostics](java/concurrency-jvm/jvm-tuning-diagnostics.md), [distributed consistency](microservices/data-consistency/outbox-idempotency.md), [system design](system-design/approach-and-estimation.md) and [behavioural stories](toolkit/behavioral-star.md), then [questions 71-100](toolkit/questions-senior.md).
+- New to the stack: begin with [OOP](java/core-java/oop-and-design.md), the [collections framework](java/core-java/collections-framework.md) and [Spring IoC](spring/core/ioc-and-dependency-injection.md), then try the [interview questions](toolkit/interview-questions.md).
+- Going deeper: [Spring internals](spring/core/aop-and-proxies.md), [transactions](spring/data/transactions.md) and [microservices patterns](microservices/data-consistency/saga.md).
+- Architecture and trade-offs: [JVM diagnostics](java/concurrency-jvm/jvm-tuning-diagnostics.md), [distributed consistency](microservices/data-consistency/outbox-idempotency.md), [system design](system-design/approach-and-estimation.md) and [behavioural stories](toolkit/behavioral-star.md).
 - Short on time: skim the [cheat sheets](toolkit/cheat-sheets.md).
 
 ## How to use a page

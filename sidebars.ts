@@ -98,7 +98,7 @@ const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
     {label: 'AI designs', ids: ids('system-design', ['design-a-rag-chatbot', 'design-an-ai-agent-platform'])},
   ],
   toolkit: [
-    {label: 'Interview questions', ids: ids('toolkit', ['questions-fresher', 'questions-mid-level', 'questions-senior'])},
+    {label: 'Interview questions', ids: ids('toolkit', ['interview-questions'])},
     {label: 'Practice and reference', ids: ids('toolkit', ['coding-problems', 'behavioral-star', 'cheat-sheets'])},
   ],
 };

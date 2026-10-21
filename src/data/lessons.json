@@ -5378,5 +5378,13 @@
    "lang": "java",
    "code": "import dev.langchain4j.model.chat.ChatModel;\nimport dev.langchain4j.service.AiServices;\nimport dev.langchain4j.service.SystemMessage;\nimport dev.langchain4j.service.UserMessage;\n\nrecord Ticket(String category, boolean urgent) { }\n\ninterface SupportAssistant {\n    @SystemMessage(\"You are a polite support assistant. Answer in two sentences.\")\n    String answer(@UserMessage String question);\n\n    @SystemMessage(\"Classify the support message.\")\n    Ticket classify(@UserMessage String message);                         // the reply is converted into the record\n}\n\nclass Wiring {\n    SupportAssistant create(ChatModel chatModel) {                        // the model comes from the provider module you add\n        return AiServices.create(SupportAssistant.class, chatModel);\n    }\n}"
   }
+ },
+ "/toolkit/interview-questions": {
+  "def": "One list of about 100 Java, Spring, microservices and design questions, grouped by theme from the language basics to architecture and security. Answer each one in two parts: a clear definition first, then a tiny example or why it matters.",
+  "example": {
+   "title": "The shape of a good answer",
+   "lang": "text",
+   "code": "Question: What is the difference between == and equals()?\n\nDefinition: == compares primitives by value and references by identity.\n            equals() compares the content, when a class overrides it (String, Integer, ...).\n\nExample:    new String(\"a\") == \"a\"        -> false (two different objects)\n            new String(\"a\").equals(\"a\")   -> true  (same content)"
+  }
  }
 }

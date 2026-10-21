@@ -1003,5 +1003,22 @@
    "spring-ai-chat-memory",
    "langchain4j-ai-service"
   ]
+ },
+ "toolkit/interview-questions": {
+  "label": "Interview questions",
+  "subs": [
+   "core-java",
+   "spring-and-spring-boot",
+   "rest-jpa-and-sql",
+   "java-internals-and-concurrency",
+   "spring-and-persistence",
+   "microservices-and-messaging",
+   "devops",
+   "architecture-and-consistency",
+   "resilience-and-operations",
+   "data-scaling-and-performance",
+   "security",
+   "delivery-leadership-and-judgement"
+  ]
  }
 }
