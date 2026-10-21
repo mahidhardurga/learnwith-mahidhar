@@ -3674,5 +3674,325 @@
    "lang": "java",
    "code": "import java.net.URI;\nimport java.net.http.HttpClient;\nimport java.net.http.HttpRequest;\nimport java.net.http.HttpResponse;\nimport java.util.TreeSet;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.web.SecurityFilterChain;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\n\n@RestController\nclass PageController {\n    @GetMapping(\"/page\") String page() { return \"hello\"; }\n}\n\n@SpringBootApplication\nclass Demo {\n    @Bean\n    SecurityFilterChain chain(HttpSecurity http) throws Exception {\n        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())\n                .headers(headers -> headers\n                        .contentSecurityPolicy(csp -> csp.policyDirectives(\"default-src 'self'; script-src 'self'\")));\n        return http.build();\n    }\n\n    public static void main(String[] args) throws Exception {\n        System.setProperty(\"server.port\", \"0\");\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n            HttpResponse<String> response = HttpClient.newHttpClient().send(\n                    HttpRequest.newBuilder(URI.create(\"http://localhost:\" + port + \"/page\")).build(),\n                    HttpResponse.BodyHandlers.ofString());\n\n            TreeSet<String> names = new TreeSet<>();\n            response.headers().map().keySet().forEach(name -> names.add(name.toLowerCase()));\n            names.stream().filter(name -> name.startsWith(\"x-\") || name.startsWith(\"content-security\") || name.equals(\"cache-control\"))\n                    .forEach(System.out::println);\n        }\n    }\n}\n\n// Output:\n// cache-control\n// content-security-policy\n// x-content-type-options\n// x-frame-options\n// x-xss-protection"
   }
+ },
+ "/microservices/overview/own-your-data": {
+  "def": "In a microservice system each service keeps its own database, and other services can only reach that data through its API. This keeps services independent: one team can change its tables without breaking anyone else.",
+  "example": {
+   "title": "The order service asks the customer service, never its database",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\ninterface CustomerApi {\n    String nameOf(int customerId);\n}\n\nclass CustomerService implements CustomerApi {\n    private final Map<Integer, String> database = Map.of(1, \"Asha\", 2, \"Ravi\");     // private to this service\n    public String nameOf(int customerId) { return database.get(customerId); }\n}\n\nclass OrderService {\n    private final Map<Integer, Integer> orderToCustomer = new HashMap<>();           // its own data\n    private final CustomerApi customers;                                             // the API only, never the other database\n\n    OrderService(CustomerApi customers) { this.customers = customers; }\n\n    void place(int orderId, int customerId) { orderToCustomer.put(orderId, customerId); }\n\n    String describe(int orderId) {\n        return \"Order \" + orderId + \" for \" + customers.nameOf(orderToCustomer.get(orderId));\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        OrderService orders = new OrderService(new CustomerService());\n        orders.place(100, 1);\n        System.out.println(orders.describe(100));\n    }\n}\n\n// Output:\n// Order 100 for Asha"
+  }
+ },
+ "/microservices/overview/bounded-context": {
+  "def": "The same word means different things in different parts of a business. A customer in billing has a credit limit, and a customer in shipping has a delivery address. Each service models only what its own context needs and shares just the id.",
+  "example": {
+   "title": "Two models of a customer",
+   "lang": "java",
+   "code": "record BillingCustomer(int id, String billingAddress, int creditLimit) { }      // the billing view\nrecord ShippingCustomer(int id, String deliveryAddress, String phone) { }       // the shipping view\n\nclass Demo {\n    public static void main(String[] args) {\n        BillingCustomer billing = new BillingCustomer(7, \"12 Park Road\", 50_000);\n        ShippingCustomer shipping = new ShippingCustomer(7, \"Flat 4, Lake View\", \"+91-90000-00000\");\n\n        // they are linked only by the id; neither service knows the fields of the other\n        System.out.println(\"customer \" + billing.id() + \" is billed at '\" + billing.billingAddress()\n                + \"' and delivered to '\" + shipping.deliveryAddress() + \"'\");\n    }\n}\n\n// Output:\n// customer 7 is billed at '12 Park Road' and delivered to 'Flat 4, Lake View'"
+  }
+ },
+ "/microservices/overview/independent-deployment": {
+  "def": "Each service is built, tested and released on its own, in its own container, with its own database. A change to the orders service can go to production without redeploying payments.",
+  "example": {
+   "title": "Two services, two databases, one compose file",
+   "lang": "yaml",
+   "code": "# docker-compose.yml\nservices:\n  orders:\n    image: shop/orders:1.4.2            # released on its own schedule\n    ports: [\"8081:8080\"]\n    environment:\n      SPRING_DATASOURCE_URL: jdbc:postgresql://orders-db:5432/orders\n    depends_on: [orders-db]\n\n  orders-db:\n    image: postgres:16-alpine           # owned by orders only\n\n  payments:\n    image: shop/payments:2.0.0          # a different version, a different team\n    ports: [\"8082:8080\"]\n    environment:\n      SPRING_DATASOURCE_URL: jdbc:postgresql://payments-db:5432/payments\n    depends_on: [payments-db]\n\n  payments-db:\n    image: postgres:16-alpine"
+  }
+ },
+ "/microservices/overview/strangler-fig": {
+  "def": "To move from a monolith, do not rewrite everything at once. Put a router in front, and move one feature at a time to a new service. The router sends migrated paths to the new service and everything else to the old monolith, until the monolith is empty.",
+  "example": {
+   "title": "A router that moves traffic path by path",
+   "lang": "java",
+   "code": "import java.util.Set;\n\nclass Router {\n    private final Set<String> migrated;\n    Router(Set<String> migrated) { this.migrated = migrated; }\n\n    String route(String path) {\n        boolean newService = migrated.stream().anyMatch(path::startsWith);\n        return path + \" -> \" + (newService ? \"new service\" : \"legacy monolith\");\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Router router = new Router(Set.of(\"/payments\"));                  // only payments has been moved so far\n        System.out.println(router.route(\"/payments/42\"));\n        System.out.println(router.route(\"/orders/7\"));\n\n        router = new Router(Set.of(\"/payments\", \"/orders\"));              // next release: orders moves too\n        System.out.println(router.route(\"/orders/7\"));\n    }\n}\n\n// Output:\n// /payments/42 -> new service\n// /orders/7 -> legacy monolith\n// /orders/7 -> new service"
+  }
+ },
+ "/microservices/infrastructure/api-gateway/route-config": {
+  "def": "A gateway maps the public URL to the internal service that handles it. With Spring Cloud Gateway each route has an id, a target `uri`, and predicates (conditions such as the path) that decide which requests it takes.",
+  "example": {
+   "title": "Two routes in application.yml",
+   "lang": "yaml",
+   "code": "# application.yml (Spring Cloud Gateway)\nspring:\n  cloud:\n    gateway:\n      routes:\n        - id: orders\n          uri: lb://orders-service              # lb:// = look the instances up in service discovery\n          predicates:\n            - Path=/api/orders/**\n        - id: payments\n          uri: http://payments:8080\n          predicates:\n            - Path=/api/payments/**\n            - Method=GET,POST"
+  }
+ },
+ "/microservices/infrastructure/api-gateway/gateway-filters": {
+  "def": "Filters change a request on its way in and the response on its way out. Common ones strip a path prefix, add a header, retry a failed call or limit the request rate, so these jobs do not have to be repeated in every service.",
+  "example": {
+   "title": "Filters on one route",
+   "lang": "yaml",
+   "code": "spring:\n  cloud:\n    gateway:\n      routes:\n        - id: orders\n          uri: lb://orders-service\n          predicates:\n            - Path=/api/orders/**\n          filters:\n            - StripPrefix=1                      # /api/orders/7  ->  /orders/7\n            - AddRequestHeader=X-Source, gateway\n            - name: Retry\n              args:\n                retries: 2\n                statuses: BAD_GATEWAY\n            - name: RequestRateLimiter           # needs Redis to share counters between gateway instances\n              args:\n                redis-rate-limiter.replenishRate: 10\n                redis-rate-limiter.burstCapacity: 20"
+  }
+ },
+ "/microservices/infrastructure/api-gateway/rate-limiting-token-bucket": {
+  "def": "A token bucket allows a short burst but limits the long-run rate. The bucket holds a fixed number of tokens, each request takes one, and tokens are added back at a steady speed. An empty bucket means `429 Too Many Requests`.",
+  "example": {
+   "title": "Three requests pass, the fourth waits",
+   "lang": "java",
+   "code": "class TokenBucket {\n    private final int capacity;\n    private final double tokensPerSecond;\n    private double tokens;\n    private long lastRefillNanos;\n\n    TokenBucket(int capacity, double tokensPerSecond, long nowNanos) {\n        this.capacity = capacity;\n        this.tokensPerSecond = tokensPerSecond;\n        this.tokens = capacity;\n        this.lastRefillNanos = nowNanos;\n    }\n\n    boolean tryAcquire(long nowNanos) {\n        double seconds = (nowNanos - lastRefillNanos) / 1_000_000_000.0;\n        tokens = Math.min(capacity, tokens + seconds * tokensPerSecond);          // add back what time has earned\n        lastRefillNanos = nowNanos;\n        if (tokens >= 1) { tokens -= 1; return true; }\n        return false;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        long second = 1_000_000_000L;\n        TokenBucket bucket = new TokenBucket(3, 1.0, 0);                          // burst of 3, then 1 per second\n\n        for (int i = 1; i <= 4; i++) System.out.println(\"request \" + i + \" at 0s: \" + (bucket.tryAcquire(0) ? \"200\" : \"429\"));\n        System.out.println(\"request 5 at 1s: \" + (bucket.tryAcquire(second) ? \"200\" : \"429\"));\n    }\n}\n\n// Output:\n// request 1 at 0s: 200\n// request 2 at 0s: 200\n// request 3 at 0s: 200\n// request 4 at 0s: 429\n// request 5 at 1s: 200"
+  }
+ },
+ "/microservices/infrastructure/api-gateway/edge-authentication": {
+  "def": "The gateway can check the token once, reject bad requests early, and pass the user identity to the services in a header. The internal services then trust the gateway instead of each parsing the token again, as long as they are not reachable from outside.",
+  "example": {
+   "title": "Check the token, forward the user id",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport java.util.Optional;\n\nclass Gateway {\n    private final Map<String, String> tokenToUser = Map.of(\"token-asha\", \"asha\");     // stands for real token validation\n\n    String handle(String authorizationHeader, String path) {\n        Optional<String> user = Optional.ofNullable(authorizationHeader)\n                .filter(h -> h.startsWith(\"Bearer \"))\n                .map(h -> tokenToUser.get(h.substring(7)));\n        if (user.isEmpty()) return \"401 Unauthorized\";\n        return ordersService(path, user.get());                                      // forwarded with X-User-Id: asha\n    }\n\n    private String ordersService(String path, String userIdHeader) {\n        return \"200 \" + path + \" for \" + userIdHeader;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Gateway gateway = new Gateway();\n        System.out.println(gateway.handle(null, \"/orders\"));\n        System.out.println(gateway.handle(\"Bearer wrong\", \"/orders\"));\n        System.out.println(gateway.handle(\"Bearer token-asha\", \"/orders\"));\n    }\n}\n\n// Output:\n// 401 Unauthorized\n// 401 Unauthorized\n// 200 /orders for asha"
+  }
+ },
+ "/microservices/infrastructure/service-discovery/registry-and-heartbeat": {
+  "def": "Instances register themselves with the registry when they start and send a heartbeat every few seconds. If the heartbeats stop, the registry removes the instance after a timeout, so callers are never sent to a dead server.",
+  "example": {
+   "title": "An instance that stops sending heartbeats disappears",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\nimport java.util.TreeSet;\n\nclass Registry {\n    private static final long TTL_SECONDS = 30;\n    private final Map<String, Long> lastBeat = new HashMap<>();                 // instance address -> last heartbeat time\n\n    void heartbeat(String address, long nowSeconds) { lastBeat.put(address, nowSeconds); }      // also acts as \"register\"\n\n    TreeSet<String> alive(long nowSeconds) {\n        lastBeat.values().removeIf(time -> nowSeconds - time > TTL_SECONDS);   // evict silent instances\n        return new TreeSet<>(lastBeat.keySet());\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Registry registry = new Registry();\n        registry.heartbeat(\"10.0.0.1:8080\", 0);\n        registry.heartbeat(\"10.0.0.2:8080\", 0);\n        System.out.println(\"t=10s: \" + registry.alive(10));\n\n        registry.heartbeat(\"10.0.0.1:8080\", 25);                                // only the first one keeps beating\n        System.out.println(\"t=40s: \" + registry.alive(40));\n    }\n}\n\n// Output:\n// t=10s: [10.0.0.1:8080, 10.0.0.2:8080]\n// t=40s: [10.0.0.1:8080]"
+  }
+ },
+ "/microservices/infrastructure/service-discovery/client-side-load-balancing": {
+  "def": "With client-side load balancing the caller asks the registry for the list of instances and picks one itself, for example in turn (round robin). No separate load balancer sits in the path, and Spring Cloud LoadBalancer does this behind `lb://service-name`.",
+  "example": {
+   "title": "Round robin over discovered instances",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass RoundRobin {\n    private final AtomicInteger next = new AtomicInteger();\n\n    String choose(List<String> instances) {\n        return instances.get(Math.floorMod(next.getAndIncrement(), instances.size()));\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> instances = List.of(\"10.0.0.1:8080\", \"10.0.0.2:8080\", \"10.0.0.3:8080\");   // from the registry\n        RoundRobin balancer = new RoundRobin();\n\n        for (int i = 1; i <= 5; i++) System.out.println(\"call \" + i + \" -> \" + balancer.choose(instances));\n    }\n}\n\n// Output:\n// call 1 -> 10.0.0.1:8080\n// call 2 -> 10.0.0.2:8080\n// call 3 -> 10.0.0.3:8080\n// call 4 -> 10.0.0.1:8080\n// call 5 -> 10.0.0.2:8080"
+  }
+ },
+ "/microservices/infrastructure/service-discovery/eureka-client": {
+  "def": "Eureka is a registry from Netflix, packaged in Spring Cloud. A service adds the Eureka client dependency and the registry address, and it registers and sends heartbeats on its own.",
+  "example": {
+   "title": "Client configuration",
+   "lang": "yaml",
+   "code": "# application.yml of the orders service\nspring:\n  application:\n    name: orders-service                  # the name other services use: lb://orders-service\n\neureka:\n  client:\n    service-url:\n      defaultZone: http://eureka:8761/eureka\n  instance:\n    prefer-ip-address: true\n    lease-renewal-interval-in-seconds: 10     # heartbeat every 10 s\n    lease-expiration-duration-in-seconds: 30  # removed after 30 s of silence"
+  }
+ },
+ "/microservices/infrastructure/service-discovery/kubernetes-service-dns": {
+  "def": "On Kubernetes you often need no registry at all. A `Service` gives a set of pods one stable DNS name, and Kubernetes keeps its list of healthy pods up to date. Callers simply use `http://orders`.",
+  "example": {
+   "title": "A Service and the URL that uses it",
+   "lang": "yaml",
+   "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: orders                  # becomes the DNS name  http://orders  (or orders.<namespace>.svc)\nspec:\n  selector:\n    app: orders                 # every ready pod with this label is behind the name\n  ports:\n    - port: 80\n      targetPort: 8080\n\n# in another service:\n#   RestClient.create(\"http://orders\").get().uri(\"/orders/7\")..."
+  }
+ },
+ "/microservices/infrastructure/config-server/config-server-setup": {
+  "def": "A config server is a small Spring Boot app marked `@EnableConfigServer` that reads settings from a Git repository and serves them over HTTP. Changing a setting then means a Git commit, with history and review, instead of editing servers.",
+  "example": {
+   "title": "The server and where it reads from",
+   "lang": "yaml",
+   "code": "# the application class carries the annotation:\n#   @SpringBootApplication\n#   @EnableConfigServer\n#   public class ConfigServerApplication { ... }\n\n# application.yml of the config server\nserver:\n  port: 8888\nspring:\n  cloud:\n    config:\n      server:\n        git:\n          uri: https://github.com/example/shop-config    # one repository for all services\n          default-label: main\n          search-paths: \"{application}\"                   # a folder per service"
+  }
+ },
+ "/microservices/infrastructure/config-server/config-client-import": {
+  "def": "A service names the config server with `spring.config.import`, and its settings are fetched at startup, before the beans are created. The service name and active profile decide which files are used.",
+  "example": {
+   "title": "A client that imports its settings",
+   "lang": "yaml",
+   "code": "# application.yml of the orders service\nspring:\n  application:\n    name: orders-service                                   # looks for orders-service.yml in the config repository\n  profiles:\n    active: prod                                           # ... and orders-service-prod.yml\n  config:\n    import: \"optional:configserver:http://config-server:8888\"   # \"optional:\" lets the service start if the server is down"
+  }
+ },
+ "/microservices/infrastructure/config-server/config-files-and-profiles": {
+  "def": "The repository holds a shared file for all services, a file per service, and a file per service and profile. More specific files win, so a production value overrides the default one.",
+  "example": {
+   "title": "The layout in the Git repository",
+   "lang": "yaml",
+   "code": "# shop-config/                    (the Git repository)\n#   application.yml               shared by every service\n#   orders-service.yml            only for orders-service\n#   orders-service-prod.yml       orders-service when the \"prod\" profile is active\n\n# application.yml\nlogging:\n  level:\n    root: INFO\n\n# orders-service.yml\norders:\n  max-items-per-order: 20\n\n# orders-service-prod.yml            (wins over the file above in production)\norders:\n  max-items-per-order: 50"
+  }
+ },
+ "/microservices/infrastructure/config-server/config-refresh": {
+  "def": "Beans marked `@RefreshScope` are rebuilt when the application receives a refresh signal, so they read the new values from the config server. You trigger it with a call to the Actuator `refresh` endpoint, or let a bus broadcast it to every instance.",
+  "example": {
+   "title": "Refreshing one instance",
+   "lang": "bash",
+   "code": "# 1. commit the new value to the config repository\ngit commit -am \"raise max items per order\" && git push\n\n# 2. tell a running instance to re-read its configuration\ncurl -X POST http://orders:8080/actuator/refresh\n# [\"orders.max-items-per-order\"]        <- the names of the properties that changed\n\n# it needs the endpoint exposed:  management.endpoints.web.exposure.include=refresh\n# and beans that should change at runtime annotated with  @RefreshScope"
+  }
+ },
+ "/microservices/communication/service-communication/rest-client": {
+  "def": "The most common way for one service to call another is a synchronous HTTP request. Spring's `RestClient` gives a short, fluent API: set a base URL once, then build requests and read the body as a type.",
+  "example": {
+   "title": "The order service reads a price from the catalog service",
+   "lang": "java",
+   "code": "import org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.client.RestClient;\n\n@RestController\nclass CatalogController {                                           // stands for the catalog service\n    @GetMapping(\"/prices/{sku}\")\n    String price(@PathVariable String sku) { return sku + \":250\"; }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        System.setProperty(\"server.port\", \"0\");\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n\n            RestClient catalog = RestClient.create(\"http://localhost:\" + port);          // normally http://catalog\n            String price = catalog.get().uri(\"/prices/{sku}\", \"A-1\").retrieve().body(String.class);\n            System.out.println(\"catalog answered \" + price);\n        }\n    }\n}\n\n// Output:\n// catalog answered A-1:250"
+  }
+ },
+ "/microservices/communication/service-communication/timeouts": {
+  "def": "A remote call without a timeout can wait forever and tie up a thread, and enough stuck threads bring your service down too. Set a connect timeout and a read timeout on every client, and choose values shorter than your own caller's timeout.",
+  "example": {
+   "title": "A slow service is cut off after 300 ms",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.http.client.JdkClientHttpRequestFactory;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.client.ResourceAccessException;\nimport org.springframework.web.client.RestClient;\n\n@RestController\nclass SlowController {\n    @GetMapping(\"/slow\")\n    String slow() throws InterruptedException { Thread.sleep(2000); return \"finally\"; }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        System.setProperty(\"server.port\", \"0\");\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n\n            JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();\n            factory.setReadTimeout(Duration.ofMillis(300));                              // give up after 300 ms\n            RestClient client = RestClient.builder().baseUrl(\"http://localhost:\" + port).requestFactory(factory).build();\n\n            try {\n                client.get().uri(\"/slow\").retrieve().body(String.class);\n            } catch (ResourceAccessException e) {\n                System.out.println(\"timed out, the caller can now fall back or fail fast\");\n            }\n        }\n    }\n}\n\n// Output:\n// timed out, the caller can now fall back or fail fast"
+  }
+ },
+ "/microservices/communication/service-communication/async-messaging": {
+  "def": "With messaging the caller does not wait. It drops an event on a queue and carries on, and a consumer handles it later at its own pace. The two services are decoupled in time, and a slow or restarting consumer does not slow the producer.",
+  "example": {
+   "title": "The order is accepted at once, processed later",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.concurrent.BlockingQueue;\nimport java.util.concurrent.LinkedBlockingQueue;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        BlockingQueue<String> queue = new LinkedBlockingQueue<>();                    // stands for Kafka or RabbitMQ\n        List<String> processed = new ArrayList<>();\n\n        Thread consumer = new Thread(() -> {                                          // the email service, slower than the producer\n            try {\n                while (true) {\n                    String event = queue.take();\n                    if (event.equals(\"STOP\")) return;\n                    processed.add(\"email sent for \" + event);\n                }\n            } catch (InterruptedException ignored) { }\n        });\n        consumer.start();\n\n        for (int id = 1; id <= 3; id++) {\n            queue.put(\"order-\" + id);                                                 // the producer returns immediately\n            System.out.println(\"order-\" + id + \" accepted\");\n        }\n        queue.put(\"STOP\");\n        consumer.join();\n        processed.forEach(System.out::println);\n    }\n}\n\n// Output:\n// order-1 accepted\n// order-2 accepted\n// order-3 accepted\n// email sent for order-1\n// email sent for order-2\n// email sent for order-3"
+  }
+ },
+ "/microservices/communication/service-communication/grpc-contract": {
+  "def": "gRPC calls a remote method as if it were a local one, using a binary format that is smaller and faster than JSON. The `.proto` file is the contract: both sides generate their client and server code from it, so a mismatch is caught at build time.",
+  "example": {
+   "title": "A service contract in Protocol Buffers",
+   "lang": "protobuf",
+   "code": "// catalog.proto\nsyntax = \"proto3\";\n\npackage shop.catalog;\n\nservice CatalogService {\n  rpc GetPrice (PriceRequest) returns (PriceReply);\n}\n\nmessage PriceRequest {\n  string sku = 1;                 // field numbers are the wire format: never reuse or renumber them\n}\n\nmessage PriceReply {\n  string sku = 1;\n  int64 price_in_paise = 2;\n}"
+  }
+ },
+ "/microservices/resilience/resilience4j/retry": {
+  "def": "Retry calls the operation again after a failure, which fixes short glitches such as a dropped connection. Limit the number of attempts, wait between them, and only retry things that are safe to repeat.",
+  "example": {
+   "title": "A call that succeeds on the third try",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport io.github.resilience4j.retry.Retry;\nimport io.github.resilience4j.retry.RetryConfig;\n\nclass Demo {\n    public static void main(String[] args) {\n        RetryConfig config = RetryConfig.custom()\n                .maxAttempts(3)\n                .waitDuration(Duration.ofMillis(50))\n                .build();\n        Retry retry = Retry.of(\"inventory\", config);\n\n        AtomicInteger calls = new AtomicInteger();\n        String result = Retry.decorateSupplier(retry, () -> {\n            if (calls.incrementAndGet() < 3) throw new IllegalStateException(\"temporary failure\");\n            return \"stock: 12\";\n        }).get();\n\n        System.out.println(result + \" after \" + calls.get() + \" calls\");\n    }\n}\n\n// Output:\n// stock: 12 after 3 calls"
+  }
+ },
+ "/microservices/resilience/resilience4j/circuit-breaker": {
+  "def": "A circuit breaker stops calling a service that keeps failing. After too many failures it opens and rejects calls immediately, giving the service time to recover and keeping your threads free. After a wait it lets a few calls through to test the water.",
+  "example": {
+   "title": "The breaker opens after repeated failures",
+   "lang": "java",
+   "code": "import io.github.resilience4j.circuitbreaker.CallNotPermittedException;\nimport io.github.resilience4j.circuitbreaker.CircuitBreaker;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;\n\nclass Demo {\n    public static void main(String[] args) {\n        CircuitBreakerConfig config = CircuitBreakerConfig.custom()\n                .slidingWindowSize(4)\n                .minimumNumberOfCalls(4)\n                .failureRateThreshold(50)                          // open when half of the last 4 calls failed\n                .build();\n        CircuitBreaker breaker = CircuitBreaker.of(\"payments\", config);\n\n        for (int call = 1; call <= 6; call++) {\n            try {\n                breaker.executeSupplier(() -> { throw new IllegalStateException(\"payments is down\"); });\n            } catch (CallNotPermittedException e) {\n                System.out.println(\"call \" + call + \": rejected at once, breaker is \" + breaker.getState());\n            } catch (IllegalStateException e) {\n                System.out.println(\"call \" + call + \": failed, breaker is \" + breaker.getState());\n            }\n        }\n    }\n}\n\n// Output:\n// call 1: failed, breaker is CLOSED\n// call 2: failed, breaker is CLOSED\n// call 3: failed, breaker is CLOSED\n// call 4: failed, breaker is OPEN\n// call 5: rejected at once, breaker is OPEN\n// call 6: rejected at once, breaker is OPEN"
+  }
+ },
+ "/microservices/resilience/resilience4j/bulkhead": {
+  "def": "A bulkhead limits how many calls to one dependency run at the same time, like the watertight compartments of a ship. If that dependency becomes slow, only its own share of threads is used up, and the rest of the service keeps working.",
+  "example": {
+   "title": "Only two concurrent calls are allowed",
+   "lang": "java",
+   "code": "import io.github.resilience4j.bulkhead.Bulkhead;\nimport io.github.resilience4j.bulkhead.BulkheadConfig;\nimport io.github.resilience4j.bulkhead.BulkheadFullException;\nimport java.time.Duration;\n\nclass Demo {\n    public static void main(String[] args) {\n        BulkheadConfig config = BulkheadConfig.custom()\n                .maxConcurrentCalls(2)\n                .maxWaitDuration(Duration.ZERO)                    // do not queue: refuse straight away\n                .build();\n        Bulkhead bulkhead = Bulkhead.of(\"reports\", config);\n\n        // three calls that are all \"in progress\" at the same moment\n        boolean first = bulkhead.tryAcquirePermission();\n        boolean second = bulkhead.tryAcquirePermission();\n        System.out.println(\"first: \" + first + \", second: \" + second);\n\n        try {\n            Bulkhead.decorateRunnable(bulkhead, () -> { }).run();\n        } catch (BulkheadFullException e) {\n            System.out.println(\"third call refused: the compartment is full\");\n        }\n    }\n}\n\n// Output:\n// first: true, second: true\n// third call refused: the compartment is full"
+  }
+ },
+ "/microservices/resilience/resilience4j/time-limiter": {
+  "def": "A time limiter stops waiting for an asynchronous call after a deadline and fails with a timeout. It keeps one slow dependency from holding up your whole request.",
+  "example": {
+   "title": "Waiting at most 200 ms for a slow future",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.ScheduledExecutorService;\nimport java.util.concurrent.TimeoutException;\nimport io.github.resilience4j.timelimiter.TimeLimiter;\nimport io.github.resilience4j.timelimiter.TimeLimiterConfig;\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        TimeLimiter limiter = TimeLimiter.of(TimeLimiterConfig.custom()\n                .timeoutDuration(Duration.ofMillis(200)).cancelRunningFuture(true).build());\n        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();\n\n        CompletableFuture<String> slowCall = CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(1000); } catch (InterruptedException ignored) { }\n            return \"late answer\";\n        });\n\n        try {\n            limiter.executeCompletionStage(scheduler, () -> slowCall).toCompletableFuture().get();\n        } catch (Exception e) {\n            System.out.println(\"gave up: \" + (e.getCause() instanceof TimeoutException ? \"timeout after 200 ms\" : e));\n        } finally {\n            scheduler.shutdownNow();\n        }\n    }\n}\n\n// Output:\n// gave up: timeout after 200 ms"
+  }
+ },
+ "/microservices/resilience/resilience4j/rate-limiter-and-fallback": {
+  "def": "A rate limiter caps how many calls are made per period, to protect a dependency with a quota. A fallback gives the caller a sensible answer when the call fails or is refused, such as cached data, so one failure does not become an error page.",
+  "example": {
+   "title": "A fallback answer when the limit is reached",
+   "lang": "java",
+   "code": "import java.time.Duration;\nimport java.util.function.Supplier;\nimport io.github.resilience4j.ratelimiter.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RateLimiterConfig;\nimport io.github.resilience4j.ratelimiter.RequestNotPermitted;\n\nclass Demo {\n    public static void main(String[] args) {\n        RateLimiter limiter = RateLimiter.of(\"exchange-rates\", RateLimiterConfig.custom()\n                .limitForPeriod(2)                                      // two calls ...\n                .limitRefreshPeriod(Duration.ofMinutes(1))              // ... per minute\n                .timeoutDuration(Duration.ZERO)\n                .build());\n\n        Supplier<String> call = RateLimiter.decorateSupplier(limiter, () -> \"live rate 83.5\");\n\n        for (int i = 1; i <= 3; i++) {\n            String answer;\n            try {\n                answer = call.get();\n            } catch (RequestNotPermitted e) {\n                answer = \"cached rate 83.2 (fallback)\";                 // the fallback keeps the page working\n            }\n            System.out.println(\"call \" + i + \": \" + answer);\n        }\n    }\n}\n\n// Output:\n// call 1: live rate 83.5\n// call 2: live rate 83.5\n// call 3: cached rate 83.2 (fallback)"
+  }
+ },
+ "/microservices/data-consistency/saga/orchestrated-saga": {
+  "def": "In an orchestrated saga one coordinator calls the steps in order: reserve stock, take payment, ship. If a step fails, it runs the undo actions of the steps that already succeeded. The flow is easy to read in one place.",
+  "example": {
+   "title": "A coordinator that runs steps and undoes them on failure",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\nimport java.util.List;\n\nrecord Step(String name, Runnable action, Runnable undo) { }\n\nclass Orchestrator {\n    static void run(List<Step> steps) {\n        Deque<Step> done = new ArrayDeque<>();\n        for (Step step : steps) {\n            try {\n                step.action().run();\n                System.out.println(\"done:  \" + step.name());\n                done.push(step);\n            } catch (RuntimeException e) {\n                System.out.println(\"failed: \" + step.name() + \", rolling back\");\n                while (!done.isEmpty()) {                                    // compensate in reverse order\n                    Step previous = done.pop();\n                    previous.undo().run();\n                    System.out.println(\"undone: \" + previous.name());\n                }\n                return;\n            }\n        }\n        System.out.println(\"saga completed\");\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Orchestrator.run(List.of(\n                new Step(\"reserve stock\", () -> { }, () -> { }),\n                new Step(\"take payment\", () -> { throw new IllegalStateException(\"card declined\"); }, () -> { }),\n                new Step(\"ship order\", () -> { }, () -> { })));\n    }\n}\n\n// Output:\n// done:  reserve stock\n// failed: take payment, rolling back\n// undone: reserve stock"
+  }
+ },
+ "/microservices/data-consistency/saga/compensating-actions": {
+  "def": "A saga cannot roll back like a database transaction, because each step has already been committed. Instead every step has a compensating action that undoes its business effect: release the reservation, refund the payment. Compensations must be safe to run more than once.",
+  "example": {
+   "title": "Undoing a reservation, safely twice",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Inventory {\n    private final Map<String, Integer> stock = new HashMap<>(Map.of(\"pen\", 10));\n    private final Map<String, Integer> reservations = new HashMap<>();             // orderId -> quantity\n\n    void reserve(String orderId, String item, int quantity) {\n        stock.merge(item, -quantity, Integer::sum);\n        reservations.put(orderId, quantity);\n    }\n\n    void release(String orderId, String item) {                                     // the compensation\n        Integer quantity = reservations.remove(orderId);\n        if (quantity == null) return;                                               // already undone: do nothing the second time\n        stock.merge(item, quantity, Integer::sum);\n    }\n\n    int stockOf(String item) { return stock.get(item); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Inventory inventory = new Inventory();\n        inventory.reserve(\"order-1\", \"pen\", 3);\n        System.out.println(\"after reserve: \" + inventory.stockOf(\"pen\"));\n\n        inventory.release(\"order-1\", \"pen\");\n        inventory.release(\"order-1\", \"pen\");                                        // a duplicate message changes nothing\n        System.out.println(\"after two releases: \" + inventory.stockOf(\"pen\"));\n    }\n}\n\n// Output:\n// after reserve: 7\n// after two releases: 10"
+  }
+ },
+ "/microservices/data-consistency/saga/choreographed-saga": {
+  "def": "In a choreographed saga there is no coordinator. Each service listens for events and reacts: stock is reserved, so payment starts; payment fails, so stock is released. It is loosely coupled, but the overall flow is spread across the services and harder to follow.",
+  "example": {
+   "title": "Services reacting to events",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.function.Consumer;\n\nclass EventBus {\n    private final List<Consumer<String>> listeners = new ArrayList<>();\n    void subscribe(Consumer<String> listener) { listeners.add(listener); }\n    void publish(String event) {\n        System.out.println(\"event: \" + event);\n        new ArrayList<>(listeners).forEach(listener -> listener.accept(event));\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        EventBus bus = new EventBus();\n\n        bus.subscribe(event -> { if (event.equals(\"OrderPlaced\")) bus.publish(\"StockReserved\"); });          // inventory service\n        bus.subscribe(event -> { if (event.equals(\"StockReserved\")) bus.publish(\"PaymentFailed\"); });        // payment service (card declined)\n        bus.subscribe(event -> { if (event.equals(\"PaymentFailed\")) bus.publish(\"StockReleased\"); });        // inventory reacts again\n        bus.subscribe(event -> { if (event.equals(\"PaymentFailed\")) System.out.println(\"order service: marking the order as cancelled\"); });\n\n        bus.publish(\"OrderPlaced\");\n    }\n}\n\n// Output:\n// event: OrderPlaced\n// event: StockReserved\n// event: PaymentFailed\n// event: StockReleased\n// order service: marking the order as cancelled"
+  }
+ },
+ "/microservices/data-consistency/outbox-idempotency/transactional-outbox": {
+  "def": "Saving to the database and publishing an event are two systems, so one can succeed while the other fails. The outbox pattern writes the event to an `outbox` table in the same database transaction as the change. Both are saved, or neither is.",
+  "example": {
+   "title": "The order and its event commit together or not at all",
+   "lang": "java",
+   "code": "import org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.jdbc.core.JdbcTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Service\nclass OrderService {\n    private final JdbcTemplate jdbc;\n    OrderService(JdbcTemplate jdbc) { this.jdbc = jdbc; }\n\n    @Transactional\n    public void place(int id, boolean fail) {\n        jdbc.update(\"insert into orders values (?)\", id);\n        jdbc.update(\"insert into outbox (payload, sent) values (?, false)\", \"OrderPlaced:\" + id);   // same transaction\n        if (fail) throw new IllegalStateException(\"crash before commit\");\n    }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args)) {\n            JdbcTemplate jdbc = context.getBean(JdbcTemplate.class);\n            jdbc.execute(\"create table orders (id int primary key)\");\n            jdbc.execute(\"create table outbox (payload varchar(50), sent boolean)\");\n            OrderService service = context.getBean(OrderService.class);\n\n            service.place(1, false);\n            try { service.place(2, true); } catch (IllegalStateException ignored) { }\n\n            System.out.println(\"orders: \" + jdbc.queryForList(\"select id from orders\", Integer.class));\n            System.out.println(\"outbox: \" + jdbc.queryForList(\"select payload from outbox\", String.class));\n        }\n    }\n}\n\n// Output:\n// orders: [1]\n// outbox: [OrderPlaced:1]"
+  }
+ },
+ "/microservices/data-consistency/outbox-idempotency/outbox-relay": {
+  "def": "A separate relay process reads the unsent rows from the outbox, publishes them to the broker, and marks them as sent. If it crashes between publishing and marking, the event is published again, so delivery is at least once and consumers must cope with duplicates.",
+  "example": {
+   "title": "A crash after publishing causes a duplicate",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Demo {\n    static final List<String> outbox = new ArrayList<>(List.of(\"OrderPlaced:1\"));       // unsent rows\n    static final List<String> broker = new ArrayList<>();                                // what consumers receive\n\n    static void relayOnce(boolean crashBeforeMarkingSent) {\n        for (String row : new ArrayList<>(outbox)) {\n            broker.add(row);                                                             // 1. publish\n            if (crashBeforeMarkingSent) throw new IllegalStateException(\"relay crashed\");\n            outbox.remove(row);                                                          // 2. mark as sent\n        }\n    }\n\n    public static void main(String[] args) {\n        try { relayOnce(true); } catch (IllegalStateException e) { System.out.println(e.getMessage()); }\n        relayOnce(false);                                                                // the restarted relay tries again\n\n        System.out.println(\"broker received: \" + broker);                                // the same event twice\n    }\n}\n\n// Output:\n// relay crashed\n// broker received: [OrderPlaced:1, OrderPlaced:1]"
+  }
+ },
+ "/microservices/data-consistency/outbox-idempotency/idempotency-key": {
+  "def": "An operation is idempotent when doing it twice has the same effect as doing it once. The client sends a unique idempotency key with a payment request. The server remembers the key and its result, and returns the stored answer instead of charging again on a retry.",
+  "example": {
+   "title": "A retried payment is charged once",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass PaymentService {\n    private final Map<String, String> results = new HashMap<>();                       // idempotency key -> response\n    int charges = 0;\n\n    String pay(String idempotencyKey, int amount) {\n        return results.computeIfAbsent(idempotencyKey, key -> {\n            charges++;                                                                  // the real side effect, done once per key\n            return \"paid \" + amount;\n        });\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        PaymentService service = new PaymentService();\n\n        System.out.println(service.pay(\"key-123\", 500));\n        System.out.println(service.pay(\"key-123\", 500));                               // the client retried after a timeout\n        System.out.println(\"times charged: \" + service.charges);\n    }\n}\n\n// Output:\n// paid 500\n// paid 500\n// times charged: 1"
+  }
+ },
+ "/microservices/data-consistency/outbox-idempotency/idempotent-consumer": {
+  "def": "Because brokers deliver at least once, a consumer must be ready for the same message twice. It records the ids of the messages it has handled, in the same transaction as the effect, and skips any id it has seen.",
+  "example": {
+   "title": "A duplicate message is ignored",
+   "lang": "java",
+   "code": "import java.util.HashSet;\nimport java.util.List;\nimport java.util.Set;\n\nrecord Message(String id, int amount) { }\n\nclass AccountConsumer {\n    private final Set<String> processedIds = new HashSet<>();                         // the \"inbox\" table\n    int balance = 0;\n\n    void handle(Message message) {\n        if (!processedIds.add(message.id())) {                                         // already seen\n            System.out.println(\"skipped duplicate \" + message.id());\n            return;\n        }\n        balance += message.amount();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        AccountConsumer consumer = new AccountConsumer();\n        for (Message message : List.of(new Message(\"m1\", 100), new Message(\"m2\", 50), new Message(\"m1\", 100))) {\n            consumer.handle(message);\n        }\n        System.out.println(\"balance: \" + consumer.balance);\n    }\n}\n\n// Output:\n// skipped duplicate m1\n// balance: 150"
+  }
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing/separate-read-and-write-models": {
+  "def": "CQRS (command query responsibility segregation) uses one model to change data and another, shaped for screens, to read it. The write side enforces the rules. The read side is a simple, fast copy, such as a table with the totals already added up.",
+  "example": {
+   "title": "Commands change the write model, queries read a summary",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\nclass Demo {\n    // write model: every order line, with validation\n    static final List<String> orderLines = new ArrayList<>();\n    // read model: ready-made totals per customer, built for the \"my spending\" screen\n    static final Map<String, Integer> spendingByCustomer = new HashMap<>();\n\n    static void placeOrder(String customer, int amount) {                      // a command\n        if (amount <= 0) throw new IllegalArgumentException(\"amount must be positive\");\n        orderLines.add(customer + \":\" + amount);\n        spendingByCustomer.merge(customer, amount, Integer::sum);              // keep the read model up to date\n    }\n\n    static int spendingOf(String customer) {                                    // a query: no joins, no sums\n        return spendingByCustomer.getOrDefault(customer, 0);\n    }\n\n    public static void main(String[] args) {\n        placeOrder(\"asha\", 300);\n        placeOrder(\"asha\", 200);\n        placeOrder(\"ravi\", 100);\n        System.out.println(\"asha spent \" + spendingOf(\"asha\"));\n    }\n}\n\n// Output:\n// asha spent 500"
+  }
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing/event-store-and-replay": {
+  "def": "Event sourcing stores every change as an event, never the current state. The current state is worked out by replaying the events from the start. You get a full audit trail for free and can rebuild the state as it was at any moment.",
+  "example": {
+   "title": "The balance is the sum of the events",
+   "lang": "java",
+   "code": "import java.util.List;\n\nsealed interface Event permits Deposited, Withdrawn { }\nrecord Deposited(int amount) implements Event { }\nrecord Withdrawn(int amount) implements Event { }\n\nclass Demo {\n    static int replay(List<Event> events) {\n        int balance = 0;\n        for (Event event : events) {\n            switch (event) {\n                case Deposited d -> balance += d.amount();\n                case Withdrawn w -> balance -= w.amount();\n            }\n        }\n        return balance;\n    }\n\n    public static void main(String[] args) {\n        List<Event> store = List.of(new Deposited(500), new Withdrawn(120), new Deposited(70));       // append-only\n\n        System.out.println(\"balance now: \" + replay(store));\n        System.out.println(\"balance after the first two events: \" + replay(store.subList(0, 2)));    // time travel\n    }\n}\n\n// Output:\n// balance now: 450\n// balance after the first two events: 380"
+  }
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing/snapshots": {
+  "def": "Replaying thousands of events for every request gets slow. A snapshot saves the state at a certain event number. To load the aggregate you take the latest snapshot and replay only the events after it.",
+  "example": {
+   "title": "Start from a snapshot instead of event 1",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\n\nrecord Snapshot(int version, int balance) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        List<Integer> events = new ArrayList<>();                                  // each event is an amount to add\n        for (int i = 1; i <= 1000; i++) events.add(1);\n\n        Snapshot snapshot = new Snapshot(990, 990);                                // taken after event 990\n\n        int balance = snapshot.balance();\n        int replayed = 0;\n        for (int i = snapshot.version(); i < events.size(); i++) {                 // only the tail is replayed\n            balance += events.get(i);\n            replayed++;\n        }\n        System.out.println(\"balance \" + balance + \" after replaying only \" + replayed + \" events\");\n    }\n}\n\n// Output:\n// balance 1000 after replaying only 10 events"
+  }
+ },
+ "/microservices/data-consistency/cqrs-event-sourcing/eventual-consistency": {
+  "def": "When the read model is updated by a separate process, a query right after a command may still show the old data for a moment. The two models become consistent soon after. Design the screens for it, for example by showing the result of the command directly.",
+  "example": {
+   "title": "A read right after a write is briefly stale",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Queue;\n\nclass Demo {\n    static int writeModelBalance = 0;\n    static int readModelBalance = 0;\n    static final Queue<Integer> pendingProjection = new ArrayDeque<>();            // events waiting for the projector\n\n    static void deposit(int amount) {\n        writeModelBalance += amount;\n        pendingProjection.add(amount);                                              // the read side hears about it later\n    }\n\n    static void runProjector() {\n        while (!pendingProjection.isEmpty()) readModelBalance += pendingProjection.poll();\n    }\n\n    public static void main(String[] args) {\n        deposit(100);\n        System.out.println(\"read right after the write:  \" + readModelBalance);\n        runProjector();                                                             // moments later\n        System.out.println(\"read after the projector ran: \" + readModelBalance);\n    }\n}\n\n// Output:\n// read right after the write:  0\n// read after the projector ran: 100"
+  }
+ },
+ "/microservices/observability/observability/red-metrics": {
+  "def": "For every service, measure three things: Rate (requests per second), Errors (how many fail) and Duration (how long they take). Together they tell you whether users are being served well. Micrometer collects them with a counter and a timer.",
+  "example": {
+   "title": "Count requests and errors, time the calls",
+   "lang": "java",
+   "code": "import io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.Timer;\nimport io.micrometer.core.instrument.simple.SimpleMeterRegistry;\n\nclass Demo {\n    public static void main(String[] args) {\n        MeterRegistry registry = new SimpleMeterRegistry();\n        Timer duration = registry.timer(\"http.server.requests\");\n\n        for (int i = 1; i <= 10; i++) {\n            boolean failed = i % 5 == 0;                                           // every fifth request fails\n            registry.counter(\"requests\", \"outcome\", failed ? \"error\" : \"success\").increment();\n            duration.record(() -> { });                                             // the timed work goes here\n        }\n\n        double errors = registry.get(\"requests\").tag(\"outcome\", \"error\").counter().count();\n        double total = errors + registry.get(\"requests\").tag(\"outcome\", \"success\").counter().count();\n        System.out.println(\"requests: \" + (int) total + \", errors: \" + (int) errors + \" (\" + (int) (errors / total * 100) + \"%)\");\n        System.out.println(\"timed calls: \" + duration.count());\n    }\n}\n\n// Output:\n// requests: 10, errors: 2 (20%)\n// timed calls: 10"
+  }
+ },
+ "/microservices/observability/observability/correlation-id": {
+  "def": "One user request passes through many services. A correlation id is a unique value created at the edge and passed along in a header. Every service puts it in its log lines (through the logging MDC), so you can find all the lines of one request.",
+  "example": {
+   "title": "A filter that stores the id for the whole request",
+   "lang": "java",
+   "code": "import java.io.IOException;\nimport java.util.UUID;\nimport jakarta.servlet.FilterChain;\nimport jakarta.servlet.ServletException;\nimport jakarta.servlet.http.HttpServletRequest;\nimport jakarta.servlet.http.HttpServletResponse;\nimport org.slf4j.MDC;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\n\nclass CorrelationFilter extends OncePerRequestFilter {\n    @Override\n    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)\n            throws ServletException, IOException {\n        String id = request.getHeader(\"X-Correlation-Id\");\n        if (id == null) id = UUID.randomUUID().toString();                          // the first service creates it\n        MDC.put(\"correlationId\", id);                                               // every log line can now include %X{correlationId}\n        response.setHeader(\"X-Correlation-Id\", id);\n        try {\n            chain.doFilter(request, response);\n        } finally {\n            MDC.remove(\"correlationId\");                                            // never leak it to the next request on this thread\n        }\n    }\n}\n\n@RestController\nclass PingController {\n    @GetMapping(\"/ping\")\n    String ping() { return \"handled with id \" + MDC.get(\"correlationId\"); }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new PingController()).addFilters(new CorrelationFilter()).build();\n\n        var result = mvc.perform(get(\"/ping\").header(\"X-Correlation-Id\", \"req-42\")).andReturn();\n        System.out.println(result.getResponse().getContentAsString());\n        System.out.println(\"after the request: \" + MDC.get(\"correlationId\"));\n    }\n}\n\n// Output:\n// handled with id req-42\n// after the request: null"
+  }
+ },
+ "/microservices/observability/observability/trace-context": {
+  "def": "Distributed tracing joins the work of many services into one trace. The `traceparent` header (W3C standard) carries the trace id and the id of the calling span. Each service creates a new span with the same trace id and forwards the header to the next one.",
+  "example": {
+   "title": "Passing a trace to the next service",
+   "lang": "java",
+   "code": "class Demo {\n    // traceparent: version - trace id (32 hex) - parent span id (16 hex) - flags\n    static String child(String traceparent, String newSpanId) {\n        String[] parts = traceparent.split(\"-\");\n        return parts[0] + \"-\" + parts[1] + \"-\" + newSpanId + \"-\" + parts[3];       // same trace, new span\n    }\n\n    public static void main(String[] args) {\n        String atGateway = \"00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01\";\n        String atOrders = child(atGateway, \"a1b2c3d4e5f60718\");\n        String atPayments = child(atOrders, \"0a0b0c0d0e0f1011\");\n\n        for (String header : new String[] {atGateway, atOrders, atPayments}) {\n            String[] parts = header.split(\"-\");\n            System.out.println(\"trace \" + parts[1].substring(0, 8) + \"...  span \" + parts[2]);\n        }\n    }\n}\n\n// Output:\n// trace 4bf92f35...  span 00f067aa0ba902b7\n// trace 4bf92f35...  span a1b2c3d4e5f60718\n// trace 4bf92f35...  span 0a0b0c0d0e0f1011"
+  }
+ },
+ "/microservices/observability/observability/slo-error-budget": {
+  "def": "A service level objective (SLO) is a target such as 99.9% of requests succeed over 30 days. The gap to 100% is the error budget: the amount of failure you can afford. While budget remains you can ship fast, and when it runs out you slow down and fix reliability.",
+  "example": {
+   "title": "How much downtime does 99.9% allow?",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        double slo = 0.999;\n        int minutesInThirtyDays = 30 * 24 * 60;\n\n        double budgetMinutes = minutesInThirtyDays * (1 - slo);\n        System.out.printf(\"a %.1f%% SLO allows %.1f minutes of downtime in 30 days%n\", slo * 100, budgetMinutes);\n\n        double downtimeSoFar = 30;                                                  // one bad deploy\n        System.out.printf(\"budget left after %.0f minutes down: %.1f minutes (%.0f%%)%n\",\n                downtimeSoFar, budgetMinutes - downtimeSoFar, (budgetMinutes - downtimeSoFar) / budgetMinutes * 100);\n    }\n}\n\n// Output:\n// a 99.9% SLO allows 43.2 minutes of downtime in 30 days\n// budget left after 30 minutes down: 13.2 minutes (31%)"
+  }
  }
 }

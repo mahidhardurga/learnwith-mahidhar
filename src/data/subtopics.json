@@ -525,5 +525,95 @@
    "idor-authorization-check",
    "security-headers"
   ]
+ },
+ "microservices/overview": {
+  "label": "Microservices overview",
+  "subs": [
+   "own-your-data",
+   "bounded-context",
+   "independent-deployment",
+   "strangler-fig"
+  ]
+ },
+ "microservices/infrastructure/api-gateway": {
+  "label": "API gateway",
+  "subs": [
+   "route-config",
+   "gateway-filters",
+   "rate-limiting-token-bucket",
+   "edge-authentication"
+  ]
+ },
+ "microservices/infrastructure/service-discovery": {
+  "label": "Service discovery",
+  "subs": [
+   "registry-and-heartbeat",
+   "client-side-load-balancing",
+   "eureka-client",
+   "kubernetes-service-dns"
+  ]
+ },
+ "microservices/infrastructure/config-server": {
+  "label": "Config server",
+  "subs": [
+   "config-server-setup",
+   "config-client-import",
+   "config-files-and-profiles",
+   "config-refresh"
+  ]
+ },
+ "microservices/communication/service-communication": {
+  "label": "Service communication",
+  "subs": [
+   "rest-client",
+   "timeouts",
+   "async-messaging",
+   "grpc-contract"
+  ]
+ },
+ "microservices/resilience/resilience4j": {
+  "label": "Resilience4j",
+  "subs": [
+   "retry",
+   "circuit-breaker",
+   "bulkhead",
+   "time-limiter",
+   "rate-limiter-and-fallback"
+  ]
+ },
+ "microservices/data-consistency/saga": {
+  "label": "Saga",
+  "subs": [
+   "orchestrated-saga",
+   "compensating-actions",
+   "choreographed-saga"
+  ]
+ },
+ "microservices/data-consistency/outbox-idempotency": {
+  "label": "Outbox and idempotency",
+  "subs": [
+   "transactional-outbox",
+   "outbox-relay",
+   "idempotency-key",
+   "idempotent-consumer"
+  ]
+ },
+ "microservices/data-consistency/cqrs-event-sourcing": {
+  "label": "CQRS and event sourcing",
+  "subs": [
+   "separate-read-and-write-models",
+   "event-store-and-replay",
+   "snapshots",
+   "eventual-consistency"
+  ]
+ },
+ "microservices/observability/observability": {
+  "label": "Observability",
+  "subs": [
+   "red-metrics",
+   "correlation-id",
+   "trace-context",
+   "slo-error-budget"
+  ]
  }
 }

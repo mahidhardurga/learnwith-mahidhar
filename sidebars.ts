@@ -67,7 +67,7 @@ const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
   microservices: [
     {
       label: 'Services and the edge',
-      ids: [...ids('microservices/infrastructure', ['api-gateway', 'service-discovery', 'config-server']), 'microservices/communication/service-communication'],
+      ids: ['microservices/overview', ...ids('microservices/infrastructure', ['api-gateway', 'service-discovery', 'config-server']), 'microservices/communication/service-communication'],
     },
     {label: 'Resilience and observability', ids: ['microservices/resilience/resilience4j', 'microservices/observability/observability']},
     {label: 'Data consistency', ids: ids('microservices/data-consistency', ['saga', 'outbox-idempotency', 'cqrs-event-sourcing'])},
