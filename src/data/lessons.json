@@ -1795,46 +1795,6 @@
    "code": "interface Flyable {\n    void fly();\n    default String speed() { return \"slow\"; }       // an interface can offer a default method\n}\n\nabstract class Animal {\n    protected final String name;                    // state can live in an abstract class\n    Animal(String name) { this.name = name; }\n    abstract String sound();                        // each animal must define this\n    void introduce() { System.out.println(name + \" says \" + sound()); }\n}\n\nclass Bird extends Animal implements Flyable {      // one class, many interfaces\n    Bird(String name) { super(name); }\n    String sound() { return \"tweet\"; }\n    public void fly() { System.out.println(name + \" is flying, speed \" + speed()); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Bird bird = new Bird(\"Robin\");\n        bird.introduce();\n        bird.fly();\n    }\n}\n\n// Output:\n// Robin says tweet\n// Robin is flying, speed slow"
   }
  },
- "/java/core-java/oop-and-design/single-responsibility": {
-  "def": "The single responsibility principle says a class should have one reason to change. Each class does one job, so a change to one concern does not break another.",
-  "example": {
-   "title": "Calculating an invoice and printing it are two jobs",
-   "lang": "java",
-   "code": "import java.util.List;\n\nrecord Item(String name, int price) { }\n\nclass Invoice {                                   // job 1: know the items and the total\n    private final List<Item> items;\n    Invoice(List<Item> items) { this.items = items; }\n    List<Item> items() { return items; }\n    int total() { return items.stream().mapToInt(Item::price).sum(); }\n}\n\nclass InvoicePrinter {                            // job 2: format the invoice as text\n    String print(Invoice invoice) {\n        StringBuilder out = new StringBuilder();\n        for (Item item : invoice.items()) out.append(item.name()).append(\": \").append(item.price()).append('\\n');\n        return out.append(\"Total: \").append(invoice.total()).toString();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Invoice invoice = new Invoice(List.of(new Item(\"Book\", 300), new Item(\"Pen\", 20)));\n        System.out.println(new InvoicePrinter().print(invoice));   // changing the format never touches Invoice\n    }\n}\n\n// Output:\n// Book: 300\n// Pen: 20\n// Total: 320"
-  }
- },
- "/java/core-java/oop-and-design/open-closed": {
-  "def": "The open/closed principle says code should be open for extension but closed for modification. You add new behaviour by adding new classes, not by editing code that already works.",
-  "example": {
-   "title": "Adding a new discount without touching the checkout",
-   "lang": "java",
-   "code": "interface Discount {\n    int apply(int price);\n}\n\nclass NoDiscount implements Discount {\n    public int apply(int price) { return price; }\n}\n\nclass FestivalDiscount implements Discount {\n    public int apply(int price) { return price * 90 / 100; }\n}\n\nclass StudentDiscount implements Discount {            // new rule: only a new class was added\n    public int apply(int price) { return price * 80 / 100; }\n}\n\nclass Checkout {\n    int total(int price, Discount discount) { return discount.apply(price); }   // never needs to change\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Checkout checkout = new Checkout();\n        System.out.println(checkout.total(1_000, new NoDiscount()));\n        System.out.println(checkout.total(1_000, new FestivalDiscount()));\n        System.out.println(checkout.total(1_000, new StudentDiscount()));\n    }\n}\n\n// Output:\n// 1000\n// 900\n// 800"
-  }
- },
- "/java/core-java/oop-and-design/liskov-substitution": {
-  "def": "The Liskov substitution principle says a child class must work anywhere its parent is expected, without surprising the caller. If code that works with the parent breaks when it gets the child, the hierarchy is wrong.",
-  "example": {
-   "title": "A Square that breaks code written for Rectangle, and a fix",
-   "lang": "java",
-   "code": "class Rectangle {\n    protected int width, height;\n    void setWidth(int w) { width = w; }\n    void setHeight(int h) { height = h; }\n    int area() { return width * height; }\n}\n\nclass BadSquare extends Rectangle {                  // a square keeps both sides equal...\n    @Override void setWidth(int w) { width = w; height = w; }\n    @Override void setHeight(int h) { width = h; height = h; }\n}\n\ninterface Shape { int area(); }                      // the fix: no false \"is-a\"\nrecord Rect(int width, int height) implements Shape { public int area() { return width * height; } }\nrecord Sq(int side) implements Shape { public int area() { return side * side; } }\n\nclass Demo {\n    public static void main(String[] args) {\n        Rectangle r = new BadSquare();\n        r.setWidth(4);\n        r.setHeight(5);\n        System.out.println(\"Expected 20, got \" + r.area());   // surprise: the caller's assumption broke\n\n        System.out.println(new Rect(4, 5).area());\n        System.out.println(new Sq(4).area());\n    }\n}\n\n// Output:\n// Expected 20, got 25\n// 20\n// 16"
-  }
- },
- "/java/core-java/oop-and-design/interface-segregation": {
-  "def": "The interface segregation principle says no class should be forced to implement methods it does not use. Prefer several small interfaces over one big one.",
-  "example": {
-   "title": "A basic printer is not forced to scan",
-   "lang": "java",
-   "code": "interface Printer { String print(String text); }\ninterface Scanner { String scan(); }\n\nclass BasicPrinter implements Printer {              // only what it can really do\n    public String print(String text) { return \"Printing: \" + text; }\n}\n\nclass OfficeMachine implements Printer, Scanner {    // a machine that can do both\n    public String print(String text) { return \"Printing: \" + text; }\n    public String scan() { return \"Scanned page\"; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Printer simple = new BasicPrinter();\n        OfficeMachine office = new OfficeMachine();\n        System.out.println(simple.print(\"report\"));\n        System.out.println(office.print(\"invoice\"));\n        System.out.println(office.scan());\n    }\n}\n\n// Output:\n// Printing: report\n// Printing: invoice\n// Scanned page"
-  }
- },
- "/java/core-java/oop-and-design/dependency-inversion": {
-  "def": "The dependency inversion principle says high-level code should depend on an abstraction, not on a concrete class. The concrete class is passed in from outside, which makes it easy to swap and to test.",
-  "example": {
-   "title": "A service that gets its sender from outside",
-   "lang": "java",
-   "code": "interface MessageSender {\n    void send(String to, String text);\n}\n\nclass OrderService {\n    private final MessageSender sender;                // depends on the interface only\n\n    OrderService(MessageSender sender) { this.sender = sender; }\n\n    void placeOrder(String customer) { sender.send(customer, \"Your order is confirmed\"); }\n}\n\nclass FakeSender implements MessageSender {            // in a test, pass a fake instead of a real sender\n    String lastMessage;\n    public void send(String to, String text) { lastMessage = to + \": \" + text; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        FakeSender fake = new FakeSender();\n        new OrderService(fake).placeOrder(\"asha@example.com\");\n        System.out.println(fake.lastMessage);\n    }\n}\n\n// Output:\n// asha@example.com: Your order is confirmed"
-  }
- },
  "/java/core-java/generics/generic-classes": {
   "def": "A generic class works with a type that you choose when you use it, written like `Box<String>`. The compiler checks the type for you, so you do not need casts.",
   "example": {
@@ -5385,6 +5345,54 @@
    "title": "The shape of a good answer",
    "lang": "text",
    "code": "Question: What is the difference between == and equals()?\n\nDefinition: == compares primitives by value and references by identity.\n            equals() compares the content, when a class overrides it (String, Integer, ...).\n\nExample:    new String(\"a\") == \"a\"        -> false (two different objects)\n            new String(\"a\").equals(\"a\")   -> true  (same content)"
+  }
+ },
+ "/java/core-java/design-principles/single-responsibility": {
+  "def": "The single responsibility principle says a class should have one reason to change. Each class does one job, so a change to one concern does not break another.",
+  "example": {
+   "title": "Calculating an invoice and printing it are two jobs",
+   "lang": "java",
+   "code": "import java.util.List;\n\nrecord Item(String name, int price) { }\n\nclass Invoice {                                   // job 1: know the items and the total\n    private final List<Item> items;\n    Invoice(List<Item> items) { this.items = items; }\n    List<Item> items() { return items; }\n    int total() { return items.stream().mapToInt(Item::price).sum(); }\n}\n\nclass InvoicePrinter {                            // job 2: format the invoice as text\n    String print(Invoice invoice) {\n        StringBuilder out = new StringBuilder();\n        for (Item item : invoice.items()) out.append(item.name()).append(\": \").append(item.price()).append('\\n');\n        return out.append(\"Total: \").append(invoice.total()).toString();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Invoice invoice = new Invoice(List.of(new Item(\"Book\", 300), new Item(\"Pen\", 20)));\n        System.out.println(new InvoicePrinter().print(invoice));   // changing the format never touches Invoice\n    }\n}\n\n// Output:\n// Book: 300\n// Pen: 20\n// Total: 320"
+  }
+ },
+ "/java/core-java/design-principles/open-closed": {
+  "def": "The open/closed principle says code should be open for extension but closed for modification. You add new behaviour by adding new classes, not by editing code that already works.",
+  "example": {
+   "title": "Adding a new discount without touching the checkout",
+   "lang": "java",
+   "code": "interface Discount {\n    int apply(int price);\n}\n\nclass NoDiscount implements Discount {\n    public int apply(int price) { return price; }\n}\n\nclass FestivalDiscount implements Discount {\n    public int apply(int price) { return price * 90 / 100; }\n}\n\nclass StudentDiscount implements Discount {            // new rule: only a new class was added\n    public int apply(int price) { return price * 80 / 100; }\n}\n\nclass Checkout {\n    int total(int price, Discount discount) { return discount.apply(price); }   // never needs to change\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Checkout checkout = new Checkout();\n        System.out.println(checkout.total(1_000, new NoDiscount()));\n        System.out.println(checkout.total(1_000, new FestivalDiscount()));\n        System.out.println(checkout.total(1_000, new StudentDiscount()));\n    }\n}\n\n// Output:\n// 1000\n// 900\n// 800"
+  }
+ },
+ "/java/core-java/design-principles/liskov-substitution": {
+  "def": "The Liskov substitution principle says a child class must work anywhere its parent is expected, without surprising the caller. If code that works with the parent breaks when it gets the child, the hierarchy is wrong.",
+  "example": {
+   "title": "A Square that breaks code written for Rectangle, and a fix",
+   "lang": "java",
+   "code": "class Rectangle {\n    protected int width, height;\n    void setWidth(int w) { width = w; }\n    void setHeight(int h) { height = h; }\n    int area() { return width * height; }\n}\n\nclass BadSquare extends Rectangle {                  // a square keeps both sides equal...\n    @Override void setWidth(int w) { width = w; height = w; }\n    @Override void setHeight(int h) { width = h; height = h; }\n}\n\ninterface Shape { int area(); }                      // the fix: no false \"is-a\"\nrecord Rect(int width, int height) implements Shape { public int area() { return width * height; } }\nrecord Sq(int side) implements Shape { public int area() { return side * side; } }\n\nclass Demo {\n    public static void main(String[] args) {\n        Rectangle r = new BadSquare();\n        r.setWidth(4);\n        r.setHeight(5);\n        System.out.println(\"Expected 20, got \" + r.area());   // surprise: the caller's assumption broke\n\n        System.out.println(new Rect(4, 5).area());\n        System.out.println(new Sq(4).area());\n    }\n}\n\n// Output:\n// Expected 20, got 25\n// 20\n// 16"
+  }
+ },
+ "/java/core-java/design-principles/interface-segregation": {
+  "def": "The interface segregation principle says no class should be forced to implement methods it does not use. Prefer several small interfaces over one big one.",
+  "example": {
+   "title": "A basic printer is not forced to scan",
+   "lang": "java",
+   "code": "interface Printer { String print(String text); }\ninterface Scanner { String scan(); }\n\nclass BasicPrinter implements Printer {              // only what it can really do\n    public String print(String text) { return \"Printing: \" + text; }\n}\n\nclass OfficeMachine implements Printer, Scanner {    // a machine that can do both\n    public String print(String text) { return \"Printing: \" + text; }\n    public String scan() { return \"Scanned page\"; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Printer simple = new BasicPrinter();\n        OfficeMachine office = new OfficeMachine();\n        System.out.println(simple.print(\"report\"));\n        System.out.println(office.print(\"invoice\"));\n        System.out.println(office.scan());\n    }\n}\n\n// Output:\n// Printing: report\n// Printing: invoice\n// Scanned page"
+  }
+ },
+ "/java/core-java/design-principles/dependency-inversion": {
+  "def": "The dependency inversion principle says high-level code should depend on an abstraction, not on a concrete class. The concrete class is passed in from outside, which makes it easy to swap and to test.",
+  "example": {
+   "title": "A service that gets its sender from outside",
+   "lang": "java",
+   "code": "interface MessageSender {\n    void send(String to, String text);\n}\n\nclass OrderService {\n    private final MessageSender sender;                // depends on the interface only\n\n    OrderService(MessageSender sender) { this.sender = sender; }\n\n    void placeOrder(String customer) { sender.send(customer, \"Your order is confirmed\"); }\n}\n\nclass FakeSender implements MessageSender {            // in a test, pass a fake instead of a real sender\n    String lastMessage;\n    public void send(String to, String text) { lastMessage = to + \": \" + text; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        FakeSender fake = new FakeSender();\n        new OrderService(fake).placeOrder(\"asha@example.com\");\n        System.out.println(fake.lastMessage);\n    }\n}\n\n// Output:\n// asha@example.com: Your order is confirmed"
+  }
+ },
+ "/java/core-java/design-principles": {
+  "def": "Design principles are guidelines for keeping object-oriented code easy to change. The best known five are called SOLID: each one names a common way that classes become hard to change, and a habit that prevents it.",
+  "example": {
+   "title": "The five principles in one line each",
+   "lang": "text",
+   "code": "S  Single responsibility    a class has one reason to change\nO  Open/closed              add behaviour by adding code, not by editing tested code\nL  Liskov substitution      a subclass works wherever its parent is expected\nI  Interface segregation    several small interfaces beat one large one\nD  Dependency inversion     depend on interfaces, not on concrete classes"
   }
  }
 }

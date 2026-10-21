@@ -56,7 +56,7 @@ const ids = (folder: string, names: string[]): string[] => names.map((n) => `${f
  */
 const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
   java: [
-    {label: 'Language basics', ids: ids('java/core-java', ['oop-and-design', 'generics', 'exceptions', 'immutability', 'modern-java'])},
+    {label: 'Language basics', ids: ids('java/core-java', ['oop-and-design', 'design-principles', 'generics', 'exceptions', 'immutability', 'modern-java'])},
     {label: 'Collections', ids: ids('java/core-java', ['collections-framework', 'equals-hashcode', 'hashmap-internals', 'concurrenthashmap'])},
     {label: 'Concurrency', ids: ids('java/concurrency-jvm', ['threads-basics', 'synchronization-and-locks', 'memory-model', 'executors', 'completablefuture', 'virtual-threads'])},
     {label: 'JVM', ids: ids('java/concurrency-jvm', ['garbage-collection', 'jvm-tuning-diagnostics'])},

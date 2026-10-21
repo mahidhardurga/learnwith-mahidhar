@@ -1,7 +1,11 @@
 [
  {
   "path": "/java/core-java/oop-and-design",
-  "title": "OOP and design principles"
+  "title": "OOP and design"
+ },
+ {
+  "path": "/java/core-java/design-principles",
+  "title": "Design principles"
  },
  {
   "path": "/java/core-java/collections-framework",

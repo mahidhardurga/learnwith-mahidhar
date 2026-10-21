@@ -7,17 +7,7 @@
    "inheritance",
    "polymorphism",
    "composition-over-inheritance",
-   "interface-vs-abstract-class",
-   {
-    "label": "Design principles (SOLID)",
-    "items": [
-     "single-responsibility",
-     "open-closed",
-     "liskov-substitution",
-     "interface-segregation",
-     "dependency-inversion"
-    ]
-   }
+   "interface-vs-abstract-class"
   ]
  },
  "java/core-java/generics": {
@@ -1024,6 +1014,16 @@
    "data-scaling-and-performance",
    "security",
    "delivery-leadership-and-judgement"
+  ]
+ },
+ "java/core-java/design-principles": {
+  "label": "Design principles",
+  "subs": [
+   "single-responsibility",
+   "open-closed",
+   "liskov-substitution",
+   "interface-segregation",
+   "dependency-inversion"
   ]
  }
 }
