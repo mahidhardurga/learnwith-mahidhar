@@ -4778,5 +4778,117 @@
    "lang": "java",
    "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static final Map<String, Integer> usedThisMinute = new HashMap<>();\n\n    static boolean admit(String tenant, int quotaPerMinute) {\n        int used = usedThisMinute.merge(tenant, 1, Integer::sum);\n        return used <= quotaPerMinute;\n    }\n\n    public static void main(String[] args) {\n        int quota = 3;\n        int busyAdmitted = 0;\n        for (int i = 0; i < 10; i++) if (admit(\"busy-tenant\", quota)) busyAdmitted++;      // sends ten runs at once\n        boolean quietAdmitted = admit(\"quiet-tenant\", quota);                               // a normal request from someone else\n\n        System.out.println(\"busy-tenant: \" + busyAdmitted + \" of 10 runs admitted, the rest wait for the next minute\");\n        System.out.println(\"quiet-tenant: \" + (quietAdmitted ? \"admitted without delay\" : \"blocked\"));\n    }\n}\n\n// Output:\n// busy-tenant: 3 of 10 runs admitted, the rest wait for the next minute\n// quiet-tenant: admitted without delay"
   }
+ },
+ "/toolkit/coding-problems/hashing-two-sum": {
+  "def": "When a problem asks \"have I seen a matching value before?\", store what you have seen in a hash map. Two sum asks for two numbers that add up to a target: for each number, look up whether its partner is already in the map. That turns a nested loop into one pass.",
+  "example": {
+   "title": "Find two numbers that add up to the target",
+   "lang": "java",
+   "code": "import java.util.Arrays;\nimport java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static int[] twoSum(int[] numbers, int target) {\n        Map<Integer, Integer> seen = new HashMap<>();                      // value -> index\n        for (int i = 0; i < numbers.length; i++) {\n            Integer partner = seen.get(target - numbers[i]);\n            if (partner != null) return new int[] {partner, i};\n            seen.put(numbers[i], i);\n        }\n        return new int[0];\n    }\n\n    public static void main(String[] args) {\n        System.out.println(Arrays.toString(twoSum(new int[] {2, 7, 11, 15}, 9)));       // O(n) time, O(n) space\n    }\n}\n\n// Output:\n// [0, 1]"
+  }
+ },
+ "/toolkit/coding-problems/two-pointers": {
+  "def": "Two pointers walk a sequence from both ends (or at different speeds) and move towards each other. They fit problems about pairs, reversing and palindromes, and solve them in one pass without extra memory.",
+  "example": {
+   "title": "Is the sentence a palindrome",
+   "lang": "java",
+   "code": "class Demo {\n    static boolean isPalindrome(String text) {\n        int left = 0;\n        int right = text.length() - 1;\n        while (left < right) {\n            while (left < right && !Character.isLetterOrDigit(text.charAt(left))) left++;       // skip spaces and punctuation\n            while (left < right && !Character.isLetterOrDigit(text.charAt(right))) right--;\n            if (Character.toLowerCase(text.charAt(left)) != Character.toLowerCase(text.charAt(right))) return false;\n            left++;\n            right--;\n        }\n        return true;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(isPalindrome(\"A man, a plan, a canal: Panama\"));\n        System.out.println(isPalindrome(\"interview\"));\n    }\n}\n\n// Output:\n// true\n// false"
+  }
+ },
+ "/toolkit/coding-problems/sliding-window": {
+  "def": "A sliding window is a range of the input that grows on the right and shrinks on the left as needed. It solves \"longest or shortest part that satisfies a rule\" in one pass, because each element enters and leaves the window only once.",
+  "example": {
+   "title": "Longest substring without repeating characters",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static int longestUnique(String text) {\n        Map<Character, Integer> lastSeen = new HashMap<>();\n        int best = 0;\n        int windowStart = 0;\n        for (int end = 0; end < text.length(); end++) {\n            Integer previous = lastSeen.put(text.charAt(end), end);\n            if (previous != null && previous >= windowStart) windowStart = previous + 1;      // shrink: skip past the repeat\n            best = Math.max(best, end - windowStart + 1);\n        }\n        return best;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(longestUnique(\"abcabcbb\"));       // \"abc\"\n        System.out.println(longestUnique(\"pwwkew\"));          // \"wke\"\n    }\n}\n\n// Output:\n// 3\n// 3"
+  }
+ },
+ "/toolkit/coding-problems/binary-search": {
+  "def": "Binary search finds a value in a sorted array by checking the middle and discarding the half that cannot contain it, so it needs only log n steps. It also works for any yes/no condition that flips once, such as \"the first version that is broken\".",
+  "example": {
+   "title": "Find the index of a value in a sorted array",
+   "lang": "java",
+   "code": "class Demo {\n    static int search(int[] sorted, int target) {\n        int low = 0;\n        int high = sorted.length - 1;\n        while (low <= high) {\n            int middle = low + (high - low) / 2;                           // avoids overflow of (low + high)\n            if (sorted[middle] == target) return middle;\n            if (sorted[middle] < target) low = middle + 1; else high = middle - 1;\n        }\n        return -1;\n    }\n\n    public static void main(String[] args) {\n        int[] numbers = {1, 3, 5, 8, 13, 21, 34};\n        System.out.println(\"index of 13: \" + search(numbers, 13));\n        System.out.println(\"index of 4:  \" + search(numbers, 4));\n    }\n}\n\n// Output:\n// index of 13: 4\n// index of 4:  -1"
+  }
+ },
+ "/toolkit/coding-problems/bfs-shortest-path": {
+  "def": "Breadth-first search explores a graph level by level using a queue, so the first time it reaches a node it has found the shortest path in steps. Use it for mazes, grids and \"minimum number of moves\" questions.",
+  "example": {
+   "title": "Shortest way through a small maze",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Queue;\n\nclass Demo {\n    static int shortestPath(int[][] grid) {                                // 0 = free, 1 = wall; from the top-left to the bottom-right\n        int rows = grid.length;\n        int cols = grid[0].length;\n        boolean[][] visited = new boolean[rows][cols];\n        Queue<int[]> queue = new ArrayDeque<>();\n        queue.add(new int[] {0, 0, 0});                                    // row, column, steps so far\n        visited[0][0] = true;\n        int[][] moves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};\n\n        while (!queue.isEmpty()) {\n            int[] current = queue.poll();\n            if (current[0] == rows - 1 && current[1] == cols - 1) return current[2];\n            for (int[] move : moves) {\n                int r = current[0] + move[0];\n                int c = current[1] + move[1];\n                if (r >= 0 && c >= 0 && r < rows && c < cols && grid[r][c] == 0 && !visited[r][c]) {\n                    visited[r][c] = true;\n                    queue.add(new int[] {r, c, current[2] + 1});\n                }\n            }\n        }\n        return -1;\n    }\n\n    public static void main(String[] args) {\n        int[][] maze = {\n                {0, 0, 1, 0},\n                {1, 0, 1, 0},\n                {0, 0, 0, 0},\n                {0, 1, 1, 0}};\n        System.out.println(\"shortest path: \" + shortestPath(maze) + \" steps\");\n    }\n}\n\n// Output:\n// shortest path: 6 steps"
+  }
+ },
+ "/toolkit/coding-problems/stack-brackets": {
+  "def": "A stack gives the most recent item first, which suits anything nested: brackets, undo, parsing and expression evaluation. For brackets, push each opening one, and each closing one must match the one on top.",
+  "example": {
+   "title": "Are the brackets balanced",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\nimport java.util.Map;\n\nclass Demo {\n    static boolean isBalanced(String text) {\n        Map<Character, Character> pairs = Map.of(')', '(', ']', '[', '}', '{');\n        Deque<Character> stack = new ArrayDeque<>();\n        for (char c : text.toCharArray()) {\n            if (pairs.containsValue(c)) {\n                stack.push(c);                                              // an opening bracket\n            } else if (pairs.containsKey(c)) {\n                if (stack.isEmpty() || stack.pop() != pairs.get(c)) return false;     // closing must match the latest opening\n            }\n        }\n        return stack.isEmpty();\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"{[()]} -> \" + isBalanced(\"{[()]}\"));\n        System.out.println(\"([)]   -> \" + isBalanced(\"([)]\"));\n    }\n}\n\n// Output:\n// {[()]} -> true\n// ([)]   -> false"
+  }
+ },
+ "/toolkit/behavioral-star/situation-and-task": {
+  "def": "Open with the context in two sentences: where you were, what was at stake, and what you were responsible for. Keep it short, because the interviewer wants the action. Name your own role clearly, not just the situation of the team.",
+  "example": {
+   "title": "A vague opening against a clear one",
+   "lang": "text",
+   "code": "Vague:\n  \"We had some problems with our service and it was slow, so we looked into it.\"\n\nClear:\n  Situation: \"Our checkout API started timing out during sales, and we were losing orders.\"\n  Task:      \"I was the on-call engineer and owned finding the cause and fixing it before the next sale in two days.\""
+  }
+ },
+ "/toolkit/behavioral-star/action-with-i": {
+  "def": "The action is the longest part, and it must be about you. \"We\" hides your contribution, so say \"I\". Give two or three concrete steps with the reason for each, and mention a decision or trade-off, since that shows how you think.",
+  "example": {
+   "title": "Concrete steps in the first person",
+   "lang": "text",
+   "code": "Action:\n  1. \"I added timing logs around each call and found the slow part was one unindexed query on the orders table.\"\n  2. \"I considered caching the result, but the data changes often, so I added a composite index instead.\"\n  3. \"I tested it on a copy of production data and rolled it out at night, with a rollback script ready.\""
+  }
+ },
+ "/toolkit/behavioral-star/result-with-numbers": {
+  "def": "End with what changed, in numbers if you can: time saved, errors removed, money earned. Then add what you learned or would do differently. A result with a measurement is believable, and a lesson shows that you grow.",
+  "example": {
+   "title": "An outcome with a measurement and a lesson",
+   "lang": "text",
+   "code": "Result:\n  \"The query went from 4 seconds to 40 milliseconds, the timeouts stopped, and the next sale ran without lost orders.\"\n\nLesson:\n  \"Since then I check the query plan of every new query in code review, before it reaches production.\""
+  }
+ },
+ "/toolkit/behavioral-star/failure-and-conflict-questions": {
+  "def": "Questions such as \"tell me about a mistake\" or \"a disagreement with a colleague\" test honesty and maturity. Use a real, small-to-medium example, take your share of the responsibility, and spend most of the time on how you fixed it and what changed afterwards.",
+  "example": {
+   "title": "A mistake, answered well",
+   "lang": "text",
+   "code": "Question: \"Tell me about a time you made a mistake.\"\n\n  Situation: \"I deployed a config change on a Friday without checking one setting, and a batch job stopped.\"\n  Action:    \"I noticed within ten minutes from an alert, reverted the change, and told the team what happened.\"\n  Result:    \"No data was lost. I then added a checklist item and a staging check for config changes.\"\n  Lesson:    \"I own mistakes quickly and make the process safer, so the same one cannot happen twice.\""
+  }
+ },
+ "/toolkit/cheat-sheets/big-o-table": {
+  "def": "Big-O describes how the work grows with the size of the data. Know the usual costs of the main collections, because choosing the right one is often the whole answer to a performance question.",
+  "example": {
+   "title": "Average cost of common operations",
+   "lang": "text",
+   "code": "Structure              get / contains     add             remove\n---------------------  -----------------  --------------  ------------\nArrayList              O(1) by index      O(1) at end     O(n)\n                       O(n) contains\nLinkedList             O(n)               O(1) at ends    O(1) at ends\nHashMap / HashSet      O(1)               O(1)            O(1)\nTreeMap / TreeSet      O(log n)           O(log n)        O(log n)\nPriorityQueue          O(1) peek          O(log n)        O(log n)\nArrayDeque (stack)     O(1) at ends       O(1)            O(1)\n\nSorting: O(n log n)   Binary search: O(log n)   Nested loops over n: O(n squared)"
+  }
+ },
+ "/toolkit/cheat-sheets/http-status-codes": {
+  "def": "The first digit of a status code tells the story: 2xx success, 3xx redirect, 4xx the client made a mistake, 5xx the server failed. Choose the most specific code, because clients and monitoring tools act on it.",
+  "example": {
+   "title": "The codes worth knowing",
+   "lang": "text",
+   "code": "200 OK                     the request worked\n201 Created                a new resource was made (send a Location header)\n204 No Content             worked, nothing to return (usual for DELETE)\n\n301 Moved Permanently      the resource has a new address for good\n302 Found                  temporary redirect\n\n400 Bad Request            the request is malformed or fails validation\n401 Unauthorized           not logged in (no valid credentials)\n403 Forbidden              logged in, but not allowed\n404 Not Found              no such resource\n409 Conflict               clashes with the current state (duplicate, version conflict)\n429 Too Many Requests      rate limit reached\n\n500 Internal Server Error  a bug or an unexpected failure on the server\n502 Bad Gateway            the upstream server sent an invalid answer\n503 Service Unavailable    overloaded or down for maintenance; try later\n504 Gateway Timeout        the upstream server took too long"
+  }
+ },
+ "/toolkit/cheat-sheets/git-everyday-commands": {
+  "def": "Most daily work with Git is a short list of commands: see what changed, stage it, commit, update from the remote, and branch. Learn these well before the rare ones.",
+  "example": {
+   "title": "The daily workflow",
+   "lang": "bash",
+   "code": "git status                         # what changed?\ngit diff                           # the changes, line by line\ngit add src/Order.java             # stage a file for the next commit\ngit commit -m \"Validate order quantity\"\ngit pull --rebase                  # bring in the remote changes and replay your commits on top\ngit push                           # share your commits\n\ngit switch -c feature/discounts    # create and move to a new branch\ngit switch main                    # go back\ngit log --oneline -10              # the last ten commits, one line each\ngit stash                          # put unfinished work aside; \"git stash pop\" brings it back\ngit restore src/Order.java         # throw away uncommitted changes in a file"
+  }
+ },
+ "/toolkit/cheat-sheets/jvm-flags": {
+  "def": "A few JVM options come up again and again: heap size, the garbage collector, GC logging and out-of-memory behaviour. Set the heap explicitly in production, and always keep a heap dump when memory runs out.",
+  "example": {
+   "title": "Flags for a typical service",
+   "lang": "bash",
+   "code": "java -Xms512m -Xmx512m \\\n     -XX:+UseG1GC \\\n     -Xlog:gc*:file=gc.log \\\n     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.hprof \\\n     -jar app.jar\n\n# -Xms / -Xmx            initial and maximum heap (equal values avoid resizing pauses)\n# -XX:+UseG1GC           the default collector: balanced pauses and throughput\n# -Xlog:gc*              write garbage-collection events to a file\n# HeapDumpOnOutOfMemory  save the heap when memory runs out, to analyse the cause later"
+  }
  }
 }

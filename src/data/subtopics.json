@@ -828,5 +828,34 @@
    "token-budget-guard",
    "tenant-quotas"
   ]
+ },
+ "toolkit/coding-problems": {
+  "label": "Coding problem patterns",
+  "subs": [
+   "hashing-two-sum",
+   "two-pointers",
+   "sliding-window",
+   "binary-search",
+   "bfs-shortest-path",
+   "stack-brackets"
+  ]
+ },
+ "toolkit/behavioral-star": {
+  "label": "Behavioural answers (STAR)",
+  "subs": [
+   "situation-and-task",
+   "action-with-i",
+   "result-with-numbers",
+   "failure-and-conflict-questions"
+  ]
+ },
+ "toolkit/cheat-sheets": {
+  "label": "Cheat sheets",
+  "subs": [
+   "big-o-table",
+   "http-status-codes",
+   "git-everyday-commands",
+   "jvm-flags"
+  ]
  }
 }
