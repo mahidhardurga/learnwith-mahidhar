@@ -8,7 +8,7 @@ type Item = Record<string, unknown>;
 type DocRef = string | {id: string; label: string};
 const SUBTOPICS = JSON.parse(fs.readFileSync(path.join(__dirname, 'src/data/subtopics.json'), 'utf8')) as Record<
   string,
-  {label: string; subs?: string[]; versions?: {label: string; items: DocRef[]}[]}
+  {label: string; subs?: (string | {label: string; items: string[]})[]; versions?: {label: string; items: DocRef[]}[]}
 >;
 
 const docItem = (ref: DocRef): Item => (typeof ref === 'string' ? {type: 'doc', id: ref} : {type: 'doc', id: ref.id, label: ref.label});
@@ -31,7 +31,18 @@ function topicItem(id: string): Item {
       })),
     };
   }
-  return {type: 'category', label: sub.label, link: {type: 'doc', id}, items: (sub.subs ?? []).map((s) => ({type: 'doc', id: `${id}/${s}`}))};
+  return {type: 'category', label: sub.label, link: {type: 'doc', id}, items: (sub.subs ?? []).map((s) =>
+      typeof s === 'string'
+        ? {type: 'doc', id: `${id}/${s}`}
+        : // a named group inside the topic, for example "Design principles"
+          {
+            type: 'category',
+            label: s.label,
+            link: {type: 'generated-index', description: `${s.label}: a definition and an example for each one.`},
+            items: s.items.map((slug) => ({type: 'doc', id: `${id}/${slug}`})),
+          },
+    ),
+  };
 }
 
 const DOCS = path.join(__dirname, 'docs');
