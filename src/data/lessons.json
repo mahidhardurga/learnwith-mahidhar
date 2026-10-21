@@ -3018,5 +3018,221 @@
    "lang": "java",
    "code": "import org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.event.ContextClosedEvent;\nimport org.springframework.context.event.ContextRefreshedEvent;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass Lifecycle {\n    @EventListener\n    void started(ContextRefreshedEvent event) { System.out.println(\"application is ready: warm the caches\"); }\n\n    @EventListener\n    void stopping(ContextClosedEvent event) { System.out.println(\"application is closing: flush and say goodbye\"); }\n}\n\n@ComponentScan\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(Demo.class)) {\n            System.out.println(\"doing work\");\n        }\n    }\n}\n\n// Output:\n// application is ready: warm the caches\n// doing work\n// application is closing: flush and say goodbye"
   }
+ },
+ "/spring/boot/overview/springbootapplication": {
+  "def": "`@SpringBootApplication` marks the main class of a Boot app. It combines three annotations: `@Configuration` (this class defines beans), `@ComponentScan` (find beans in this package and below) and `@EnableAutoConfiguration` (set up beans from what is on the classpath).",
+  "example": {
+   "title": "One annotation, a working application",
+   "lang": "java",
+   "code": "import org.springframework.boot.CommandLineRunner;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass GreetingService {                                    // found by component scanning\n    String greet() { return \"Hello from a Boot application\"; }\n}\n\n@SpringBootApplication                                     // @Configuration + @ComponentScan + @EnableAutoConfiguration\nclass Demo {\n    @Bean\n    CommandLineRunner run(GreetingService service) {       // runs once after startup\n        return args -> System.out.println(service.greet());\n    }\n\n    public static void main(String[] args) {\n        new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args);\n        // in a normal web app you simply write: SpringApplication.run(Demo.class, args);\n    }\n}\n\n// Output:\n// Hello from a Boot application"
+  }
+ },
+ "/spring/boot/overview/embedded-web-server": {
+  "def": "A Boot web app contains its own web server (Tomcat by default). You run it like any Java program, with no separate server to install, and package it as a single executable jar.",
+  "example": {
+   "title": "A REST endpoint served by the built-in Tomcat",
+   "lang": "java",
+   "code": "import java.net.URI;\nimport java.net.http.HttpClient;\nimport java.net.http.HttpRequest;\nimport java.net.http.HttpResponse;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\n\n@RestController\nclass HelloController {\n    @GetMapping(\"/hello\")\n    String hello() { return \"Hello from the embedded Tomcat\"; }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        System.setProperty(\"server.port\", \"0\");                          // 0 = pick any free port\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n\n            HttpResponse<String> response = HttpClient.newHttpClient().send(\n                    HttpRequest.newBuilder(URI.create(\"http://localhost:\" + port + \"/hello\")).build(),\n                    HttpResponse.BodyHandlers.ofString());\n            System.out.println(response.statusCode() + \" \" + response.body());\n        }\n    }\n}\n\n// Output:\n// 200 Hello from the embedded Tomcat"
+  }
+ },
+ "/spring/boot/overview/command-line-arguments": {
+  "def": "Boot turns command-line arguments into settings and also gives them to your code. `--name=Asha` becomes the property `name`, and an `ApplicationRunner` can read both the options and the plain arguments after startup.",
+  "example": {
+   "title": "Reading options and plain arguments",
+   "lang": "java",
+   "code": "import org.springframework.boot.ApplicationArguments;\nimport org.springframework.boot.ApplicationRunner;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.annotation.Bean;\n\n@SpringBootApplication\nclass Demo {\n    @Bean\n    ApplicationRunner runner() {\n        return args -> {\n            System.out.println(\"option --name = \" + args.getOptionValues(\"name\"));\n            System.out.println(\"plain arguments = \" + args.getNonOptionArgs());\n        };\n    }\n\n    public static void main(String[] args) {\n        // the same as:  java -jar app.jar --name=Asha report.csv\n        new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(\"--name=Asha\", \"report.csv\");\n    }\n}\n\n// Output:\n// option --name = [Asha]\n// plain arguments = [report.csv]"
+  }
+ },
+ "/spring/boot/starters/starter-dependencies": {
+  "def": "A starter is one dependency that brings in everything a feature needs. `spring-boot-starter-web` adds Spring MVC, JSON support and Tomcat. You list a handful of starters instead of dozens of libraries.",
+  "example": {
+   "title": "Two starters in a Maven build",
+   "lang": "xml",
+   "code": "<dependencies>\n    <!-- web: Spring MVC, Jackson (JSON), validation hooks and the embedded Tomcat -->\n    <dependency>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-web</artifactId>\n    </dependency>\n\n    <!-- data: Spring Data JPA, Hibernate and a connection pool -->\n    <dependency>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-data-jpa</artifactId>\n    </dependency>\n    <!-- no version numbers: the Spring Boot parent decides them -->\n</dependencies>"
+  }
+ },
+ "/spring/boot/starters/boot-bom-and-versions": {
+  "def": "A BOM (bill of materials) is a list of library versions that are tested together. The Spring Boot parent gives you one, so you leave version numbers out and the libraries match. To change one library, set its version property.",
+  "example": {
+   "title": "The parent supplies versions; one property overrides one",
+   "lang": "xml",
+   "code": "<parent>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-parent</artifactId>\n    <version>3.5.16</version>          <!-- this one number selects the whole tested set of versions -->\n</parent>\n\n<properties>\n    <java.version>21</java.version>\n    <!-- override one managed library, only when you must -->\n    <jackson-bom.version>2.19.2</jackson-bom.version>\n</properties>"
+  }
+ },
+ "/spring/boot/starters/exclude-transitive-dependency": {
+  "def": "A starter may bring in a library you do not want. You can exclude it, for example to replace the default Tomcat web server with Jetty. Check what you get with `mvn dependency:tree`.",
+  "example": {
+   "title": "Swap Tomcat for Jetty",
+   "lang": "xml",
+   "code": "<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-web</artifactId>\n    <exclusions>\n        <exclusion>                                   <!-- remove the default web server -->\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-tomcat</artifactId>\n        </exclusion>\n    </exclusions>\n</dependency>\n\n<dependency>                                          <!-- add the one you want instead -->\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-jetty</artifactId>\n</dependency>"
+  }
+ },
+ "/spring/boot/auto-configuration/conditional-annotations": {
+  "def": "Auto-configuration is a set of ordinary configuration classes guarded by conditions. `@ConditionalOnMissingBean` creates a bean only if you did not define one, so your own bean always wins. `@ConditionalOnClass` and `@ConditionalOnProperty` check the classpath and the settings.",
+  "example": {
+   "title": "The library default backs off when you define your own bean",
+   "lang": "java",
+   "code": "import java.time.Clock;\nimport java.time.Instant;\nimport java.time.ZoneOffset;\nimport org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\nclass UserConfig {\n    @Bean\n    Clock clock() { return Clock.fixed(Instant.parse(\"2026-01-01T00:00:00Z\"), ZoneOffset.UTC); }   // your own bean\n}\n\n@Configuration\nclass LibraryAutoConfig {\n    @Bean\n    @ConditionalOnMissingBean                                       // \"only if nobody defined a Clock\"\n    Clock defaultClock() { return Clock.systemUTC(); }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        try (var context = new AnnotationConfigApplicationContext(UserConfig.class, LibraryAutoConfig.class)) {\n            System.out.println(context.getBeansOfType(Clock.class).keySet());       // only your bean exists\n            System.out.println(context.getBean(Clock.class).instant());\n        }\n    }\n}\n\n// Output:\n// [clock]\n// 2026-01-01T00:00:00Z"
+  }
+ },
+ "/spring/boot/auto-configuration/conditions-report": {
+  "def": "When you wonder why a bean exists, or why it does not, start Boot with `--debug`. It prints a conditions report that lists every auto-configuration that matched and every one that did not, with the reason.",
+  "example": {
+   "title": "Finding out what Boot decided",
+   "lang": "bash",
+   "code": "# print the conditions report at startup\njava -jar app.jar --debug\n\n# the report has three parts that matter:\n#   Positive matches:  auto-configurations that were applied, and which condition passed\n#   Negative matches:  auto-configurations that were skipped, and which condition failed\n#   Unconditional classes: always applied\n\n# on a running app with Actuator, the same information is available at:\n#   GET /actuator/conditions"
+  }
+ },
+ "/spring/boot/auto-configuration/custom-auto-configuration": {
+  "def": "You can ship auto-configuration in your own library. Write a configuration class marked `@AutoConfiguration`, make its beans conditional so users can override them, and list the class in a file under `META-INF/spring`. Boot then applies it to every app that has your jar.",
+  "example": {
+   "title": "An auto-configuration class and the file that registers it",
+   "lang": "java",
+   "code": "import org.springframework.boot.autoconfigure.AutoConfiguration;\nimport org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;\nimport org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;\nimport org.springframework.context.annotation.Bean;\n\nclass AuditService {\n    void record(String event) { System.out.println(\"AUDIT \" + event); }\n}\n\n@AutoConfiguration\n@ConditionalOnProperty(name = \"audit.enabled\", havingValue = \"true\", matchIfMissing = true)   // can be switched off\nclass AuditAutoConfiguration {\n    @Bean\n    @ConditionalOnMissingBean                                       // a user-defined AuditService takes priority\n    AuditService auditService() { return new AuditService(); }\n}\n\n// register it: src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports\n// contains one class name per line:\n//   com.example.audit.AuditAutoConfiguration"
+  }
+ },
+ "/spring/boot/auto-configuration/excluding-auto-configuration": {
+  "def": "If an auto-configuration gets in your way, you can turn it off with `exclude` (or the `spring.autoconfigure.exclude` property). Boot then skips it even though its conditions match.",
+  "example": {
+   "title": "Starting without the database setup",
+   "lang": "java",
+   "code": "import javax.sql.DataSource;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;\nimport org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\n\n@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})\nclass Demo {\n    public static void main(String[] args) {\n        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args)) {\n            System.out.println(\"a DataSource was created: \" + (context.getBeansOfType(DataSource.class).size() > 0));\n        }\n    }\n}\n\n// Output:\n// a DataSource was created: false"
+  }
+ },
+ "/spring/boot/configuration/application-yaml": {
+  "def": "Settings live outside your code in `application.yml` (or `application.properties`). YAML groups related keys by indentation and supports lists. Boot reads the file at startup, and a setting from the command line or an environment variable overrides it.",
+  "example": {
+   "title": "Nested settings, a list and a default",
+   "lang": "yaml",
+   "code": "# src/main/resources/application.yml\nspring:\n  application:\n    name: shop-service\n\nserver:\n  port: 8080\n\nshop:\n  currency: INR\n  free-shipping-above: 500\n  allowed-countries:            # a list\n    - IN\n    - SG\n    - AE\n\nlogging:\n  level:\n    com.example: DEBUG"
+  }
+ },
+ "/spring/boot/configuration/configurationproperties": {
+  "def": "`@ConfigurationProperties` binds a group of related settings to one typed object, such as a record, and can validate them at startup. It is cleaner and safer than scattering `@Value` strings through the code.",
+  "example": {
+   "title": "Settings bound to a record, with validation",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport jakarta.validation.constraints.Min;\nimport jakarta.validation.constraints.NotBlank;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.boot.context.properties.EnableConfigurationProperties;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.validation.annotation.Validated;\n\n@Validated\n@ConfigurationProperties(prefix = \"shop\")\nrecord ShopProperties(@NotBlank String currency, @Min(0) int freeShippingAbove, List<String> allowedCountries) { }\n\n@SpringBootApplication\n@EnableConfigurationProperties(ShopProperties.class)\nclass Demo {\n    public static void main(String[] args) {\n        SpringApplication app = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).build();\n        // these would normally come from application.yml\n        app.setDefaultProperties(Map.of(\"shop.currency\", \"INR\", \"shop.free-shipping-above\", \"500\", \"shop.allowed-countries\", \"IN,SG\"));\n        try (ConfigurableApplicationContext context = app.run(args)) {\n            ShopProperties shop = context.getBean(ShopProperties.class);\n            System.out.println(shop.currency() + \" \" + shop.freeShippingAbove() + \" \" + shop.allowedCountries());\n        }\n    }\n}\n\n// Output:\n// INR 500 [IN, SG]"
+  }
+ },
+ "/spring/boot/configuration/profile-specific-config": {
+  "def": "A profile lets one build use different settings in each environment. Put shared settings first, then add a section (or a file such as `application-prod.yml`) for each profile and select it with `spring.profiles.active`.",
+  "example": {
+   "title": "Defaults plus a production override",
+   "lang": "yaml",
+   "code": "# application.yml\nspring:\n  application:\n    name: shop-service\nserver:\n  port: 8080\npayment:\n  url: http://localhost:9000          # the default, good for local development\n\n---\nspring:\n  config:\n    activate:\n      on-profile: prod                # only used when the \"prod\" profile is active\npayment:\n  url: https://payments.example.com\nserver:\n  port: 80\n\n# choose a profile at start-up:\n#   java -jar app.jar --spring.profiles.active=prod\n#   or the environment variable  SPRING_PROFILES_ACTIVE=prod"
+  }
+ },
+ "/spring/boot/configuration/property-precedence": {
+  "def": "The same setting can come from several places. Boot uses a fixed order: command-line arguments beat environment variables, which beat `application.yml`, which beats defaults in code. That lets you override anything at deployment time without a rebuild.",
+  "example": {
+   "title": "A default is overridden from the command line",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        SpringApplication app = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).build();\n        app.setDefaultProperties(Map.of(\"greeting\", \"from the default\"));      // lowest priority\n\n        try (ConfigurableApplicationContext context = app.run()) {\n            System.out.println(\"no override:   \" + context.getEnvironment().getProperty(\"greeting\"));\n        }\n        try (ConfigurableApplicationContext context = app.run(\"--greeting=from the command line\")) {\n            System.out.println(\"with argument: \" + context.getEnvironment().getProperty(\"greeting\"));\n        }\n        // an environment variable GREETING=... would also override the default, but not a command-line argument\n    }\n}\n\n// Output:\n// no override:   from the default\n// with argument: from the command line"
+  }
+ },
+ "/spring/boot/actuator/health-endpoint": {
+  "def": "Actuator adds ready-made operational endpoints to your app. `/actuator/health` reports whether the application is up, and monitoring systems and orchestrators call it. Only the endpoints you list in `management.endpoints.web.exposure.include` are exposed.",
+  "example": {
+   "title": "Calling /actuator/health on a running app",
+   "lang": "java",
+   "code": "import java.net.URI;\nimport java.net.http.HttpClient;\nimport java.net.http.HttpRequest;\nimport java.net.http.HttpResponse;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        System.setProperty(\"server.port\", \"0\");\n        System.setProperty(\"management.endpoints.web.exposure.include\", \"health\");     // expose only health\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n            HttpResponse<String> response = HttpClient.newHttpClient().send(\n                    HttpRequest.newBuilder(URI.create(\"http://localhost:\" + port + \"/actuator/health\")).build(),\n                    HttpResponse.BodyHandlers.ofString());\n            System.out.println(response.statusCode() + \" \" + response.body());\n        }\n    }\n}\n\n// Output:\n// 200 {\"status\":\"UP\"}"
+  }
+ },
+ "/spring/boot/actuator/liveness-and-readiness": {
+  "def": "Kubernetes asks two questions. Liveness: is the process stuck and in need of a restart? Readiness: can it take traffic right now? Boot answers both at `/actuator/health/liveness` and `/actuator/health/readiness`. Keep liveness simple, so a slow database never causes restarts.",
+  "example": {
+   "title": "The two probe endpoints",
+   "lang": "java",
+   "code": "import java.net.URI;\nimport java.net.http.HttpClient;\nimport java.net.http.HttpRequest;\nimport java.net.http.HttpResponse;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.context.ConfigurableApplicationContext;\n\n@SpringBootApplication\nclass Demo {\n    static String get(String port, String path) throws Exception {\n        return HttpClient.newHttpClient().send(\n                HttpRequest.newBuilder(URI.create(\"http://localhost:\" + port + path)).build(),\n                HttpResponse.BodyHandlers.ofString()).body();\n    }\n\n    public static void main(String[] args) throws Exception {\n        System.setProperty(\"server.port\", \"0\");\n        System.setProperty(\"management.endpoints.web.exposure.include\", \"health\");\n        System.setProperty(\"management.endpoint.health.probes.enabled\", \"true\");        // on by default in Kubernetes\n        try (ConfigurableApplicationContext context = SpringApplication.run(Demo.class, args)) {\n            String port = context.getEnvironment().getProperty(\"local.server.port\");\n            System.out.println(\"liveness:  \" + get(port, \"/actuator/health/liveness\"));\n            System.out.println(\"readiness: \" + get(port, \"/actuator/health/readiness\"));\n        }\n    }\n}\n\n// Output:\n// liveness:  {\"status\":\"UP\"}\n// readiness: {\"status\":\"UP\"}"
+  }
+ },
+ "/spring/boot/actuator/custom-health-indicator": {
+  "def": "A health indicator is a bean that reports the health of one dependency, such as a payment gateway. Return `Health.up()` or `Health.down()` with details, and Actuator adds it to `/actuator/health` automatically.",
+  "example": {
+   "title": "Reporting the health of a dependency",
+   "lang": "java",
+   "code": "import org.springframework.boot.actuate.health.Health;\nimport org.springframework.boot.actuate.health.HealthIndicator;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.stereotype.Component;\n\n@Component\nclass PaymentGatewayHealth implements HealthIndicator {          // shows up as \"paymentGateway\" in the health report\n    boolean reachable = true;\n\n    @Override\n    public Health health() {\n        return reachable\n                ? Health.up().withDetail(\"latencyMs\", 42).build()\n                : Health.down().withDetail(\"error\", \"connection refused\").build();\n    }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args)) {\n            PaymentGatewayHealth gateway = context.getBean(PaymentGatewayHealth.class);\n            System.out.println(gateway.health());\n            gateway.reachable = false;\n            System.out.println(gateway.health());\n        }\n    }\n}\n\n// Output:\n// UP {latencyMs=42}\n// DOWN {error=connection refused}"
+  }
+ },
+ "/spring/boot/actuator/micrometer-metrics": {
+  "def": "Micrometer is the metrics library behind Actuator. You inject a `MeterRegistry` and record counters (how many), timers (how long) and gauges (current value). Monitoring tools such as Prometheus then collect them.",
+  "example": {
+   "title": "Count orders and time a task",
+   "lang": "java",
+   "code": "import io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.Timer;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args)) {\n            MeterRegistry registry = context.getBean(MeterRegistry.class);\n\n            registry.counter(\"orders.placed\", \"channel\", \"web\").increment();          // a counter with a tag\n            registry.counter(\"orders.placed\", \"channel\", \"web\").increment();\n\n            Timer timer = registry.timer(\"report.duration\");\n            timer.record(() -> { try { Thread.sleep(20); } catch (InterruptedException ignored) { } });\n\n            System.out.println(\"orders: \" + registry.get(\"orders.placed\").tag(\"channel\", \"web\").counter().count());\n            System.out.println(\"timer calls: \" + timer.count());\n        }\n    }\n}\n\n// Output:\n// orders: 2.0\n// timer calls: 1"
+  }
+ },
+ "/spring/boot/actuator/exposing-endpoints": {
+  "def": "By default only `health` is exposed over the web. Some endpoints reveal sensitive details, such as environment values and heap dumps. Expose only what you need, secure the rest, and consider a separate management port that is not reachable from the internet.",
+  "example": {
+   "title": "A cautious Actuator configuration",
+   "lang": "yaml",
+   "code": "# application.yml\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health, info, metrics, prometheus     # never \"*\" on a public port\n  endpoint:\n    health:\n      show-details: when-authorized                    # hide details from anonymous callers\n      probes:\n        enabled: true\n  server:\n    port: 9090                                          # serve Actuator on a private port"
+  }
+ },
+ "/spring/boot/validation/validation-annotations": {
+  "def": "Bean Validation lets you declare rules on fields with annotations such as `@NotBlank`, `@Email`, `@Size` and `@Min`. A validator checks an object against them and returns a list of violations.",
+  "example": {
+   "title": "Declaring rules and checking an object",
+   "lang": "java",
+   "code": "import jakarta.validation.Validation;\nimport jakarta.validation.Validator;\nimport jakarta.validation.constraints.Email;\nimport jakarta.validation.constraints.Min;\nimport jakarta.validation.constraints.NotBlank;\nimport jakarta.validation.constraints.Size;\n\nrecord SignUp(\n        @NotBlank String name,\n        @Email String email,\n        @Size(min = 8, message = \"must have at least 8 characters\") String password,\n        @Min(18) int age) { }\n\nclass Demo {\n    public static void main(String[] args) {\n        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();\n\n        SignUp bad = new SignUp(\"\", \"not-an-email\", \"short\", 15);\n        validator.validate(bad).stream()\n                .map(v -> v.getPropertyPath() + \" \" + v.getMessage())\n                .sorted()\n                .forEach(System.out::println);\n\n        System.out.println(\"violations for a good object: \" + validator.validate(new SignUp(\"Asha\", \"asha@example.com\", \"longenough\", 30)).size());\n    }\n}\n\n// Output:\n// age must be greater than or equal to 18\n// email must be a well-formed email address\n// name must not be blank\n// password must have at least 8 characters\n// violations for a good object: 0"
+  }
+ },
+ "/spring/boot/validation/valid-request-body": {
+  "def": "Add `@Valid` to a `@RequestBody` parameter and Spring checks the rules before your method runs. If a rule fails, the method is not called and Spring answers with `400 Bad Request`.",
+  "example": {
+   "title": "An invalid request is rejected with 400",
+   "lang": "java",
+   "code": "import jakarta.validation.Valid;\nimport jakarta.validation.constraints.Min;\nimport jakarta.validation.constraints.NotBlank;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RequestBody;\nimport org.springframework.web.bind.annotation.RestController;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\n\nrecord NewOrder(@NotBlank String item, @Min(1) int quantity) { }\n\n@RestController\nclass OrderController {\n    @PostMapping(\"/orders\")\n    String create(@Valid @RequestBody NewOrder order) {            // @Valid triggers the checks\n        return \"created \" + order.quantity() + \" x \" + order.item();\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new OrderController()).build();\n\n        var ok = mvc.perform(post(\"/orders\").contentType(MediaType.APPLICATION_JSON).content(\"{\\\"item\\\":\\\"pen\\\",\\\"quantity\\\":2}\")).andReturn();\n        System.out.println(ok.getResponse().getStatus() + \" \" + ok.getResponse().getContentAsString());\n\n        var bad = mvc.perform(post(\"/orders\").contentType(MediaType.APPLICATION_JSON).content(\"{\\\"item\\\":\\\"\\\",\\\"quantity\\\":0}\")).andReturn();\n        System.out.println(bad.getResponse().getStatus());\n    }\n}\n\n// Output:\n// 200 created 2 x pen\n// 400"
+  }
+ },
+ "/spring/boot/validation/custom-constraint": {
+  "def": "When no built-in annotation fits, write your own: an annotation plus a `ConstraintValidator` class with the check. Then you can reuse the rule on any field, with a clear message.",
+  "example": {
+   "title": "A @StrongPassword rule",
+   "lang": "java",
+   "code": "import jakarta.validation.Constraint;\nimport jakarta.validation.ConstraintValidator;\nimport jakarta.validation.ConstraintValidatorContext;\nimport jakarta.validation.Payload;\nimport jakarta.validation.Validation;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.annotation.ElementType;\n\n@Constraint(validatedBy = Demo.StrongPasswordValidator.class)\n@Target(ElementType.FIELD)\n@Retention(RetentionPolicy.RUNTIME)\n@interface StrongPassword {\n    String message() default \"needs a digit and an upper-case letter\";\n    Class<?>[] groups() default {};\n    Class<? extends Payload>[] payload() default {};\n}\n\nclass Account {\n    @StrongPassword String password;\n    Account(String password) { this.password = password; }\n}\n\npublic class Demo {\n    public static class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {\n        @Override\n        public boolean isValid(String value, ConstraintValidatorContext context) {\n            return value != null && value.chars().anyMatch(Character::isDigit) && value.chars().anyMatch(Character::isUpperCase);\n        }\n    }\n\n    public static void main(String[] args) {\n        var validator = Validation.buildDefaultValidatorFactory().getValidator();\n        System.out.println(validator.validate(new Account(\"password\")).size() + \" violation for \\\"password\\\"\");\n        System.out.println(validator.validate(new Account(\"Passw0rd\")).size() + \" violations for \\\"Passw0rd\\\"\");\n    }\n}\n\n// Output:\n// 1 violation for \"password\"\n// 0 violations for \"Passw0rd\""
+  }
+ },
+ "/spring/boot/validation/validation-groups": {
+  "def": "Validation groups let the same class have different rules in different situations. For example an `id` must be empty when creating a record, but required when updating it. You name the group you want when you validate.",
+  "example": {
+   "title": "One class, two rule sets",
+   "lang": "java",
+   "code": "import jakarta.validation.Validation;\nimport jakarta.validation.constraints.NotBlank;\nimport jakarta.validation.constraints.Null;\n\ninterface OnCreate { }\ninterface OnUpdate { }\n\nclass Customer {\n    @Null(groups = OnCreate.class)                      // must not be set when creating\n    @NotBlank(groups = OnUpdate.class)                  // must be set when updating\n    String id;\n\n    @NotBlank(groups = {OnCreate.class, OnUpdate.class})\n    String name;\n\n    Customer(String id, String name) { this.id = id; this.name = name; }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        var validator = Validation.buildDefaultValidatorFactory().getValidator();\n\n        System.out.println(\"create without id: \" + validator.validate(new Customer(null, \"Asha\"), OnCreate.class).size() + \" violations\");\n        System.out.println(\"create with an id: \" + validator.validate(new Customer(\"c1\", \"Asha\"), OnCreate.class).size() + \" violation\");\n        System.out.println(\"update without id: \" + validator.validate(new Customer(null, \"Asha\"), OnUpdate.class).size() + \" violation\");\n    }\n}\n\n// Output:\n// create without id: 0 violations\n// create with an id: 1 violation\n// update without id: 1 violation"
+  }
+ },
+ "/spring/boot/validation/validating-parameters": {
+  "def": "To validate simple parameters (a `@PathVariable`, a `@RequestParam` or a service method argument), put `@Validated` on the class and the constraints on the parameters. A broken rule throws a `ConstraintViolationException`.",
+  "example": {
+   "title": "A service that rejects bad arguments",
+   "lang": "java",
+   "code": "import jakarta.validation.ConstraintViolationException;\nimport jakarta.validation.constraints.Min;\nimport jakarta.validation.constraints.NotBlank;\nimport org.springframework.boot.WebApplicationType;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.context.ConfigurableApplicationContext;\nimport org.springframework.stereotype.Service;\nimport org.springframework.validation.annotation.Validated;\n\n@Service\n@Validated                                                       // turns on checks for the method parameters\nclass ProductService {\n    String find(@NotBlank String sku, @Min(1) int quantity) { return sku + \" x \" + quantity; }\n}\n\n@SpringBootApplication\nclass Demo {\n    public static void main(String[] args) {\n        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(Demo.class).web(WebApplicationType.NONE).run(args)) {\n            ProductService service = context.getBean(ProductService.class);\n            System.out.println(service.find(\"A-100\", 2));\n            try {\n                service.find(\"A-100\", 0);\n            } catch (ConstraintViolationException e) {\n                System.out.println(\"rejected: \" + e.getConstraintViolations().iterator().next().getMessage());\n            }\n        }\n    }\n}\n\n// Output:\n// A-100 x 2\n// rejected: must be greater than or equal to 1"
+  }
+ },
+ "/spring/boot/exception-handling/controlleradvice": {
+  "def": "A `@RestControllerAdvice` class handles exceptions for all controllers in one place. Each `@ExceptionHandler` method turns one kind of exception into an HTTP status and a response body, so controllers stay clean and every error looks the same.",
+  "example": {
+   "title": "Turning a NotFound exception into a 404",
+   "lang": "java",
+   "code": "import org.springframework.http.HttpStatus;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.ExceptionHandler;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.ResponseStatus;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.bind.annotation.RestControllerAdvice;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\n\nclass OrderNotFoundException extends RuntimeException {\n    OrderNotFoundException(int id) { super(\"Order \" + id + \" does not exist\"); }\n}\n\n@RestController\nclass OrderController {\n    @GetMapping(\"/orders/{id}\")\n    String find(@PathVariable int id) { throw new OrderNotFoundException(id); }\n}\n\n@RestControllerAdvice                                              // applies to every controller\nclass ErrorHandler {\n    @ExceptionHandler(OrderNotFoundException.class)\n    @ResponseStatus(HttpStatus.NOT_FOUND)\n    String notFound(OrderNotFoundException e) { return e.getMessage(); }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new OrderController()).setControllerAdvice(new ErrorHandler()).build();\n        var result = mvc.perform(get(\"/orders/42\")).andReturn();\n        System.out.println(result.getResponse().getStatus() + \" \" + result.getResponse().getContentAsString());\n    }\n}\n\n// Output:\n// 404 Order 42 does not exist"
+  }
+ },
+ "/spring/boot/exception-handling/problemdetail": {
+  "def": "`ProblemDetail` (RFC 9457, in Spring 6) is a standard shape for error responses: `type`, `title`, `status`, `detail` and `instance`. Using it means every client sees the same, predictable error format.",
+  "example": {
+   "title": "A standard JSON error body",
+   "lang": "java",
+   "code": "import org.springframework.http.HttpStatus;\nimport org.springframework.http.ProblemDetail;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.ExceptionHandler;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.bind.annotation.RestControllerAdvice;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\n\nclass OutOfStockException extends RuntimeException {\n    OutOfStockException(String item) { super(item + \" is out of stock\"); }\n}\n\n@RestController\nclass CartController {\n    @GetMapping(\"/checkout\")\n    String checkout() { throw new OutOfStockException(\"Blue pen\"); }\n}\n\n@RestControllerAdvice\nclass ErrorHandler {\n    @ExceptionHandler(OutOfStockException.class)\n    ProblemDetail outOfStock(OutOfStockException e) {\n        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());\n        problem.setTitle(\"Out of stock\");\n        return problem;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new CartController()).setControllerAdvice(new ErrorHandler()).build();\n        var result = mvc.perform(get(\"/checkout\")).andReturn();\n        System.out.println(result.getResponse().getStatus());\n        System.out.println(result.getResponse().getContentAsString());\n    }\n}"
+  }
+ },
+ "/spring/boot/exception-handling/responsestatusexception": {
+  "def": "For a quick one-off error you can throw `ResponseStatusException` with a status and a reason from the controller. Spring turns it into that response, without writing a handler or a custom exception class.",
+  "example": {
+   "title": "Throwing a status from a controller",
+   "lang": "java",
+   "code": "import org.springframework.http.HttpStatus;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.server.ResponseStatusException;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\n\n@RestController\nclass UserController {\n    @GetMapping(\"/users/{id}\")\n    String find(@PathVariable int id) {\n        if (id != 1) throw new ResponseStatusException(HttpStatus.NOT_FOUND, \"no such user\");\n        return \"Asha\";\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new UserController()).build();\n        System.out.println(mvc.perform(get(\"/users/1\")).andReturn().getResponse().getStatus());\n        System.out.println(mvc.perform(get(\"/users/9\")).andReturn().getResponse().getStatus());\n    }\n}\n\n// Output:\n// 200\n// 404"
+  }
  }
 }

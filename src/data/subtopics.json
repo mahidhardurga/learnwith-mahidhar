@@ -343,5 +343,67 @@
    "transactional-event-listener",
    "built-in-events"
   ]
+ },
+ "spring/boot/overview": {
+  "label": "Spring Boot overview",
+  "subs": [
+   "springbootapplication",
+   "embedded-web-server",
+   "command-line-arguments"
+  ]
+ },
+ "spring/boot/starters": {
+  "label": "Starters",
+  "subs": [
+   "starter-dependencies",
+   "boot-bom-and-versions",
+   "exclude-transitive-dependency"
+  ]
+ },
+ "spring/boot/auto-configuration": {
+  "label": "Auto-configuration",
+  "subs": [
+   "conditional-annotations",
+   "conditions-report",
+   "custom-auto-configuration",
+   "excluding-auto-configuration"
+  ]
+ },
+ "spring/boot/configuration": {
+  "label": "Externalized configuration",
+  "subs": [
+   "application-yaml",
+   "configurationproperties",
+   "profile-specific-config",
+   "property-precedence"
+  ]
+ },
+ "spring/boot/actuator": {
+  "label": "Actuator",
+  "subs": [
+   "health-endpoint",
+   "liveness-and-readiness",
+   "custom-health-indicator",
+   "micrometer-metrics",
+   "exposing-endpoints"
+  ]
+ },
+ "spring/boot/validation": {
+  "label": "Validation",
+  "subs": [
+   "validation-annotations",
+   "valid-request-body",
+   "custom-constraint",
+   "validation-groups",
+   "validating-parameters"
+  ]
+ },
+ "spring/boot/exception-handling": {
+  "label": "REST exception handling",
+  "subs": [
+   "controlleradvice",
+   "problemdetail",
+   "responsestatusexception"
+  ]
  }
 }
