@@ -88,7 +88,7 @@ Limits: records are **shallowly** immutable (a `List` component can still be mut
 
 ### Sealed classes and interfaces (17)
 
-Restrict which types may extend or implement a type, enabling exhaustive pattern matching (see [OOP and design](oop-and-design.md)).
+Restrict which types may extend or implement a type, enabling exhaustive pattern matching (see [OOP](oop-and-design.md)).
 
 ### Pattern matching (16 → 21)
 

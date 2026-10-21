@@ -16,7 +16,7 @@
    "Prefer immutable value objects at module edges so they are safe to share and cache",
    "A deep inheritance tree is a design smell in reviews: ask what varies and extract it"
   ],
-  "def": "Object-oriented design means building a program from objects. Each object holds some data and the actions that work on that data, and hides the details inside. You get flexible code by depending on small, stable contracts (interfaces) instead of on concrete classes."
+  "def": "Object-oriented programming (OOP) means building a program from objects. Each object holds some data and the actions that work on that data, and hides the details inside. You get flexible code by depending on small, stable contracts (interfaces) instead of on concrete classes."
  },
  "/java/core-java/collections-framework": {
   "why": "Without it, every project would write its own lists and hash tables with different method names and bugs. A shared framework gives everyone the same containers and tools such as sorting.",

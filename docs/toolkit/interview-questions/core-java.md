@@ -24,7 +24,7 @@ Immutability enables the string pool, cached hash codes, thread safety and safe 
 `final`: a constant variable, a method that cannot be overridden or a class that cannot be extended. `finally`: a block that runs after try/catch for cleanup. `finalize()`: a deprecated, unreliable pre-GC hook; do not use it (use try-with-resources or `Cleaner`).
 
 **6. The four pillars of OOP?**
-**Encapsulation** (hide state behind methods), **abstraction** (expose what, hide how), **inheritance** (reuse and specialise through `extends`), **polymorphism** (one interface, many behaviours via overriding/overloading). ([OOP and design](../../java/core-java/oop-and-design.md))
+**Encapsulation** (hide state behind methods), **abstraction** (expose what, hide how), **inheritance** (reuse and specialise through `extends`), **polymorphism** (one interface, many behaviours via overriding/overloading). ([OOP](../../java/core-java/oop-and-design.md))
 
 **7. Abstract class vs interface?**
 Abstract classes can hold state and constructors and allow one superclass; interfaces define contracts, allow multiple implementation and (since Java 8) `default`/`static` methods. Prefer interfaces for capabilities, abstract classes for shared state/template code.
