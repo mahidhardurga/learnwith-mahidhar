@@ -479,5 +479,51 @@
    "retry-on-conflict",
    "pessimistic-locking"
   ]
+ },
+ "spring/security/security-architecture": {
+  "label": "Security architecture",
+  "subs": [
+   "filter-chain",
+   "authorize-requests",
+   "password-encoding",
+   "user-details-service",
+   "csrf-and-cors"
+  ]
+ },
+ "spring/security/jwt": {
+  "label": "JWT",
+  "subs": [
+   "jwt-structure",
+   "signing-and-verifying",
+   "jwt-encoder-decoder",
+   "resource-server-jwt"
+  ]
+ },
+ "spring/security/oauth2-oidc": {
+  "label": "OAuth2 and OIDC",
+  "subs": [
+   "authorization-code-flow",
+   "pkce",
+   "scopes-to-authorities",
+   "resource-server-issuer"
+  ]
+ },
+ "spring/security/method-security": {
+  "label": "Method security",
+  "subs": [
+   "preauthorize-roles",
+   "preauthorize-expressions",
+   "postauthorize",
+   "postfilter"
+  ]
+ },
+ "spring/security/common-vulnerabilities": {
+  "label": "Common vulnerabilities",
+  "subs": [
+   "sql-injection",
+   "xss-output-encoding",
+   "idor-authorization-check",
+   "security-headers"
+  ]
  }
 }
