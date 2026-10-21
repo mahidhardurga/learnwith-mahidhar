@@ -857,5 +857,151 @@
    "git-everyday-commands",
    "jvm-flags"
   ]
+ },
+ "ai/foundations/what-is-an-llm": {
+  "label": "What is an LLM",
+  "subs": [
+   "next-token-prediction",
+   "temperature-and-softmax",
+   "stateless-conversations"
+  ]
+ },
+ "ai/foundations/tokens-and-context-window": {
+  "label": "Tokens and the context window",
+  "subs": [
+   "estimating-tokens",
+   "fitting-history",
+   "reserving-output-tokens"
+  ]
+ },
+ "ai/foundations/credits-pricing-cost": {
+  "label": "Credits, pricing and cost",
+  "subs": [
+   "cost-of-one-request",
+   "monthly-projection",
+   "cost-levers"
+  ]
+ },
+ "ai/foundations/fine-tuning-and-model-choice": {
+  "label": "Fine-tuning and model choice",
+  "subs": [
+   "training-data-format",
+   "choose-model-by-eval",
+   "prompt-rag-or-fine-tune"
+  ]
+ },
+ "ai/prompting/prompt-engineering": {
+  "label": "Prompt engineering",
+  "subs": [
+   "structured-prompt",
+   "few-shot-examples",
+   "delimiters-for-input",
+   "prompt-versioning"
+  ]
+ },
+ "ai/prompting/context-engineering": {
+  "label": "Context engineering",
+  "subs": [
+   "context-assembly",
+   "memory-summarization",
+   "relevant-tool-selection"
+  ]
+ },
+ "ai/prompting/structured-output-and-tool-calling": {
+  "label": "Structured output and tool calling",
+  "subs": [
+   "json-schema-output",
+   "parse-and-validate",
+   "tool-call-loop",
+   "retry-on-invalid-output"
+  ]
+ },
+ "ai/retrieval/embeddings-vector-databases": {
+  "label": "Embeddings and vector databases",
+  "subs": [
+   "normalized-vectors",
+   "nearest-neighbour-search",
+   "metadata-filtering"
+  ]
+ },
+ "ai/retrieval/rag": {
+  "label": "RAG",
+  "subs": [
+   "mini-rag-pipeline",
+   "hybrid-search",
+   "reranking",
+   "retrieval-recall"
+  ]
+ },
+ "ai/agents/ai-agents": {
+  "label": "AI agents",
+  "subs": [
+   "agent-loop",
+   "step-limit",
+   "tool-error-handling",
+   "human-approval"
+  ]
+ },
+ "ai/agents/model-context-protocol": {
+  "label": "Model Context Protocol",
+  "subs": [
+   "initialize-handshake",
+   "listing-tools",
+   "calling-a-tool",
+   "connecting-a-server"
+  ]
+ },
+ "ai/agents/multi-agent-patterns": {
+  "label": "Multi-agent patterns",
+  "subs": [
+   "orchestrator-workers",
+   "pipeline-handoff",
+   "reviewer-loop"
+  ]
+ },
+ "ai/safety/guardrails-and-safety": {
+  "label": "Guardrails",
+  "subs": [
+   "input-checks",
+   "output-validation",
+   "pii-redaction",
+   "action-limits"
+  ]
+ },
+ "ai/safety/prompt-injection-and-security": {
+  "label": "Prompt injection",
+  "subs": [
+   "direct-and-indirect-injection",
+   "untrusted-content-boundary",
+   "least-privilege-tools",
+   "stripping-exfiltration-links"
+  ]
+ },
+ "ai/production/evals-and-testing": {
+  "label": "Evals and testing",
+  "subs": [
+   "eval-dataset-and-scoring",
+   "llm-as-judge",
+   "regression-gate"
+  ]
+ },
+ "ai/production/observability-latency-caching": {
+  "label": "Observability, latency and caching",
+  "subs": [
+   "call-log-record",
+   "latency-percentiles",
+   "exact-match-cache",
+   "streaming-first-token"
+  ]
+ },
+ "ai/production/spring-ai-and-langchain4j": {
+  "label": "Spring AI and LangChain4j",
+  "subs": [
+   "spring-ai-chat-client",
+   "spring-ai-structured-output",
+   "spring-ai-tool-calling",
+   "spring-ai-chat-memory",
+   "langchain4j-ai-service"
+  ]
  }
 }

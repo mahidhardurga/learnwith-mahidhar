@@ -41,7 +41,7 @@ const ids = (folder: string, names: string[]): string[] => names.map((n) => `${f
 
 /**
  * Sections that are grouped by hand. The files stay where they are, so URLs do not change.
- * Sections not listed here (AI) use their folders as groups.
+ * A section not listed here would use its folders as groups.
  */
 const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
   java: [
@@ -71,6 +71,14 @@ const GROUPS: Record<string, {label: string; ids: string[]}[]> = {
     },
     {label: 'Resilience and observability', ids: ['microservices/resilience/resilience4j', 'microservices/observability/observability']},
     {label: 'Data consistency', ids: ids('microservices/data-consistency', ['saga', 'outbox-idempotency', 'cqrs-event-sourcing'])},
+  ],
+  ai: [
+    {label: 'Foundations', ids: ids('ai/foundations', ['what-is-an-llm', 'tokens-and-context-window', 'credits-pricing-cost', 'fine-tuning-and-model-choice'])},
+    {label: 'Prompting', ids: ids('ai/prompting', ['prompt-engineering', 'context-engineering', 'structured-output-and-tool-calling'])},
+    {label: 'Retrieval', ids: ids('ai/retrieval', ['embeddings-vector-databases', 'rag'])},
+    {label: 'Agents', ids: ids('ai/agents', ['ai-agents', 'model-context-protocol', 'multi-agent-patterns'])},
+    {label: 'Safety and security', ids: ids('ai/safety', ['guardrails-and-safety', 'prompt-injection-and-security'])},
+    {label: 'Production', ids: ids('ai/production', ['evals-and-testing', 'observability-latency-caching', 'spring-ai-and-langchain4j'])},
   ],
   databases: [
     {label: 'Relational databases', ids: ids('databases', ['relational-design', 'sql-patterns', 'schema-migrations', 'acid-isolation-mvcc'])},
