@@ -756,5 +756,77 @@
    "canary-release",
    "feature-flags"
   ]
+ },
+ "system-design/approach-and-estimation": {
+  "label": "Approach and estimation",
+  "subs": [
+   "qps-estimate",
+   "storage-estimate",
+   "servers-and-bandwidth",
+   "cache-sizing"
+  ]
+ },
+ "system-design/url-shortener": {
+  "label": "URL shortener",
+  "subs": [
+   "base62-encoding",
+   "hash-collisions",
+   "redirect-status",
+   "lru-cache-hot-links"
+  ]
+ },
+ "system-design/rate-limiter": {
+  "label": "Rate limiter",
+  "subs": [
+   "fixed-window-counter",
+   "sliding-window-log",
+   "per-user-buckets",
+   "redis-atomic-limiter"
+  ]
+ },
+ "system-design/order-processing": {
+  "label": "Order processing",
+  "subs": [
+   "order-state-machine",
+   "idempotent-order-creation",
+   "reservation-expiry",
+   "payment-webhook-deduplication"
+  ]
+ },
+ "system-design/notification-service": {
+  "label": "Notification service",
+  "subs": [
+   "channel-fan-out",
+   "retry-with-backoff",
+   "deduplication-window",
+   "quiet-hours"
+  ]
+ },
+ "system-design/tradeoffs": {
+  "label": "Trade-offs",
+  "subs": [
+   "cap-theorem",
+   "quorum-reads-and-writes",
+   "cache-ttl-staleness",
+   "fan-out-on-write-or-read"
+  ]
+ },
+ "system-design/design-a-rag-chatbot": {
+  "label": "Design a RAG chatbot",
+  "subs": [
+   "chunking-with-overlap",
+   "cosine-similarity",
+   "top-k-retrieval",
+   "prompt-with-citations"
+  ]
+ },
+ "system-design/design-an-ai-agent-platform": {
+  "label": "Design an AI agent platform",
+  "subs": [
+   "run-queue-and-checkpoints",
+   "tool-allow-list",
+   "token-budget-guard",
+   "tenant-quotas"
+  ]
  }
 }

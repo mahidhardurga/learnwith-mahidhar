@@ -4522,5 +4522,261 @@
    "lang": "java",
    "code": "import java.util.Set;\n\nclass FeatureFlags {\n    private final boolean enabledForEveryone;\n    private final Set<String> betaUsers;\n\n    FeatureFlags(boolean enabledForEveryone, Set<String> betaUsers) {\n        this.enabledForEveryone = enabledForEveryone;\n        this.betaUsers = betaUsers;\n    }\n\n    boolean newCheckoutEnabled(String user) { return enabledForEveryone || betaUsers.contains(user); }\n}\n\nclass Demo {\n    static String checkout(FeatureFlags flags, String user) {\n        return flags.newCheckoutEnabled(user) ? \"new checkout\" : \"old checkout\";\n    }\n\n    public static void main(String[] args) {\n        FeatureFlags beta = new FeatureFlags(false, Set.of(\"asha\"));\n        System.out.println(\"asha: \" + checkout(beta, \"asha\"));\n        System.out.println(\"ravi: \" + checkout(beta, \"ravi\"));\n\n        FeatureFlags everyone = new FeatureFlags(true, Set.of());        // the flag is flipped, no new deployment\n        System.out.println(\"ravi after the release: \" + checkout(everyone, \"ravi\"));\n    }\n}\n\n// Output:\n// asha: new checkout\n// ravi: old checkout\n// ravi after the release: new checkout"
   }
+ },
+ "/system-design/approach-and-estimation/qps-estimate": {
+  "def": "Start every design with numbers. Turn daily users into requests per second: users times actions per user, divided by the 86,400 seconds in a day. Then multiply by 2 or 3 for the peak, because traffic is never flat, and design for the peak.",
+  "example": {
+   "title": "From daily users to peak QPS",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        long dailyUsers = 10_000_000L;\n        int readsPerUserPerDay = 20;\n\n        double averageQps = dailyUsers * readsPerUserPerDay / 86_400.0;\n        double peakQps = averageQps * 3;                                    // a common rule of thumb for peak traffic\n\n        System.out.printf(\"average: %.0f requests/second%n\", averageQps);\n        System.out.printf(\"peak:    %.0f requests/second%n\", peakQps);\n    }\n}\n\n// Output:\n// average: 2315 requests/second\n// peak:    6944 requests/second"
+  }
+ },
+ "/system-design/approach-and-estimation/storage-estimate": {
+  "def": "Storage is records per period times the size of a record times the retention time. Rounding is fine: the goal is to know whether you need gigabytes, terabytes or petabytes, because that decides between one database and many.",
+  "example": {
+   "title": "Five years of short links",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        long newLinksPerMonth = 100_000_000L;\n        int bytesPerLink = 500;                                             // code, long URL, owner, timestamps\n        int years = 5;\n\n        long totalLinks = newLinksPerMonth * 12 * years;\n        double terabytes = totalLinks * (double) bytesPerLink / 1e12;\n\n        System.out.println(\"links stored: \" + totalLinks);\n        System.out.printf(\"storage needed: %.1f TB%n\", terabytes);\n    }\n}\n\n// Output:\n// links stored: 6000000000\n// storage needed: 3.0 TB"
+  }
+ },
+ "/system-design/approach-and-estimation/servers-and-bandwidth": {
+  "def": "Divide the peak load by what one server can handle to get the number of servers, then add spare capacity so one failure does not cause an outage. Bandwidth is requests per second times the response size, converted to megabits.",
+  "example": {
+   "title": "How many servers for 15,000 requests per second",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        double peakQps = 15_000;\n        double qpsPerServer = 2_000;                                        // measured with a load test\n        int responseKb = 20;\n\n        int servers = (int) Math.ceil(peakQps / qpsPerServer);\n        int withSpare = servers + Math.max(1, servers / 4);                 // keep spare: one failure must not hurt\n        double megabitsPerSecond = peakQps * responseKb * 8 / 1000;\n\n        System.out.println(\"servers needed: \" + servers + \", with spare capacity: \" + withSpare);\n        System.out.printf(\"outgoing bandwidth at peak: %.0f Mbit/s%n\", megabitsPerSecond);\n    }\n}\n\n// Output:\n// servers needed: 8, with spare capacity: 10\n// outgoing bandwidth at peak: 2400 Mbit/s"
+  }
+ },
+ "/system-design/approach-and-estimation/cache-sizing": {
+  "def": "Usually about 20% of the items get about 80% of the reads. So a cache that holds the hottest 20% of one day of data can serve most requests. Multiply the reads per day by the object size by 20% to estimate the memory.",
+  "example": {
+   "title": "Memory for the hot 20%",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        long readsPerDay = 1_000_000_000L;\n        int bytesPerObject = 500;\n\n        double allDataGb = readsPerDay * (double) bytesPerObject / 1e9;     // if every read hit a different object\n        double cacheGb = allDataGb * 0.20;                                  // keep only the hot 20%\n\n        System.out.printf(\"one day of reads: %.0f GB, cache for the hot 20%%: %.0f GB%n\", allDataGb, cacheGb);\n    }\n}\n\n// Output:\n// one day of reads: 500 GB, cache for the hot 20%: 100 GB"
+  }
+ },
+ "/system-design/url-shortener/base62-encoding": {
+  "def": "A short code is a number written in base 62, using the characters 0-9, a-z and A-Z. Seven characters give 62 to the power of 7, about 3.5 trillion codes. The number can come from a counter or an id generator, and decoding returns it.",
+  "example": {
+   "title": "Turn an id into a short code and back",
+   "lang": "java",
+   "code": "class Demo {\n    static final String ALPHABET = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\n\n    static String encode(long id) {\n        if (id == 0) return \"0\";\n        StringBuilder code = new StringBuilder();\n        while (id > 0) {\n            code.append(ALPHABET.charAt((int) (id % 62)));\n            id /= 62;\n        }\n        return code.reverse().toString();\n    }\n\n    static long decode(String code) {\n        long id = 0;\n        for (char c : code.toCharArray()) id = id * 62 + ALPHABET.indexOf(c);\n        return id;\n    }\n\n    public static void main(String[] args) {\n        for (long id : new long[] {125, 1_000_000_000L, 3_521_614_606_207L}) {\n            String code = encode(id);\n            System.out.println(id + \" -> \" + code + \" -> \" + decode(code));\n        }\n        System.out.println(\"7 characters give \" + (long) Math.pow(62, 7) + \" codes\");\n    }\n}\n\n// Output:\n// 125 -> 21 -> 125\n// 1000000000 -> 15FTGg -> 1000000000\n// 3521614606207 -> ZZZZZZZ -> 3521614606207\n// 7 characters give 3521614606208 codes"
+  }
+ },
+ "/system-design/url-shortener/hash-collisions": {
+  "def": "Another way to make a code is to hash the long URL and keep the first few characters. Shorter codes make collisions likely, where two different URLs get the same code. Then you must check the database and retry, so a counter is often simpler.",
+  "example": {
+   "title": "Collisions when the code is only 4 characters",
+   "lang": "java",
+   "code": "import java.nio.charset.StandardCharsets;\nimport java.security.MessageDigest;\nimport java.util.HashSet;\nimport java.util.Set;\n\nclass Demo {\n    static String code(String url, int length) throws Exception {\n        byte[] digest = MessageDigest.getInstance(\"MD5\").digest(url.getBytes(StandardCharsets.UTF_8));\n        StringBuilder hex = new StringBuilder();\n        for (byte b : digest) hex.append(String.format(\"%02x\", b));\n        return hex.substring(0, length);                                    // keep only the first characters\n    }\n\n    public static void main(String[] args) throws Exception {\n        for (int length : new int[] {4, 8}) {\n            Set<String> seen = new HashSet<>();\n            int collisions = 0;\n            for (int i = 0; i < 20_000; i++) {\n                if (!seen.add(code(\"https://example.com/page/\" + i, length))) collisions++;\n            }\n            System.out.println(length + \" hex characters: \" + collisions + \" collisions in 20000 URLs\");\n        }\n    }\n}\n\n// Output:\n// 4 hex characters: 2777 collisions in 20000 URLs\n// 8 hex characters: 0 collisions in 20000 URLs"
+  }
+ },
+ "/system-design/url-shortener/redirect-status": {
+  "def": "The service answers a short link with a redirect and a `Location` header. A 301 is permanent, so browsers cache it and later clicks skip your server, which saves load but hides clicks from analytics. A 302 is temporary, so every click reaches you.",
+  "example": {
+   "title": "A short link answered with 302",
+   "lang": "java",
+   "code": "import java.net.URI;\nimport java.util.Map;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.setup.MockMvcBuilders;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RestController;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\n\n@RestController\nclass RedirectController {\n    private final Map<String, String> links = Map.of(\"abc123\", \"https://example.com/a/very/long/url\");\n\n    @GetMapping(\"/{code}\")\n    ResponseEntity<Void> follow(@PathVariable String code) {\n        String target = links.get(code);\n        if (target == null) return ResponseEntity.notFound().build();\n        return ResponseEntity.status(302).location(URI.create(target)).build();      // 302: count every click\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) throws Exception {\n        MockMvc mvc = MockMvcBuilders.standaloneSetup(new RedirectController()).build();\n\n        var hit = mvc.perform(get(\"/abc123\")).andReturn().getResponse();\n        System.out.println(hit.getStatus() + \" Location: \" + hit.getHeader(\"Location\"));\n        System.out.println(mvc.perform(get(\"/nope\")).andReturn().getResponse().getStatus());\n    }\n}\n\n// Output:\n// 302 Location: https://example.com/a/very/long/url\n// 404"
+  }
+ },
+ "/system-design/url-shortener/lru-cache-hot-links": {
+  "def": "A few links get most of the clicks, so a cache in front of the database serves most redirects from memory. An LRU (least recently used) cache has a fixed size and drops the entry that has not been used for the longest time when it is full.",
+  "example": {
+   "title": "A cache of three links evicts the oldest",
+   "lang": "java",
+   "code": "import java.util.LinkedHashMap;\nimport java.util.Map;\n\nclass LruCache<K, V> extends LinkedHashMap<K, V> {\n    private final int capacity;\n\n    LruCache(int capacity) {\n        super(16, 0.75f, true);                                             // true = order by last access\n        this.capacity = capacity;\n    }\n\n    @Override\n    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {\n        return size() > capacity;                                           // drop the least recently used entry\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        LruCache<String, String> cache = new LruCache<>(3);\n        cache.put(\"a\", \"https://example.com/1\");\n        cache.put(\"b\", \"https://example.com/2\");\n        cache.put(\"c\", \"https://example.com/3\");\n\n        cache.get(\"a\");                                                     // a is used again, so b is now the oldest\n        cache.put(\"d\", \"https://example.com/4\");                            // the cache is full: b is evicted\n\n        System.out.println(\"cached codes: \" + cache.keySet());\n    }\n}\n\n// Output:\n// cached codes: [c, a, d]"
+  }
+ },
+ "/system-design/rate-limiter/fixed-window-counter": {
+  "def": "A fixed window counter counts requests in each time window, such as one second, and rejects requests over the limit. It is simple and cheap, but a client can send the limit at the end of one window and again at the start of the next, doubling the burst.",
+  "example": {
+   "title": "Six requests in 200 ms with a limit of three per second",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass FixedWindowLimiter {\n    private final int limit;\n    private final long windowMillis;\n    private final Map<Long, Integer> counts = new HashMap<>();\n\n    FixedWindowLimiter(int limit, long windowMillis) { this.limit = limit; this.windowMillis = windowMillis; }\n\n    boolean allow(long nowMillis) {\n        long window = nowMillis / windowMillis;                             // which window this moment belongs to\n        int used = counts.merge(window, 1, Integer::sum);\n        return used <= limit;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        FixedWindowLimiter limiter = new FixedWindowLimiter(3, 1000);\n        long[] times = {900, 920, 940, 1000, 1020, 1040};                   // 3 at the end of one window, 3 at the start of the next\n\n        int allowed = 0;\n        for (long time : times) if (limiter.allow(time)) allowed++;\n        System.out.println(allowed + \" of \" + times.length + \" allowed within 140 ms (the limit is 3 per second)\");\n    }\n}\n\n// Output:\n// 6 of 6 allowed within 140 ms (the limit is 3 per second)"
+  }
+ },
+ "/system-design/rate-limiter/sliding-window-log": {
+  "def": "A sliding window log keeps the timestamp of each recent request and counts those from the last N seconds. It is exact and has no boundary problem, but it needs memory for every request in the window.",
+  "example": {
+   "title": "The same six requests, now limited correctly",
+   "lang": "java",
+   "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\nclass SlidingWindowLimiter {\n    private final int limit;\n    private final long windowMillis;\n    private final Deque<Long> log = new ArrayDeque<>();\n\n    SlidingWindowLimiter(int limit, long windowMillis) { this.limit = limit; this.windowMillis = windowMillis; }\n\n    boolean allow(long nowMillis) {\n        while (!log.isEmpty() && log.peekFirst() <= nowMillis - windowMillis) log.pollFirst();   // forget old requests\n        if (log.size() >= limit) return false;\n        log.addLast(nowMillis);\n        return true;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        SlidingWindowLimiter limiter = new SlidingWindowLimiter(3, 1000);\n        long[] times = {900, 920, 940, 1000, 1020, 1040};\n\n        int allowed = 0;\n        for (long time : times) if (limiter.allow(time)) allowed++;\n        System.out.println(allowed + \" of \" + times.length + \" allowed (the limit holds in every 1-second window)\");\n    }\n}\n\n// Output:\n// 3 of 6 allowed (the limit holds in every 1-second window)"
+  }
+ },
+ "/system-design/rate-limiter/per-user-buckets": {
+  "def": "Limits are usually per client, such as per API key or user id, so one noisy client cannot use up the share of everybody else. Keep a separate counter or bucket for each key, and give each key a different limit when you have paid plans.",
+  "example": {
+   "title": "Two users with their own buckets",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static final Map<String, Integer> remaining = new HashMap<>();\n    static final Map<String, Integer> planLimit = Map.of(\"free-user\", 2, \"paid-user\", 5);\n\n    static boolean allow(String user) {\n        int left = remaining.computeIfAbsent(user, planLimit::get);          // each key starts with its own allowance\n        if (left == 0) return false;\n        remaining.put(user, left - 1);\n        return true;\n    }\n\n    public static void main(String[] args) {\n        for (String user : new String[] {\"free-user\", \"paid-user\"}) {\n            int allowed = 0;\n            for (int request = 0; request < 6; request++) if (allow(user)) allowed++;\n            System.out.println(user + \": \" + allowed + \" of 6 requests allowed\");\n        }\n    }\n}\n\n// Output:\n// free-user: 2 of 6 requests allowed\n// paid-user: 5 of 6 requests allowed"
+  }
+ },
+ "/system-design/rate-limiter/redis-atomic-limiter": {
+  "def": "With many app servers the counters must be shared, so they live in Redis. The check and the increment must happen as one atomic step, or two servers can both see \"one left\". A short Lua script runs atomically inside Redis.",
+  "example": {
+   "title": "An atomic counter script",
+   "lang": "lua",
+   "code": "-- KEYS[1] = the counter key, for example  rate:user-42:2026-01-15T10:00\n-- ARGV[1] = window length in seconds, ARGV[2] = the limit\nlocal current = redis.call('INCR', KEYS[1])\nif current == 1 then\n  redis.call('EXPIRE', KEYS[1], ARGV[1])       -- the first request starts the window\nend\nif current > tonumber(ARGV[2]) then\n  return 0                                      -- over the limit: reject\nend\nreturn 1                                        -- allowed\n\n-- called from redis-cli:\n--   EVAL \"<the script>\" 1 rate:user-42:2026-01-15T10:00 60 100"
+  }
+ },
+ "/system-design/order-processing/order-state-machine": {
+  "def": "An order moves through a fixed set of states: created, paid, shipped, delivered, or cancelled. Writing down which moves are allowed, and refusing the rest, prevents impossible situations such as shipping an order that was never paid.",
+  "example": {
+   "title": "Only legal transitions are accepted",
+   "lang": "java",
+   "code": "import java.util.EnumSet;\nimport java.util.Map;\nimport java.util.Set;\n\nenum Status { CREATED, PAID, SHIPPED, DELIVERED, CANCELLED }\n\nclass Order {\n    private static final Map<Status, Set<Status>> ALLOWED = Map.of(\n            Status.CREATED, EnumSet.of(Status.PAID, Status.CANCELLED),\n            Status.PAID, EnumSet.of(Status.SHIPPED, Status.CANCELLED),\n            Status.SHIPPED, EnumSet.of(Status.DELIVERED),\n            Status.DELIVERED, EnumSet.noneOf(Status.class),\n            Status.CANCELLED, EnumSet.noneOf(Status.class));\n\n    Status status = Status.CREATED;\n\n    void moveTo(Status next) {\n        if (!ALLOWED.get(status).contains(next)) {\n            throw new IllegalStateException(\"cannot go from \" + status + \" to \" + next);\n        }\n        status = next;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Order order = new Order();\n        order.moveTo(Status.PAID);\n        System.out.println(\"now \" + order.status);\n        try {\n            order.moveTo(Status.DELIVERED);                                  // skipping SHIPPED\n        } catch (IllegalStateException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}\n\n// Output:\n// now PAID\n// cannot go from PAID to DELIVERED"
+  }
+ },
+ "/system-design/order-processing/idempotent-order-creation": {
+  "def": "A user double-clicks, or a mobile app retries after a timeout, and two identical requests arrive. The client sends a unique request id, and the server returns the order it already created for that id instead of creating a second one.",
+  "example": {
+   "title": "The same request id never creates two orders",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass OrderService {\n    private final Map<String, Integer> orderByRequestId = new HashMap<>();   // a unique index on request_id in a real database\n    private int nextOrderId = 1000;\n\n    int create(String requestId) {\n        return orderByRequestId.computeIfAbsent(requestId, id -> nextOrderId++);\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        OrderService service = new OrderService();\n        System.out.println(\"first click:  order \" + service.create(\"req-77\"));\n        System.out.println(\"double click: order \" + service.create(\"req-77\"));\n        System.out.println(\"new purchase: order \" + service.create(\"req-78\"));\n    }\n}\n\n// Output:\n// first click:  order 1000\n// double click: order 1000\n// new purchase: order 1001"
+  }
+ },
+ "/system-design/order-processing/reservation-expiry": {
+  "def": "When a customer starts checkout, reserve the stock so it cannot be sold twice. A reservation must expire, or abandoned carts hold stock forever. A background job releases reservations that were not paid within the time limit.",
+  "example": {
+   "title": "Unpaid reservations return to stock after 15 minutes",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.List;\n\nrecord Reservation(String orderId, int quantity, long expiresAtMinute) { }\n\nclass Inventory {\n    int available = 10;\n    private final List<Reservation> reservations = new ArrayList<>();\n\n    boolean reserve(String orderId, int quantity, long nowMinute) {\n        if (available < quantity) return false;\n        available -= quantity;\n        reservations.add(new Reservation(orderId, quantity, nowMinute + 15));\n        return true;\n    }\n\n    void releaseExpired(long nowMinute) {                                    // run every minute by a scheduled job\n        reservations.removeIf(r -> {\n            boolean expired = r.expiresAtMinute() <= nowMinute;\n            if (expired) available += r.quantity();\n            return expired;\n        });\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Inventory inventory = new Inventory();\n        inventory.reserve(\"order-1\", 4, 0);\n        System.out.println(\"minute 0, after reserving 4: \" + inventory.available + \" available\");\n\n        inventory.releaseExpired(10);\n        System.out.println(\"minute 10, still reserved:   \" + inventory.available + \" available\");\n\n        inventory.releaseExpired(15);\n        System.out.println(\"minute 15, payment never came: \" + inventory.available + \" available\");\n    }\n}\n\n// Output:\n// minute 0, after reserving 4: 6 available\n// minute 10, still reserved:   6 available\n// minute 15, payment never came: 10 available"
+  }
+ },
+ "/system-design/order-processing/payment-webhook-deduplication": {
+  "def": "Payment providers tell you about payments by calling your webhook, and they retry until you answer, so the same event can arrive several times and out of order. Store the event ids you have handled and ignore repeats, and never let an old event move an order backwards.",
+  "example": {
+   "title": "A repeated event is ignored",
+   "lang": "java",
+   "code": "import java.util.HashSet;\nimport java.util.Set;\n\nclass WebhookHandler {\n    private final Set<String> handledEvents = new HashSet<>();\n    String orderStatus = \"CREATED\";\n\n    void handle(String eventId, String type) {\n        if (!handledEvents.add(eventId)) {\n            System.out.println(eventId + \": duplicate, ignored\");\n            return;\n        }\n        if (type.equals(\"payment.succeeded\")) orderStatus = \"PAID\";\n        System.out.println(eventId + \": handled \" + type + \", order is \" + orderStatus);\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        WebhookHandler handler = new WebhookHandler();\n        handler.handle(\"evt_1\", \"payment.succeeded\");\n        handler.handle(\"evt_1\", \"payment.succeeded\");                        // the provider retried after a timeout\n    }\n}\n\n// Output:\n// evt_1: handled payment.succeeded, order is PAID\n// evt_1: duplicate, ignored"
+  }
+ },
+ "/system-design/notification-service/channel-fan-out": {
+  "def": "A caller asks the service to notify a user, and the service decides how. It reads the preferences of the user, then puts one message on a separate queue for each chosen channel: email, SMS or push. Each channel scales and fails independently.",
+  "example": {
+   "title": "One request, one queue per channel",
+   "lang": "java",
+   "code": "import java.util.List;\nimport java.util.Map;\nimport java.util.TreeMap;\n\nclass Demo {\n    static final Map<String, List<String>> preferences = Map.of(\n            \"asha\", List.of(\"email\", \"push\"),\n            \"ravi\", List.of(\"sms\"));\n    static final Map<String, List<String>> queues = new TreeMap<>();                  // channel -> messages waiting\n\n    static void notifyUser(String user, String message) {\n        for (String channel : preferences.get(user)) {\n            queues.computeIfAbsent(channel, c -> new java.util.ArrayList<>()).add(user + \": \" + message);\n        }\n    }\n\n    public static void main(String[] args) {\n        notifyUser(\"asha\", \"your order shipped\");\n        notifyUser(\"ravi\", \"your order shipped\");\n        queues.forEach((channel, messages) -> System.out.println(channel + \" queue -> \" + messages));\n    }\n}\n\n// Output:\n// email queue -> [asha: your order shipped]\n// push queue -> [asha: your order shipped]\n// sms queue -> [ravi: your order shipped]"
+  }
+ },
+ "/system-design/notification-service/retry-with-backoff": {
+  "def": "Providers fail for a moment, so the service retries. Waiting a growing time between tries (1s, 2s, 4s, ...) with a cap gives the provider room to recover. A random jitter stops thousands of failed messages from retrying at the same instant.",
+  "example": {
+   "title": "Delays that grow, with jitter",
+   "lang": "java",
+   "code": "import java.util.Random;\n\nclass Demo {\n    static long delayMillis(int attempt, Random random) {\n        long exponential = Math.min(30_000, 1000L * (1L << attempt));                 // 1s, 2s, 4s, ... capped at 30s\n        return exponential / 2 + random.nextInt((int) (exponential / 2) + 1);          // jitter: somewhere in the upper half\n    }\n\n    public static void main(String[] args) {\n        Random random = new Random(7);                                                  // fixed seed, so the output is stable\n        for (int attempt = 0; attempt < 6; attempt++) {\n            System.out.println(\"retry \" + (attempt + 1) + \" after \" + delayMillis(attempt, random) + \" ms\");\n        }\n    }\n}\n\n// Output:\n// retry 1 after 672 ms\n// retry 2 after 1285 ms\n// retry 3 after 3473 ms\n// retry 4 after 4876 ms\n// retry 5 after 15894 ms\n// retry 6 after 16021 ms"
+  }
+ },
+ "/system-design/notification-service/deduplication-window": {
+  "def": "The same alert can be requested twice, by a retry or by two services. Give each notification a dedupe key, such as the order id plus the type, and drop repeats that arrive within a time window. Otherwise the user gets the same message several times.",
+  "example": {
+   "title": "Duplicates inside five minutes are dropped",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Deduplicator {\n    private final long windowSeconds;\n    private final Map<String, Long> lastSent = new HashMap<>();\n\n    Deduplicator(long windowSeconds) { this.windowSeconds = windowSeconds; }\n\n    boolean shouldSend(String key, long nowSeconds) {\n        Long previous = lastSent.get(key);\n        if (previous != null && nowSeconds - previous < windowSeconds) return false;\n        lastSent.put(key, nowSeconds);\n        return true;\n    }\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        Deduplicator dedupe = new Deduplicator(300);                                   // five minutes\n        System.out.println(\"t=0s:    \" + dedupe.shouldSend(\"order-9:shipped\", 0));\n        System.out.println(\"t=60s:   \" + dedupe.shouldSend(\"order-9:shipped\", 60));      // a retry of the same event\n        System.out.println(\"t=400s:  \" + dedupe.shouldSend(\"order-9:shipped\", 400));     // the window has passed\n    }\n}\n\n// Output:\n// t=0s:    true\n// t=60s:   false\n// t=400s:  true"
+  }
+ },
+ "/system-design/notification-service/quiet-hours": {
+  "def": "Users do not want a promotion at 3 a.m. Before sending a non-urgent notification, convert the time to the time zone of the user, and if it falls in their quiet hours, delay it until the quiet period ends. Urgent alerts, such as security warnings, skip this check.",
+  "example": {
+   "title": "Deferring a message until morning",
+   "lang": "java",
+   "code": "import java.time.Instant;\nimport java.time.LocalTime;\nimport java.time.ZoneId;\nimport java.time.ZonedDateTime;\n\nclass Demo {\n    static ZonedDateTime sendTime(Instant now, ZoneId userZone) {\n        ZonedDateTime local = now.atZone(userZone);\n        LocalTime time = local.toLocalTime();\n        boolean quiet = time.isAfter(LocalTime.of(22, 0)) || time.isBefore(LocalTime.of(8, 0));\n        if (!quiet) return local;\n        ZonedDateTime morning = local.with(LocalTime.of(8, 0));\n        return time.isBefore(LocalTime.of(8, 0)) ? morning : morning.plusDays(1);     // after 22:00 it waits for tomorrow\n    }\n\n    public static void main(String[] args) {\n        ZoneId india = ZoneId.of(\"Asia/Kolkata\");\n        Instant midnightInIndia = Instant.parse(\"2026-03-10T18:30:00Z\");                // 00:00 in Kolkata\n        Instant noonInIndia = Instant.parse(\"2026-03-10T06:30:00Z\");                    // 12:00 in Kolkata\n\n        System.out.println(\"requested at 00:00 -> sent at \" + sendTime(midnightInIndia, india).toLocalDateTime());\n        System.out.println(\"requested at 12:00 -> sent at \" + sendTime(noonInIndia, india).toLocalDateTime());\n    }\n}\n\n// Output:\n// requested at 00:00 -> sent at 2026-03-11T08:00\n// requested at 12:00 -> sent at 2026-03-10T12:00"
+  }
+ },
+ "/system-design/tradeoffs/cap-theorem": {
+  "def": "When a network partition cuts two replicas off from each other, a system must choose. A CP system refuses writes it cannot replicate, staying consistent but unavailable. An AP system accepts them, staying available but letting the replicas disagree until they sync.",
+  "example": {
+   "title": "The same partition, two different choices",
+   "lang": "java",
+   "code": "class Replica {\n    String value = \"v1\";\n}\n\nclass Demo {\n    public static void main(String[] args) {\n        boolean partitioned = true;                                          // replica B cannot be reached from replica A\n\n        // CP: refuse the write when it cannot be copied to the other replica\n        Replica a = new Replica();\n        Replica b = new Replica();\n        String cpResult = partitioned ? \"write rejected (unavailable, but A and B still agree)\" : \"ok\";\n        System.out.println(\"CP: \" + cpResult + \", A=\" + a.value + \" B=\" + b.value);\n\n        // AP: accept the write on A, B will catch up after the partition heals\n        a = new Replica();\n        b = new Replica();\n        a.value = \"v2\";\n        System.out.println(\"AP: write accepted, A=\" + a.value + \" B=\" + b.value + \" (stale until they sync)\");\n    }\n}\n\n// Output:\n// CP: write rejected (unavailable, but A and B still agree), A=v1 B=v1\n// AP: write accepted, A=v2 B=v1 (stale until they sync)"
+  }
+ },
+ "/system-design/tradeoffs/quorum-reads-and-writes": {
+  "def": "In a replicated store with N copies, a write waits for W of them and a read asks R of them. If R + W is greater than N, every read overlaps with the latest write and sees it. Lower values are faster but can return stale data.",
+  "example": {
+   "title": "Which settings guarantee up-to-date reads with 3 replicas",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        int replicas = 3;\n        int[][] settings = {{1, 1}, {2, 2}, {1, 3}, {3, 1}};                 // {W, R}\n\n        for (int[] setting : settings) {\n            int w = setting[0];\n            int r = setting[1];\n            String result = (r + w > replicas) ? \"reads always see the latest write\" : \"a read can return stale data\";\n            System.out.println(\"W=\" + w + \" R=\" + r + \": \" + result);\n        }\n    }\n}\n\n// Output:\n// W=1 R=1: a read can return stale data\n// W=2 R=2: reads always see the latest write\n// W=1 R=3: reads always see the latest write\n// W=3 R=1: reads always see the latest write"
+  }
+ },
+ "/system-design/tradeoffs/cache-ttl-staleness": {
+  "def": "A cache makes reads fast but can serve old data. The time-to-live (TTL) is the trade: a short TTL means fresher data and more load on the database, a long TTL means fewer queries and older data. Choose it from how stale each kind of data may be.",
+  "example": {
+   "title": "A cached price stays old until the TTL ends",
+   "lang": "java",
+   "code": "class Demo {\n    static int databasePrice = 100;\n    static Integer cachedPrice = null;\n    static long cachedAtSecond = 0;\n    static int databaseReads = 0;\n\n    static int read(long nowSecond, long ttlSeconds) {\n        if (cachedPrice == null || nowSecond - cachedAtSecond >= ttlSeconds) {\n            cachedPrice = databasePrice;                                     // reload from the database\n            cachedAtSecond = nowSecond;\n            databaseReads++;\n        }\n        return cachedPrice;\n    }\n\n    public static void main(String[] args) {\n        long ttl = 60;\n        System.out.println(\"t=0s:   \" + read(0, ttl));\n        databasePrice = 120;                                                 // the price changes at t=10s\n        System.out.println(\"t=30s:  \" + read(30, ttl) + \"  (stale, the cache is still valid)\");\n        System.out.println(\"t=70s:  \" + read(70, ttl) + \"  (the TTL expired, so it is fresh)\");\n        System.out.println(\"database reads: \" + databaseReads);\n    }\n}\n\n// Output:\n// t=0s:   100\n// t=30s:  100  (stale, the cache is still valid)\n// t=70s:  120  (the TTL expired, so it is fresh)\n// database reads: 2"
+  }
+ },
+ "/system-design/tradeoffs/fan-out-on-write-or-read": {
+  "def": "A social feed can be built when someone posts (push: copy the post into every follower feed) or when someone opens the app (pull: fetch the posts of everyone they follow). Push makes reads cheap but writing slow for accounts with millions of followers. Many systems mix both.",
+  "example": {
+   "title": "The cost of one post from a small and a huge account",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        long[] followers = {200, 10_000_000};\n        for (long count : followers) {\n            System.out.println(\"account with \" + count + \" followers:\");\n            System.out.println(\"  push: 1 post = \" + count + \" feed writes, each feed read is 1 lookup\");\n            System.out.println(\"  pull: 1 post = 1 write, each feed read merges the posts of everyone followed\");\n        }\n        System.out.println(\"choice: push for normal accounts, pull for the huge ones, merged when the feed is read\");\n    }\n}\n\n// Output:\n// account with 200 followers:\n//   push: 1 post = 200 feed writes, each feed read is 1 lookup\n//   pull: 1 post = 1 write, each feed read merges the posts of everyone followed\n// account with 10000000 followers:\n//   push: 1 post = 10000000 feed writes, each feed read is 1 lookup\n//   pull: 1 post = 1 write, each feed read merges the posts of everyone followed\n// choice: push for normal accounts, pull for the huge ones, merged when the feed is read"
+  }
+ },
+ "/system-design/design-a-rag-chatbot/chunking-with-overlap": {
+  "def": "Documents are cut into chunks before indexing, because a model reads and retrieves best from short passages. Each chunk overlaps the previous one a little, so a sentence that falls on a boundary is still whole in at least one chunk.",
+  "example": {
+   "title": "Chunks of eight words with an overlap of two",
+   "lang": "java",
+   "code": "import java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\nclass Demo {\n    static List<String> chunk(String text, int size, int overlap) {\n        String[] words = text.split(\" \");\n        List<String> chunks = new ArrayList<>();\n        for (int start = 0; start < words.length; start += size - overlap) {\n            int end = Math.min(words.length, start + size);\n            chunks.add(String.join(\" \", Arrays.copyOfRange(words, start, end)));\n            if (end == words.length) break;\n        }\n        return chunks;\n    }\n\n    public static void main(String[] args) {\n        String policy = \"Employees may work remotely up to three days a week with manager approval and a signed home office checklist\";\n        chunk(policy, 8, 2).forEach(c -> System.out.println(\"[\" + c + \"]\"));\n    }\n}\n\n// Output:\n// [Employees may work remotely up to three days]\n// [three days a week with manager approval and]\n// [approval and a signed home office checklist]"
+  }
+ },
+ "/system-design/design-a-rag-chatbot/cosine-similarity": {
+  "def": "An embedding model turns text into a list of numbers so that texts with similar meaning point in similar directions. Cosine similarity measures the angle between two such vectors: 1 means the same direction, 0 means unrelated.",
+  "example": {
+   "title": "Comparing small vectors",
+   "lang": "java",
+   "code": "class Demo {\n    static double cosine(double[] a, double[] b) {\n        double dot = 0, normA = 0, normB = 0;\n        for (int i = 0; i < a.length; i++) {\n            dot += a[i] * b[i];\n            normA += a[i] * a[i];\n            normB += b[i] * b[i];\n        }\n        return dot / (Math.sqrt(normA) * Math.sqrt(normB));\n    }\n\n    public static void main(String[] args) {\n        double[] remoteWork = {0.9, 0.1, 0.0};                                // toy 3-number \"embeddings\"\n        double[] workFromHome = {0.8, 0.2, 0.1};\n        double[] parkingRules = {0.0, 0.1, 0.9};\n\n        System.out.printf(\"remote work vs work from home: %.2f%n\", cosine(remoteWork, workFromHome));\n        System.out.printf(\"remote work vs parking rules:  %.2f%n\", cosine(remoteWork, parkingRules));\n    }\n}\n\n// Output:\n// remote work vs work from home: 0.98\n// remote work vs parking rules:  0.01"
+  }
+ },
+ "/system-design/design-a-rag-chatbot/top-k-retrieval": {
+  "def": "To answer a question the system embeds the question, compares it with every stored chunk (a vector database does this efficiently), and returns the k closest chunks. Those chunks, and only those, are given to the model as context.",
+  "example": {
+   "title": "The two chunks closest to the question",
+   "lang": "java",
+   "code": "import java.util.Comparator;\nimport java.util.LinkedHashMap;\nimport java.util.Map;\n\nclass Demo {\n    static double cosine(double[] a, double[] b) {\n        double dot = 0, na = 0, nb = 0;\n        for (int i = 0; i < a.length; i++) { dot += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; }\n        return dot / (Math.sqrt(na) * Math.sqrt(nb));\n    }\n\n    public static void main(String[] args) {\n        Map<String, double[]> chunks = new LinkedHashMap<>();\n        chunks.put(\"Remote work is allowed three days a week.\", new double[] {0.9, 0.1, 0.0});\n        chunks.put(\"Laptops are replaced every three years.\", new double[] {0.1, 0.9, 0.1});\n        chunks.put(\"Parking passes are issued by the front desk.\", new double[] {0.0, 0.1, 0.9});\n        chunks.put(\"Managers approve home office requests.\", new double[] {0.7, 0.2, 0.1});\n\n        double[] question = {0.85, 0.15, 0.05};                               // \"Can I work from home?\"\n        chunks.entrySet().stream()\n                .sorted(Comparator.comparingDouble((Map.Entry<String, double[]> e) -> -cosine(question, e.getValue())))\n                .limit(2)\n                .forEach(e -> System.out.println(e.getKey()));\n    }\n}\n\n// Output:\n// Remote work is allowed three days a week.\n// Managers approve home office requests."
+  }
+ },
+ "/system-design/design-a-rag-chatbot/prompt-with-citations": {
+  "def": "The prompt tells the model to answer only from the numbered passages and to cite them, and to say so when the passages do not contain the answer. Numbered sources let the interface show where each statement came from.",
+  "example": {
+   "title": "A grounded prompt",
+   "lang": "java",
+   "code": "import java.util.List;\n\nclass Demo {\n    public static void main(String[] args) {\n        List<String> passages = List.of(\n                \"Remote work is allowed three days a week.\",\n                \"Managers approve home office requests.\");\n        String question = \"Can I work from home?\";\n\n        StringBuilder prompt = new StringBuilder();\n        prompt.append(\"Answer using only the passages below. Cite them like [1]. \")\n              .append(\"If they do not contain the answer, say you do not know.\\n\\n\");\n        for (int i = 0; i < passages.size(); i++) prompt.append(\"[\").append(i + 1).append(\"] \").append(passages.get(i)).append(\"\\n\");\n        prompt.append(\"\\nQuestion: \").append(question);\n\n        System.out.println(prompt);\n    }\n}"
+  }
+ },
+ "/system-design/design-an-ai-agent-platform/run-queue-and-checkpoints": {
+  "def": "An agent run can take minutes and call many tools, so it must not live only in the memory of one server. Runs go on a queue, workers pick them up, and the state is saved after every step. If a worker dies, another one resumes from the last saved step.",
+  "example": {
+   "title": "A crashed run resumes from its checkpoint",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\nclass Demo {\n    static final List<String> steps = List.of(\"plan\", \"search the docs\", \"call the ticket tool\", \"write the answer\");\n    static final Map<String, Integer> checkpoints = new HashMap<>();             // run id -> next step to execute (saved in a database)\n\n    static void work(String runId, int crashAtStep) {\n        for (int step = checkpoints.getOrDefault(runId, 0); step < steps.size(); step++) {\n            if (step == crashAtStep) { System.out.println(\"worker crashed during: \" + steps.get(step)); return; }\n            System.out.println(\"done: \" + steps.get(step));\n            checkpoints.put(runId, step + 1);                                    // save progress after every step\n        }\n        System.out.println(\"run finished\");\n    }\n\n    public static void main(String[] args) {\n        work(\"run-1\", 2);                                                        // the first worker dies in step 3\n        System.out.println(\"--- another worker takes the run ---\");\n        work(\"run-1\", -1);                                                       // resumes at step 3, not step 1\n    }\n}\n\n// Output:\n// done: plan\n// done: search the docs\n// worker crashed during: call the ticket tool\n// --- another worker takes the run ---\n// done: call the ticket tool\n// done: write the answer\n// run finished"
+  }
+ },
+ "/system-design/design-an-ai-agent-platform/tool-allow-list": {
+  "def": "An agent acts through tools, and each customer (tenant) should only reach the tools it has been given. The platform checks every tool call against an allow-list outside the model, because a model can be talked into asking for anything.",
+  "example": {
+   "title": "A denied tool call",
+   "lang": "java",
+   "code": "import java.util.Map;\nimport java.util.Set;\n\nclass Demo {\n    static final Map<String, Set<String>> allowedTools = Map.of(\n            \"tenant-a\", Set.of(\"search_docs\", \"create_ticket\"),\n            \"tenant-b\", Set.of(\"search_docs\"));\n\n    static String callTool(String tenant, String tool) {\n        if (!allowedTools.getOrDefault(tenant, Set.of()).contains(tool)) {\n            return \"DENIED: \" + tenant + \" may not use \" + tool;               // enforced by the platform, not by the prompt\n        }\n        return \"ran \" + tool;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(callTool(\"tenant-a\", \"create_ticket\"));\n        System.out.println(callTool(\"tenant-b\", \"create_ticket\"));\n    }\n}\n\n// Output:\n// ran create_ticket\n// DENIED: tenant-b may not use create_ticket"
+  }
+ },
+ "/system-design/design-an-ai-agent-platform/token-budget-guard": {
+  "def": "An agent in a loop can burn money or never stop. Every run gets a hard budget of tokens and a maximum number of steps. When either is used up the run stops with a clear status, instead of looping until someone notices the bill.",
+  "example": {
+   "title": "A run that stops when the budget is gone",
+   "lang": "java",
+   "code": "class Demo {\n    public static void main(String[] args) {\n        int tokenBudget = 10_000;\n        int maxSteps = 8;\n        int tokensUsed = 0;\n\n        for (int step = 1; step <= maxSteps; step++) {\n            int cost = 2_500;                                                    // tokens used by this model call\n            if (tokensUsed + cost > tokenBudget) {\n                System.out.println(\"stopped before step \" + step + \": the budget of \" + tokenBudget + \" tokens would be exceeded\");\n                return;\n            }\n            tokensUsed += cost;\n            System.out.println(\"step \" + step + \" done, tokens used: \" + tokensUsed);\n        }\n        System.out.println(\"stopped: step limit reached\");\n    }\n}\n\n// Output:\n// step 1 done, tokens used: 2500\n// step 2 done, tokens used: 5000\n// step 3 done, tokens used: 7500\n// step 4 done, tokens used: 10000\n// stopped before step 5: the budget of 10000 tokens would be exceeded"
+  }
+ },
+ "/system-design/design-an-ai-agent-platform/tenant-quotas": {
+  "def": "On a shared platform one busy tenant must not slow down everyone else. Each tenant has a quota of runs or tokens per minute, and the scheduler takes work from the tenants in turn. A tenant that is over its quota waits, while the rest run normally.",
+  "example": {
+   "title": "A per-tenant quota of three runs per minute",
+   "lang": "java",
+   "code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Demo {\n    static final Map<String, Integer> usedThisMinute = new HashMap<>();\n\n    static boolean admit(String tenant, int quotaPerMinute) {\n        int used = usedThisMinute.merge(tenant, 1, Integer::sum);\n        return used <= quotaPerMinute;\n    }\n\n    public static void main(String[] args) {\n        int quota = 3;\n        int busyAdmitted = 0;\n        for (int i = 0; i < 10; i++) if (admit(\"busy-tenant\", quota)) busyAdmitted++;      // sends ten runs at once\n        boolean quietAdmitted = admit(\"quiet-tenant\", quota);                               // a normal request from someone else\n\n        System.out.println(\"busy-tenant: \" + busyAdmitted + \" of 10 runs admitted, the rest wait for the next minute\");\n        System.out.println(\"quiet-tenant: \" + (quietAdmitted ? \"admitted without delay\" : \"blocked\"));\n    }\n}\n\n// Output:\n// busy-tenant: 3 of 10 runs admitted, the rest wait for the next minute\n// quiet-tenant: admitted without delay"
+  }
  }
 }
